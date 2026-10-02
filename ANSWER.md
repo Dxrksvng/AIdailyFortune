@@ -12,7 +12,7 @@ The expanded product answers **today, week, month and year** questions across **
 |---|---|---|
 | POC | General daily reading, or optional Sun-sign context from a birth date | Let users try without identity; the derived sign stays in this browser. |
 | POC | Daily Compass card (theme, colour of the day, card of the day, what to watch for) | Short reading, one set per day, same result on reopening. |
-| POC | Ask with Tarot: career, relationship, or a single-card spread | Specific questions answered with a visible random draw and fixed card meanings. |
+| POC | Ask with Tarot: career, relationship, or a single-card spread | Specific questions answered with a visible card draw (shuffled with a seed from the date and topic, so the same question today gives the same cards) and fixed card meanings. |
 | POC | “Why this reading?” | Show the calculated inputs, the selected rule and the profile precision. |
 | POC | Thai weekday colour, birth-day deity and light remedies | Familiar Thai cultural framing for “bad luck” or stress; labelled as custom/ritual, not a way to change luck. |
 | POC | Stress and crisis path | Small actionable steps for stress; if distress wording is detected, show support panel and the Department of Mental Health hotline **1323** instead of a reading. |
@@ -83,7 +83,7 @@ flowchart LR
     G -->|crisis wording| H[Support panel and 1323, no reading]
     G -->|normal or caution| R[Intent router]
     R --> W[Western adapter: chart/transit rules]
-    R --> T[Tarot adapter: random draw + card catalog]
+    R --> T[Tarot adapter: seeded draw date+topic from 22 Major Arcana]
     R --> I[I Ching adapter: hexagram + changing lines]
     R --> V[Vedic adapter: sidereal chart + dasha]
     W --> C[Common reading context]
