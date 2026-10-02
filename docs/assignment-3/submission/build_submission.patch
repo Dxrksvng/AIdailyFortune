@@ -1,5 +1,5 @@
 --- /home/user/dxrksvng/auto-gen/as3/tools/build_submission.py	2026-10-02 06:59:49.187002665 +0000
-+++ /tmp/sunday/as3/tools/build_submission.py	2026-10-02 07:07:18.303133936 +0000
++++ /tmp/sunday/as3/tools/build_submission.py	2026-10-02 07:34:39.289085327 +0000
 @@ -1,4 +1,4 @@
 -"""Build final/submission/Assignment_2_to_4.pdf from as2/ANSWER.md, as3/ANSWER.md, as4/ANSWER.md.
 +"""Build final/submission/Assignment_2_to_3.pdf from as2/ANSWER.md, as3/ANSWER.md, as4/ANSWER.md.
@@ -60,10 +60,25 @@
  pre{font-family:MonoT,SarabunT,monospace;font-size:7.6pt;line-height:1.35;background:#f6f7fa;border:0.2mm solid #d5dae3;padding:2.5mm;white-space:pre-wrap;overflow-wrap:anywhere;margin:2mm 0 4mm}
  pre code{background:none;padding:0;font-size:inherit}
  img{display:block;margin:3mm auto;max-width:100%%;max-height:215mm;break-inside:avoid}
-@@ -162,6 +167,53 @@
+@@ -162,6 +167,69 @@
      return found
  
  
++def load_source(tag: str, path: Path) -> str:
++    """Markdown of one answer. For A3, section 3.4 is replaced by the full user guide so the PDF is one self-contained file."""
++    md = path.read_text(encoding="utf-8")
++    if tag != "A3":
++        return md
++    guide = (path.parent / "USER_GUIDE.md").read_text(encoding="utf-8")
++    guide = re.sub(r"^# [^\n]*\n", "", guide, count=1)          # drop the guide's own H1
++    guide = re.sub(r"(?m)^(#{2,4}) ", lambda m: "#" * (len(m.group(1)) + 1) + " ", guide)   # demote headings one level
++    m = re.search(r"## 3\.4 [^\n]*\n(.*?)(?=\n## )", md, re.S)
++    tail = re.search(r"(สิ่งที่ตรวจแล้วเกี่ยวกับคู่มือ.*)", m.group(1), re.S).group(1)   # keep the verified / not-done paragraphs
++    lead = ("คู่มือสำหรับพนักงานอายุราว 35 ถึง 40 ปีที่คุ้นเคย Microsoft Office, Google Workspace และอีเมล "
++            "ฉบับเต็มอยู่ด้านล่างในไฟล์นี้ ภาพหน้าจอเป็นภาพตัวอย่าง (mockup) เพราะระบบยังเป็นข้อเสนอ\n\n")
++    return md[:m.start()] + "## 3.4 คู่มือผู้ใช้\n\n" + lead + guide.strip() + "\n\n---\n\n" + tail.strip() + "\n" + md[m.end():]
++
++
 +def collect_confirms_md(sources) -> list[tuple[str, str]]:
 +    """(heading, text) for every [TO CONFIRM...] marker, read from the Markdown source.
 +
@@ -73,7 +88,7 @@
 +    found: list[tuple[str, str]] = []
 +    for tag, path in sources:
 +        heading, in_fence, fence_count, prev = tag, False, {}, ""
-+        for line in path.read_text(encoding="utf-8").splitlines():
++        for line in load_source(tag, path).splitlines():
 +            if line.strip() and not in_fence and "[TO CONFIRM" not in line:
 +                prev = re.sub(r"\*\*|`", "", line).strip()
 +            if line.lstrip().startswith("```"):
@@ -90,7 +105,8 @@
 +                fence_count[heading] = fence_count.get(heading, 0) + line.count("[TO CONFIRM")
 +                continue
 +            clean = re.sub(r"\*\*|`", "", line)
-+            clean = re.sub(r"^\s*(?:[-+*]|\d+\.)\s+", "", clean)
++            clean = re.sub(r"^\s*(?:>\s*)+", "", clean)
++            clean = re.sub(r"^\s*(?:[-+*]|\d+\.)\s+(?:\[[ xX]\]\s+)?", "", clean)
 +            clean = re.sub(r"\[([^\]]+)\]\((?!https?://)[^)]*\)", r"\1", clean)
 +            cells = [c.strip() for c in clean.split("|")] if clean.lstrip().startswith("|") else [clean.strip()]
 +            for cell in cells:
@@ -114,7 +130,16 @@
  def build() -> Path:
      OUT_DIR.mkdir(parents=True, exist_ok=True)
      body_parts, toc, sections, idn = [], [], [], 0
-@@ -186,7 +238,7 @@
+@@ -179,14 +247,15 @@
+         return re.sub(r"<h([12])>(.*?)</h\1>", sub, doc_html, flags=re.S)
+ 
+     for tag, path in SOURCES:
+-        md = path.read_text(encoding="utf-8")
++        md = load_source(tag, path)
++        (OUT_DIR / f"_merged_{tag}.md").write_text(md, encoding="utf-8")
+         h = add_ids(to_html(preprocess(md, tag, path.parent)), first=False)
+         body_parts.append(h)
+         # split by H2 for the TO CONFIRM listing
          for chunk in re.split(r"(?=<h[12] id=)", h):
              mh = re.match(r'<h[12] id="[^"]+"[^>]*>(.*?)</h[12]>', chunk, flags=re.S)
              sections.append((re.sub(r"<[^>]+>", "", html.unescape(mh.group(1))) if mh else tag, chunk))
@@ -123,7 +148,7 @@
  
      toc_html = '<h1 id="toc" class="toc-h">สารบัญ / Contents</h1><ul class="toc">' + "".join(
          f'<li class="l{lv}"><a href="#{hid}">{html.escape(txt)}</a></li>' for lv, hid, txt in toc) + "</ul>"
-@@ -203,14 +255,14 @@
+@@ -203,14 +272,14 @@
      else:
          confirm_html = '<h1 id="confirm">สิ่งที่ต้องยืนยัน</h1><p>ไม่มีรายการ [TO CONFIRM] ค้างอยู่ในเอกสารนี้</p>'
      title_html = f"""<div class="title"><div class="conf">Strictly Confidential</div>
