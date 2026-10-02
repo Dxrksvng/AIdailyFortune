@@ -14,6 +14,9 @@ The expanded product answers **today, week, month and year** questions across **
 | POC | Daily Compass card | One short, stable reading per local day. |
 | POC | Ask with Tarot: career, relationship or one-card spread | Give an interactive answer to a specific question with a visible random draw and fixed card meanings. |
 | POC | Why this reading? | Explain calculated context, selected rule and profile precision. |
+| POC | Lucky colour, weekday Buddha-image tradition and gentle remedies | Offer familiar Thai cultural rituals as optional comfort, labelled as tradition with no claim that they change luck. |
+| POC | Stress support page with crisis route | Answer stress and “bad luck” questions with small practical steps; a crisis screen shows the mental-health hotline and no reading. |
+| POC | “Which method is accurate?” page | State plainly that no method is proven most accurate and show which method fits which kind of question. |
 | POC | One safe action | Turn a theme into an optional, reversible action. |
 | POC | Evening reflection | Collect relevance/usefulness and an optional private note. |
 | MVP | Birth chart, daily/weekly/monthly/yearly scopes and love/career/study/money filters | Provide selected long- and short-horizon readings from precise profile data and reviewed rules. |
@@ -21,7 +24,7 @@ The expanded product answers **today, week, month and year** questions across **
 | Production | History, language/timezone preferences, opt-in reminder | Support repeat use and user control. |
 | Experimental system API | Vedic timing | Prototype sidereal Moon/nakshatra and Vimshottari major periods; withhold user-facing launch until specialist validation. |
 
-Guest mode receives a general theme. The POC may ask users for **birth date only** to derive an approximate natal Sun sign in the browser, then discards the date; it does not claim a full chart. Exact birth time and place are not requested in the POC. A later registered/full-chart method needs separate consent, precision handling and a feature justification.
+Guest mode receives a general theme. The POC birth-chart page asks for birth date, optional birth time and a birthplace chosen from a list of places. It calculates in server memory and saves nothing; the browser keeps the values for the open tab only so other pages can reuse them, and a button deletes them. If the birth time is unknown, the page says the Ascendant and houses are unreliable. A registered product would need separate consent, retention rules and a feature justification before storing any of this.
 
 **Method roles:** Western astrology supplies profile and sampled time-horizon themes; Tarot handles question-specific situations; I Ching frames decisions and change; the experimental Vedic endpoint exposes traditional long-horizon timing structure. A proposed “lucky color,” conflict-avoidance prompt, or harmless remedy is labeled as a cultural/reflective ritual, not a mechanism that changes luck. A deity question receives respectful belief exploration with the user's tradition and consent, never a claim that a deity is objectively assigned or that worship guarantees life improvement.
 
@@ -37,11 +40,13 @@ Official pages checked **1 October 2026**. This describes published capabilities
 
 ## 4.3 Technical blueprint
 
-The multi-method design adds `Intent Router → Method Adapter` before source calculation/draw. Routing uses explicit user choices first; later AI classification may suggest a mode with user override. Each adapter returns a common evidence envelope: method, horizon, domain, source IDs, rule/catalog version, interpretation, limitations and allowed actions. The narrative layer cannot invent a different method result.
+The multi-method design adds `Safety Gate → Intent Router → Method Adapter` before source calculation/draw. The safety gate runs first: crisis wording returns only a support panel, and high-stakes wording returns a reading with a notice above it. Routing uses explicit user choices first; later AI classification may suggest a mode with user override. Each adapter returns a common evidence envelope: method, horizon, domain, source IDs, rule/catalog version, interpretation, limitations and allowed actions. The narrative layer cannot invent a different method result.
 
 ```mermaid
 flowchart LR
-    Q[User question + horizon + domain] --> R[Intent router]
+    Q[User question + horizon + domain] --> G[Safety gate]
+    G -->|crisis wording| H[Support panel and hotline, no reading]
+    G -->|normal or warn| R[Intent router]
     R --> W[Western adapter: chart/transit rules]
     R --> T[Tarot adapter: random draw + card catalog]
     R --> I[I Ching adapter: hexagram + changing lines]
@@ -195,6 +200,6 @@ Segment these measures by method, time horizon and domain. Add **intent-to-answe
 
 ## POC and production
 
-The [working POC](poc/README.md) demonstrates daily/period theme generation, a stateless question API, Tarot draws from a 78-card compositional catalog, Western tropical natal placements/angles/Whole Sign houses/major aspects, I Ching line casting with King Wen hexagram identity, and an experimental Vedic timing endpoint. The responsive website now uses these system APIs for period/topic readings, Ask Oracle, Tarot, I Ching, Western chart and Vedic timing screens. It uses `astronomy-engine@2.1.19` for local source calculation. Optional OpenAI structured output rephrases the original daily reading only; the live call remains unverified without an API key. Tarot question text is not persisted or returned in API responses. There is no server-side user-data store. Playwright captures the current desktop flows and checks mobile layout. Remaining work includes natal chart comparison against independent fixtures, specialist validation of Vedic conventions, editorial review of Tarot meanings, I Ching line-text interpretation and full Thai/English coverage. Production adds authentication, encrypted storage, deletion, monitoring, scheduled jobs, cost limits and controlled prompt/rule releases.
+The [working POC](poc/README.md) demonstrates daily/period theme generation, a stateless question API, Tarot draws from a 78-card compositional catalog, Western tropical natal placements/angles/Whole Sign houses/major aspects, I Ching line casting with King Wen hexagram identity, and an experimental Vedic timing endpoint. The responsive website has seven pages: Today, Ask, Tarot (pick three cards from a fan, then predict), Birth chart, Lucky colour and rituals, Which method is accurate, and Stress support. A scrollytelling home page links them. I Ching and Vedic timing are available through the API, not as pages. It uses `astronomy-engine@2.1.19` for local source calculation. Optional OpenAI structured output rephrases the original daily reading only; the live call remains unverified without an API key. Tarot question text is not persisted or returned in API responses. There is no server-side user-data store. Playwright captures the current desktop flows and checks mobile layout. Remaining work includes natal chart comparison against independent fixtures, specialist validation of Vedic conventions, editorial review of Tarot meanings, I Ching line-text interpretation and full Thai/English coverage. Production adds authentication, encrypted storage, deletion, monitoring, scheduled jobs, cost limits and controlled prompt/rule releases.
 
 **Why AI?** To write clear text in a chosen language and tone. **Why separate layers?** Positions, meanings and wording have different sources and failure modes. **What does Why show?** Source/rule factors only. **What remains unproven?** Whether users prefer and return for the loop; validate through interviews and a pilot.
