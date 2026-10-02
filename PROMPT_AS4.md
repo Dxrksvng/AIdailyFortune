@@ -1,0 +1,3 @@
+# Continuation prompt
+
+Read `../AGENTS.md`, the official PDF at `../assignment-brief/Forward Deployed AI-Eng Assignment 2026.pdf` page 11, this directory's `AGENTS.md`, `PLAN.md`, `ANSWER.md`, `METHOD_SELECTION.md`, `INTENT_ROUTER.md`, and `QUESTION_CATALOG.md`. Continue from the first incomplete milestone. Verify current competitor claims with first-party pages before changing positioning. Keep astronomical data, astrology interpretation and LLM narrative distinct. Do not invent scientific support, market gaps, KPI results or Sunday infrastructure. Update `PLAN.md` and the submission answer after changes. The POC was explicitly requested; distinguish implemented features from designed roadmap features.

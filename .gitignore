@@ -1,0 +1,9 @@
+node_modules/
+.env
+.DS_Store
+.claude/
+.project-autopilot/
+# visual references only; never commit
+AI Daily Fortune-Telling System/img/
+# build output (npm run build / prestart regenerates it)
+poc/public/scene.bundle.js
