@@ -22,7 +22,7 @@ async function withIncludes(html) {
   for (const name of names) html = html.replaceAll(`<!--include:${name}-->`, await readFile(path.join(root, '_partials', `${name}.html`), 'utf8'));
   return html;
 }
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.webm': 'video/webm', '.mp4': 'video/mp4', '.webp': 'image/webp' };
 
 export function createServer() {
   return http.createServer(async (req, res) => {
@@ -101,7 +101,18 @@ export function createServer() {
       if (!resolved.startsWith(root + path.sep) || path.relative(root, resolved).split(path.sep).some(part => part.startsWith('_'))) return send(res, 404, { error: 'Not found' });
       let body = await readFile(resolved);
       if (file.endsWith('.html')) body = await withIncludes(body.toString('utf8'));
-      res.writeHead(200, { 'content-type': types[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
+      const headers = { 'content-type': types[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' };
+      // Safari and iOS will not play a video unless the server answers Range requests with 206.
+      const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+      if (range && /^video\//.test(headers['content-type'])) {
+        const size = body.length;
+        const start = range[1] === '' ? size - Number(range[2]) : Number(range[1]);
+        const end = range[1] === '' || range[2] === '' ? size - 1 : Math.min(Number(range[2]), size - 1);
+        if (!(start >= 0 && start <= end && start < size)) { res.writeHead(416, { 'content-range': `bytes */${size}` }); return res.end(); }
+        res.writeHead(206, { ...headers, 'accept-ranges': 'bytes', 'content-range': `bytes ${start}-${end}/${size}`, 'content-length': end - start + 1 });
+        return res.end(body.subarray(start, end + 1));
+      }
+      res.writeHead(200, { ...headers, 'accept-ranges': 'bytes' });
       res.end(body);
     } catch { send(res, 404, { error: 'Not found' }); }
   });

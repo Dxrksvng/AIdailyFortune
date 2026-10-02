@@ -46,6 +46,50 @@
   </div>
 </header>
 <main>
+<section class="story" id="story" aria-label="ภาพรวมวิธีทำงาน" style="--n:4">
+  <div class="stage">
+    <div class="reels" aria-hidden="true">
+      <video class="reel on" data-i="0" data-src="orbit" poster="/assets/video/orbit.webp" muted loop playsinline preload="none"></video>
+      <video class="reel" data-i="1" data-src="constellation" poster="/assets/video/constellation.webp" muted loop playsinline preload="none"></video>
+      <video class="reel" data-i="2" data-src="deal" poster="/assets/video/deal.webp" muted loop playsinline preload="none"></video>
+      <video class="reel" data-i="3" data-src="intro-orb" poster="/assets/video/intro-orb.webp" muted loop playsinline preload="none"></video>
+    </div>
+    <div class="shade" aria-hidden="true"></div>
+    <div class="wrap steps">
+      <article class="step on" data-i="0">
+        <span class="eyebrow">ขั้นที่ 1 · ดาวคำนวณด้วยโค้ด</span>
+        <h2>ท้องฟ้าจริง ไม่ใช่ตัวเลขสุ่ม</h2>
+        <p>ตำแหน่งอาทิตย์ จันทร์ และดาวเคราะห์คำนวณจากวันและเวลา ส่วนความหมายเป็นการตีความตามกฎที่เขียนไว้ ไม่ใช่การพยากรณ์</p>
+        <a class="btn" href="/today">ดูเข็มทิศวันนี้</a>
+      </article>
+      <article class="step" data-i="1">
+        <span class="eyebrow">ขั้นที่ 2 · ดวงกำเนิด</span>
+        <h2>ใส่วัน เวลา สถานที่เกิด</h2>
+        <p>ดูธีมรายปีล่วงหน้า 3 ถึง 10 ปี ถ้าไม่ทราบเวลาเกิด ลัคนาและเรือนจะไม่แม่น ระบบบอกข้อจำกัดนี้ไว้ทุกครั้ง</p>
+        <a class="btn" href="/chart">คำนวณดวงกำเนิด</a>
+      </article>
+      <article class="step" data-i="2">
+        <span class="eyebrow">ขั้นที่ 3 · ไพ่ทาโรต์</span>
+        <h2>หยิบไพ่ด้วยมือคุณเอง</h2>
+        <p>ไพ่ถูกสับที่เซิร์ฟเวอร์ตามวันที่และหัวข้อ ตำแหน่งที่คลิกไม่เปลี่ยนไพ่ที่ได้ ถามซ้ำวันนี้จะได้ชุดเดิม การหยิบเป็นพิธีกรรม</p>
+        <a class="btn" href="/tarot">หยิบไพ่ 3 ใบ</a>
+      </article>
+      <article class="step" data-i="3">
+        <span class="eyebrow">ขั้นที่ 4 · ความจริงก่อนเชื่อ</span>
+        <h2>เครียด ดวงไม่ควรตัดสินแทนคุณ</h2>
+        <p>ไม่มีศาสตร์ไหนพิสูจน์ได้ว่าแม่นที่สุด ถ้ารู้สึกไม่ไหว โทรสายด่วนสุขภาพจิต 1323 หรือดูก้าวเล็ก ๆ ที่ทำได้ทันที</p>
+        <span class="row"><a class="btn ghost" href="/honest">ศาสตร์ไหนแม่น</a><a class="btn" href="/care">ก้าวเล็ก ๆ</a></span>
+      </article>
+    </div>
+    <ol class="rail" aria-label="ขั้นตอน">
+      <li><button type="button" data-go="0" aria-label="ขั้นที่ 1" aria-current="true"></button></li>
+      <li><button type="button" data-go="1" aria-label="ขั้นที่ 2"></button></li>
+      <li><button type="button" data-go="2" aria-label="ขั้นที่ 3"></button></li>
+      <li><button type="button" data-go="3" aria-label="ขั้นที่ 4"></button></li>
+    </ol>
+    <div class="bar" aria-hidden="true"><i></i></div>
+  </div>
+</section>
 <section class="block" id="features">
   <div class="wrap">
     <div class="head reveal"><div><span class="eyebrow">เลือกสิ่งที่อยากดู</span><h2>แต่ละฟีเจอร์แยกเป็นหน้าของตัวเอง</h2></div><p class="muted">ตำแหน่งดาวคำนวณด้วยโค้ด ความหมายมาจากกฎที่เขียนไว้ชัดเจน ไม่มีการทำนายแบบฟันธง</p></div>
