@@ -21,13 +21,13 @@
 - [x] Unit and HTTP API checks passed; see `poc/test/compass.test.js`.
 - [x] Optional OpenAI narrative path implemented with structured output, timeout, validation and template fallback; mocked-provider test passed. Live API call not exercised.
 - [x] Method suitability, question routing, common question catalog and staged roadmap documented.
-- [x] Tarot question POC with cryptographic draw, five spreads and card reveal from the 78-card API; browser screenshots regenerated.
+- [x] Tarot question POC with cryptographic draw, five spreads and card reveal; browser screenshots regenerated. (Correction, 2 Oct 2026: the draw uses the 22 Major Arcana only; the 78-card catalog is data and the 56 Minor cards are never drawn.)
 - [x] Celestial Intelligence visual direction applied to landing, onboarding, dashboard, Ask Oracle and Tarot; product IA documents 14 experiences and six priority screens.
 - [x] WebGL scene is decorative and distinct from calculated reading data; reduced-motion and CSS fallback paths added.
 - [x] Record the 12 image references and six requested motion/layout techniques in `WEB_PLAN.md` and implement them in the web POC using original styling.
 - [x] Add stateless system API for period/topic readings, question routing, Tarot question reading and I Ching line casting; document exact capability limits in `SYSTEM_STATUS.md`.
 - [x] Earlier system milestone passed 11 API/engine checks (npm test); these ran before the latest natal/transit and King Wen additions.
-- [x] Expand the system Tarot API to a 78-card compositional catalog and career/study/money/relationship/general spreads; syntax checks passed.
+- [x] Expand the system Tarot data to a 78-card compositional catalog and add career/study/money/relationship/general spreads; syntax checks passed. (Correction, 2 Oct 2026: only the 22 Major Arcana are drawn.)
 - [x] Add the first Western tropical natal calculation API, including DST-safe local time handling and an explicit Whole Sign house convention.
 - [x] Map I Ching three-coin casts to primary/resulting King Wen hexagrams with original short theme prompts.
 - [x] Add I Ching changing-line position prompts and source/method provenance to the reading response.
@@ -36,7 +36,7 @@
 - [x] Keep exact birth date/time/location out of the natal API response; stateless request only.
 - [x] Run syntax checks on the changed JavaScript modules.
 - [ ] Compare Western and Vedic outputs against independent chart fixtures; review Tarot tradition meanings and I Ching line-text sources before adding deeper interpretations.
-- [x] Build API-connected web flows for period/topic readings, Ask Oracle, 78-card Tarot, I Ching, Western natal chart and experimental Vedic timing.
+- [x] Build API-connected web flows for period/topic readings, Ask, Tarot (22 Major Arcana), Western natal chart and related pages. (Correction, 2 Oct 2026: I Ching and Vedic timing exist as API endpoints only, not as web pages.)
 - [x] Add responsive styling, reduced-motion behavior, scrollytelling reveals, parallax/WebGL hero and data-driven result panels.
 - [x] Adapt the supplied generated video as an additional visual reference: add original constellation/nebula detail to the WebGL hero; document dashboard/mobile/timeline patterns without copying its branded product screens.
 - [x] Verify primary desktop browser flows and mobile landing/daily layout in Playwright; regenerate visual screenshots.
