@@ -51,7 +51,17 @@ Paid tiers sell **depth, convenience and continuity**, never safety. The crisis 
 | **Plus** (monthly subscription) | Daily habit users who ask about work, love and money | More questions per day (fair-use cap), week/month scopes, love/career/study/money filters, birth chart, history, reminders | “Come back every day and keep your own record.” Value is continuity and personalization. |
 | **Deep Reading** (one-off purchase) | Someone at a decision point (job change, new relationship, new year) | One long reading on a chosen topic or year, with the sources/rules shown and a saved copy | Pay only when needed, which suits users who do not want a subscription. |
 
-**Price points are hypotheses, not market facts.** Competitor prices and Thai willingness to pay have not been verified. Test with a Van Westendorp price survey and a fake-door/paywall A/B in the pilot, in Thai baht and with PromptPay-style local payment as the default checkout. Publish the price only after the pilot shows who pays and why.
+**The prices below are test ranges, not selling prices.** The market reference points come from search results dated 2 October 2026 and are not confirmed on the source pages (see 4.2); Thai willingness to pay has not been measured. The ranges exist to find out what users will pay:
+
+| Package | Test range (THB) | Why this range | How to test |
+|---|---|---|---|
+| Free | 0 | Acquisition tier. Per-user cost is low because the facts are computed in code and the AI wording is optional and consent-gated. | Measure retention before deciding on any paywall. |
+| Plus | 79 / 129 / 199 per month | All three points sit below the subscription prices the search results show for a Thai daily-horoscope app (weekly 185, monthly 320, yearly 1,150). Plus does not claim to be more accurate, so it should not price against an app with an established base. 199 matches the 15-minute live-reading price of Star360 (199), so it is the ceiling of the test. | Paywall A/B in the pilot, three price groups. |
+| Deep Reading | 249 / 399 / 590 per reading | One long reading for a topic or a year, with sources and a saved copy. The low end starts slightly above Star360's 15-minute live price because the output is longer and kept; the high end tests whether anyone pays a full-price lump sum. | Paywall A/B plus a Van Westendorp survey. |
+
+**Limit to state plainly:** a 15-minute live reading at 199 THB against Deep Reading from 249 THB does not show Deep Reading is cheaper than a live fortune-teller. A price advantage can be claimed only for Plus. Deep Reading has to be sold on convenience, privacy and checkable sources, not on price. All competitor figures come from search results rather than the live pricing pages, and a weekly app subscription cannot be compared directly with our monthly one.
+
+Thai baht with PromptPay-style local payment is the default checkout. Publish a price only after the pilot shows who pays and why.
 
 **What “worth paying for” can honestly mean:** readings that users rate as relevant and useful *more than a mismatched reading*, answers that are specific to their question, and clear sources. It does not mean predictions proven correct, which this design cannot show.
 
@@ -64,6 +74,18 @@ Paid tiers sell **depth, convenience and continuity**, never safety. The crisis 
 | [Faladdin](https://www.faladdin.com/support/en) | Personalized fortune readings including submitted coffee-cup photos; its [terms](https://www.faladdin.com/eula) list multiple methods. | Focus initially on one daily ritual and explicit source-level explanation. |
 
 Official pages checked **1 October 2026**. This describes published capabilities, not a complete product audit. The proposed differentiation is the **combination and emphasis** of explanation, action and feedback in one daily flow. It is a hypothesis to test, not a claim of superior accuracy or that competitors lack reflection.
+
+### Thai market price reference points (not confirmed on source pages)
+
+These come from search results dated 2 October 2026 only, because the source pages could not be opened while this was written. **Re-check them on the official pages before relying on them or setting a price.**
+
+| Example | Price / format as summarised by search | Source |
+|---|---|---|
+| Thai app “ดูดวงรายวัน ดวงวันนี้” | Subscriptions: weekly 185 THB, monthly 320 THB, yearly 1,150 THB | [App Store (TH)](https://apps.apple.com/th/app/%E0%B8%94-%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%A3%E0%B8%B2%E0%B8%A2%E0%B8%A7-%E0%B8%99-%E0%B8%94%E0%B8%A7%E0%B8%87%E0%B8%A7-%E0%B8%99%E0%B8%99/id909048916?l=th) |
+| Star360 | Online reading with a fortune-teller, from 199 THB for 15 minutes | [star360.net](https://star360.net/) |
+| ดวง Live (Duang Live) | Live readings in an app; says it has over 1,000 fortune-tellers | [duanglive.com](https://www.duanglive.com/) |
+
+**What this table supports:** the Thai market appears to have two poles, app subscriptions at a few hundred baht a month and direct payment to a live fortune-teller billed by time. No pay-per-reading, instant, source-checkable product was found, which is why Plus is tested below app-subscription prices. The figures do not prove the gap exists.
 
 **Proposed differentiators** (to test with users, not claims of being better or that competitors lack them):
 1. **Thai-first with Thai custom:** weekday colour, birth-day deity and remedies that need no spending, labelled as custom.
