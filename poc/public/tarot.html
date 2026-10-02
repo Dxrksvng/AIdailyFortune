@@ -19,7 +19,7 @@
 <section class="block" id="tarot">
   <div class="wrap table">
     <div class="head reveal">
-      <div><span class="eyebrow">ไพ่ทาโรต์ · ชุดหลัก 22 ใบ (ไพ่ใบเล็กยังไม่มีภาพ จึงยังไม่ใช้)</span><h2>หยิบไพ่ 3 ใบ</h2></div>
+      <div><span class="eyebrow">ไพ่ทาโรต์ · ชุดหลัก 22 ใบ (ไพ่ใบเล็กยังไม่มีภาพ จึงยังไม่ใช้)</span><h2>เลือกไพ่ 3 ใบ แล้วค่อยทำนาย</h2></div>
       <p class="muted" id="spreadDesc">โอกาส · อุปสรรค · สิ่งที่คุณควบคุมได้</p>
     </div>
     <div class="controls" style="justify-content:center"><div class="seg" role="group" aria-label="ด้าน" id="topicSeg">
@@ -29,12 +29,15 @@
           <button type="button" data-v="money" aria-pressed="false">การเงิน</button>
           <button type="button" data-v="study" aria-pressed="false">การเรียน</button>
         </div></div>
+    <p class="pickline" id="pickLine" aria-live="polite"></p>
     <div class="spread" id="spread"></div>
-    <div class="fan" id="fan" aria-label="กองไพ่ คลิกเพื่อหยิบ"></div>
-    <div class="policy">
-      <span id="seedInfo">-</span>
+    <div class="fan" id="fan" role="group" aria-label="กองไพ่ คลิกใบที่ต้องการเพื่อวางลงช่อง"></div>
+    <div class="actions">
+      <button class="btn" type="button" id="predict" hidden>ทำนายไพ่</button>
       <button class="btn ghost" type="button" id="reshuffle">สับใหม่ (เหลือ 1 ครั้งวันนี้)</button>
     </div>
+    <p class="muted seedinfo" id="seedInfo">-</p>
+    <article class="glass ans reading" id="reading" aria-live="polite" hidden></article>
   </div>
 </section>
 </main>

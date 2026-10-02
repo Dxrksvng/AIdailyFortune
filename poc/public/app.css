@@ -125,7 +125,7 @@ section.block{padding-block:clamp(3rem,7vw,5.5rem)}
 
 /* tarot table */
 .table{display:grid;gap:1.4rem}
-.spread{display:grid;grid-template-columns:repeat(3,minmax(0,250px));gap:clamp(8px,3vw,40px);justify-content:center}
+.spread{display:grid;grid-template-columns:repeat(3,minmax(0,150px));gap:clamp(8px,3vw,36px);justify-content:center}
 .slot{display:grid;gap:.5rem;text-align:center}
 .slot small{font-family:var(--f-data);font-size:.72rem;color:var(--muted);letter-spacing:.06em}
 .flip{perspective:1200px;aspect-ratio:200/490;max-width:100%;border-radius:12px;border:1px dashed var(--line)}
@@ -263,4 +263,28 @@ main>section.block:first-child{padding-top:clamp(2rem,5vw,3.5rem)}
 
 /* larger tarot cards: the table fills the width, and each card name stays readable */
 .slot .meaning{font-size:var(--s0)}
-@media (max-width:560px){.spread{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ans .cards3 figure,.ans .cards3 .mini{width:104px}.slot .meaning{font-size:var(--s-1)}}
+@media (max-width:560px){.ans .cards3 figure,.ans .cards3 .mini{width:104px}}
+
+/* ---- tarot: choose from a large fan, cards fly into the slots, then predict ---- */
+[hidden]{display:none!important}
+.pickline{text-align:center;color:var(--ink);font-size:var(--s1);min-height:2em}
+.flip.placed{border-color:transparent;box-shadow:0 0 44px -10px var(--accent),0 0 0 1px var(--accent)}
+.flip.placed .face.back{opacity:1}
+.flip.empty.target{border-color:var(--accent);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 28px -6px var(--accent)}}
+.slot .meaning{font-size:var(--s-1)}
+.fan{position:relative;width:100%;max-width:1000px;--cw:clamp(76px,8.6vw,120px);height:calc(var(--cw)*2.45 + 36px);margin:.4rem auto clamp(80px,10vw,150px)}
+.fan button{position:absolute;bottom:0;left:50%;width:var(--cw);aspect-ratio:200/490;border:0;padding:0;background:url(assets/back.webp) center/cover;border-radius:8px;box-shadow:0 10px 26px -8px #000,0 0 0 1px var(--accent);cursor:pointer;transform-origin:50% 170%;transition:transform .3s cubic-bezier(.2,.7,.2,1),filter .2s}
+.fan button:hover:not(:disabled),.fan button:focus-visible{filter:brightness(1.35)}
+.fan button:disabled{cursor:default;filter:brightness(.55)}
+.fan button.taken{visibility:hidden}
+.flyer{position:fixed;z-index:60;pointer-events:none;background:url(assets/back.webp) center/cover;border-radius:8px;box-shadow:0 18px 40px -10px #000,0 0 0 1px var(--accent),0 0 30px -4px var(--accent);will-change:transform}
+.actions{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:.6rem}
+.actions .btn{min-width:11rem}
+#predict{animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 36px -4px var(--accent)}}
+.seedinfo{text-align:center;font-size:var(--s-1);margin:0}
+.reading{max-width:900px;margin-inline:auto;width:100%}
+.slot.revealed .meaning{color:var(--ink)}
+@media (max-width:560px){.spread{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.fan{--cw:70px;margin-bottom:90px}.actions .btn{min-width:0;flex:1}}
+@media (prefers-reduced-motion:reduce){.flyer{display:none}#predict,.flip.empty.target{animation:none}}

@@ -95,6 +95,11 @@ export function fadeWords(el, text) {
   requestAnimationFrame(() => requestAnimationFrame(() => el.querySelectorAll('span').forEach(span => { span.style.opacity = 1; })));
 }
 
+const LEVEL = { low: 1, medium: 2, good: 3 };
+const LEVEL_TH = ['', 'ต่ำ', 'ปานกลาง', 'ดี'];
+/** Qualitative confidence badge: how much the inputs support the reading, never a probability. */
+export const levelHtml = level => { const n = LEVEL[level] || 0; return `<span class="conf" title="ระดับความเหมาะของข้อมูล ไม่ใช่ความน่าจะเป็น">${[0, 1, 2].map(i => `<i class="d ${i < n ? 'f' : ''}"></i>`).join('')} ${LEVEL_TH[n]}</span>`; };
+
 /** One row per year of the life timeline (used by the chart page and by Ask answers). */
 export function yearRows(rows) {
   return rows.map(row => {

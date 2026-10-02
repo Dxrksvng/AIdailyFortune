@@ -1,8 +1,5 @@
-import { $, api, aiOn, esc, fadeWords, profile, prefs, bindSeg, renderPopular, todayISO, TZ, T, H, yearRows } from './common.js';
+import { $, api, aiOn, esc, fadeWords, profile, prefs, bindSeg, renderPopular, todayISO, TZ, T, H, yearRows, levelHtml } from './common.js';
 
-const LEVEL = { low: 1, medium: 2, good: 3 };
-const LEVEL_TH = ['', 'ต่ำ', 'ปานกลาง', 'ดี'];
-const levelHtml = level => { const n = LEVEL[level] || 0; return `<span class="conf" title="ระดับความเหมาะของข้อมูล ไม่ใช่ความน่าจะเป็น">${[0, 1, 2].map(i => `<i class="d ${i < n ? 'f' : ''}"></i>`).join('')} ${LEVEL_TH[n]}</span>`; };
 const TITLES = { accuracy: 'ไม่มีศาสตร์ไหนพิสูจน์ได้ว่าแม่นที่สุด', support: 'ความเครียดเป็นสัญญาณที่ควรรับฟัง', ritual: 'สี ธรรมเนียม และข้อควรระวัง', 'life-timeline': 'ธีมหลายปีข้างหน้า', 'needs-profile': 'ภาพหลายปีต้องใช้วัน เวลา และสถานที่เกิด', belief: 'ไม่มีระบบไหนบอกได้ว่าคุณต้องบูชาองค์ไหน' };
 const JUMP = { accuracy: ['/honest', 'ดูรายละเอียด'], support: ['/care', 'ดูรายละเอียด'], 'needs-profile': ['/chart', 'ไปกรอกข้อมูลเกิด'], 'life-timeline': ['/chart', 'ดูที่หน้าดวงกำเนิด'], ritual: ['/ritual', 'ดูสีและพระประจำวัน'] };
 const shortName = name => name.split(' (')[0];

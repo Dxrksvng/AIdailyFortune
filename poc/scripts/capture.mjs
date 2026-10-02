@@ -95,7 +95,7 @@ check('warn: routed to the money topic', /การเงิน/.test(warn.tag) 
 await page.waitForTimeout(600);
 await page.locator('#ask').screenshot({ path: path.join(out, 'ask-warn-1280.png') });
 
-// tarot: same cards after reload, picks, one reshuffle
+// tarot: pick from the fan -> cards fly into the slots face down -> press predict -> flip + reading
 await page.goto(base + '/tarot?topic=career', { waitUntil: 'networkidle' });
 await page.waitForSelector('#spread .flip');
 const names = () => page.$$eval('#spread .face.front img', imgs => imgs.map(img => img.alt));
@@ -103,16 +103,38 @@ const before = await names();
 await page.reload({ waitUntil: 'networkidle' });
 await page.waitForSelector('#spread .flip');
 check('same topic + day -> same three cards after reload', before.length === 3 && before.join() === (await names()).join(), before.join(' / '));
-for (let i = 0; i < 3; i++) await page.locator('#fan button:not([disabled])').nth(5 + i).evaluate(button => button.click()); // fan cards overlap by design
-await page.waitForTimeout(1200);
-check('three picks reveal three cards', (await page.locator('#spread .flip.open').count()) === 3);
-await page.click('#reshuffle');
+check('tarot: nothing is predicted before cards are chosen', (await page.locator('#predict').isHidden()) && (await page.locator('#reading').isHidden()) && (await page.locator('#spread .flip.placed').count()) === 0);
+const fanBox = await page.$eval('#fan', el => { const first = el.querySelector('button').getBoundingClientRect(); return { cards: el.querySelectorAll('button').length, w: Math.round(first.width), h: Math.round(first.height), fanH: Math.round(el.getBoundingClientRect().height) }; });
+check('tarot: fan has 22 large cards', fanBox.cards === 22 && fanBox.w >= 95, JSON.stringify(fanBox));
+const slotW = await page.$eval('#slot0', el => Math.round(el.getBoundingClientRect().width));
+check('tarot: card slots are smaller than the fan cards', slotW <= 160, `slot=${slotW}px`);
+let sawFlyer = false;
+for (let i = 0; i < 3; i++) {
+  await page.locator('#fan button:not(.taken):not([disabled])').nth(4 + i * 2).evaluate(button => button.click()); // fan cards overlap by design
+  try { await page.waitForSelector('.flyer', { timeout: 1500 }); sawFlyer = true; } catch { /* checked below */ }
+  await page.waitForFunction(count => document.querySelectorAll('#spread .flip.placed').length === count, i + 1, { timeout: 5000 });
+}
+check('tarot: a flying card animates from the fan into each slot', sawFlyer);
+check('tarot: three face-down cards sit in the slots, none revealed yet', (await page.locator('#spread .flip.placed').count()) === 3 && (await page.locator('#spread .flip.open').count()) === 0);
+check('tarot: predict button appears only after three picks, reading still hidden', (await page.locator('#predict').isVisible()) && (await page.locator('#reading').isHidden()));
+await page.locator('#tarot').screenshot({ path: path.join(out, 'tarot-picked-1280.png') });
+await page.click('#predict');
+await page.waitForSelector('#reading:not([hidden]) .conf', { timeout: 15000 });
 await page.waitForTimeout(500);
-const reshuffled = await names();
-check('reshuffle changes the order, once per topic per day', reshuffled.join() !== before.join() && (await page.locator('#reshuffle').isDisabled()));
+check('tarot: predict flips all three cards and shows the reading', (await page.locator('#spread .flip.open').count()) === 3 && /คำทำนายจากไพ่/.test(await page.textContent('#reading')));
+const faces = await page.$$eval('#spread .flip.open .face.front', els => els.map(el => { const img = el.querySelector('img'); return getComputedStyle(el).display !== 'none' && img.complete && img.naturalWidth > 0 && img.getBoundingClientRect().width > 100; }));
+check('tarot: every revealed card face is actually visible (not a black frame)', faces.length === 3 && faces.every(Boolean), JSON.stringify(faces));
+const overlap = await page.evaluate(() => { const fan = document.querySelector('#fan').getBoundingClientRect(), acts = document.querySelector('.actions').getBoundingClientRect(); let lowest = 0; document.querySelectorAll('#fan button').forEach(b => { lowest = Math.max(lowest, b.getBoundingClientRect().bottom); }); return { lowest: Math.round(lowest), actionsTop: Math.round(acts.top) }; });
+check('tarot: the fan does not cover the buttons below it', overlap.lowest <= overlap.actionsTop + 1, JSON.stringify(overlap));
+check('tarot: revealed cards are the ones the server shuffled', (await names()).join() === before.join());
+await page.locator('#tarot').screenshot({ path: path.join(out, 'tarot-reading-1280.png') });
 await page.reload({ waitUntil: 'networkidle' });
-await page.waitForSelector('#spread .flip');
-check('reshuffle state survives reload', (await names()).join() === reshuffled.join());
+await page.waitForSelector('#reading:not([hidden])', { timeout: 15000 });
+check('tarot: revealed state and reading survive reload with the same cards', (await page.locator('#spread .flip.open').count()) === 3 && (await names()).join() === before.join());
+await page.click('#reshuffle');
+await page.waitForFunction(() => document.querySelectorAll('#spread .flip.placed').length === 0);
+const reshuffled = await names();
+check('reshuffle resets the table and changes the order, once per topic per day', reshuffled.join() !== before.join() && (await page.locator('#reshuffle').isDisabled()) && (await page.locator('#reading').isHidden()));
 
 // chart -> profile shared with ritual and ask
 await page.goto(base + '/chart', { waitUntil: 'networkidle' });
