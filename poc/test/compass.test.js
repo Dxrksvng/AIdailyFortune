@@ -44,18 +44,18 @@ test('API responds and rejects invalid calculation requests', async () => {
     assert.equal(bad.status, 400);
     const page = await fetch(base);
     assert.equal(page.status, 200);
-    assert.match(await page.text(), /Daily Compass/);
+    assert.match(await page.text(), /<title>/); // the site name is asserted in ui-static.test.js
   } finally { await new Promise(resolve => server.close(resolve)); }
 });
 
 test('optional AI narrative is bounded and falls back on unsafe output', async () => {
   const base = readingFor({ date: '2026-10-01', timezone: 'Asia/Bangkok' });
-  const good = await withNarrative(base, { apiKey: 'test-only', fetcher: async () => ({ ok: true, json: async () => ({ status: 'completed', output: [{ content: [{ type: 'output_text', text: JSON.stringify({ reading: 'You may notice what deserves more attention today.', reflection_prompt: 'What became clearer for you today?' }) }] }] }) }) });
+  const good = await withNarrative(base, { consent: true, apiKey: 'test-only', fetcher: async () => ({ ok: true, json: async () => ({ status: 'completed', output: [{ content: [{ type: 'output_text', text: JSON.stringify({ reading: 'You may notice what deserves more attention today.', reflection_prompt: 'What became clearer for you today?' }) }] }] }) }) });
   assert.equal(good.narrativeSource, 'OpenAI gpt-4o-mini');
   assert.equal(good.content.action, base.content.action);
   const bad = validateNarrative({ reading: 'You will definitely die today.', reflection_prompt: 'What became clearer today?' }, base.content);
   assert.equal(bad, null);
-  const fallback = await withNarrative(base, { apiKey: 'test-only', fetcher: async () => { throw new Error('network down'); } });
+  const fallback = await withNarrative(base, { consent: true, apiKey: 'test-only', fetcher: async () => { throw new Error('network down'); } });
   assert.equal(fallback.narrativeSource, 'approved template fallback');
   assert.deepEqual(fallback.content, base.content);
 });
@@ -68,4 +68,30 @@ test('Tarot POC draws distinct cards from a fixed Major Arcana catalog', () => {
   assert.equal(cards.length, 3);
   assert.equal(new Set(cards.map(card => card.id)).size, 3);
   assert.ok(cards.every(card => card.meaning && card.theme));
+});
+
+test('Thai AI narrative: consent gate, Thai validator and fallback', async () => {
+  const { validateNarrativeTh } = await import('../lib/narrative.js');
+  const base = readingFor({ date: '2026-10-01', timezone: 'Asia/Bangkok' });
+  let calls = 0;
+  const ok = text => async () => { calls++; return { ok: true, json: async () => ({ status: 'completed', output: [{ content: [{ type: 'output_text', text }] }] }) }; };
+  const goodText = JSON.stringify({ reading: 'วันนี้อาจเป็นจังหวะที่ลองสังเกตว่าอะไรต้องการความใส่ใจมากที่สุด', reflection_prompt: 'วันนี้อะไรชัดขึ้นบ้าง' });
+  // no consent: nothing is sent, whatever the environment provides
+  const off = await withNarrative(base, { consent: false, lang: 'th', apiKey: 'test-only', fetcher: ok(goodText) });
+  assert.equal(calls, 0);
+  assert.equal(off.narrativeSource, 'approved template');
+  assert.deepEqual(off.contentTh, base.contentTh);
+  // consent + valid Thai: contentTh is rephrased, action stays fixed
+  const on = await withNarrative(base, { consent: true, lang: 'th', apiKey: 'test-only', fetcher: ok(goodText) });
+  assert.equal(calls, 1);
+  assert.equal(on.narrativeSource, 'OpenAI gpt-4o-mini');
+  assert.match(on.contentTh.reading, /ลองสังเกต/);
+  assert.equal(on.contentTh.action, base.contentTh.action);
+  assert.deepEqual(on.content, base.content, 'English content is untouched in Thai mode');
+  // certainty wording is rejected and falls back to the template
+  const bad = JSON.stringify({ reading: 'วันนี้จะได้งานแน่นอน รับประกันว่าสำเร็จทุกเรื่อง', reflection_prompt: 'พร้อมไหม' });
+  const rejected = await withNarrative(base, { consent: true, lang: 'th', apiKey: 'test-only', fetcher: ok(bad) });
+  assert.equal(rejected.narrativeSource, 'approved template fallback');
+  assert.deepEqual(rejected.contentTh, base.contentTh);
+  assert.equal(validateNarrativeTh({ reading: 'short', reflection_prompt: 'x' }, base.contentTh), null);
 });

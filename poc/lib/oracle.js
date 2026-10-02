@@ -1,6 +1,7 @@
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { readingFor, validDate, validTimezone } from './compass.js';
 import { TAROT_DECK, SPREADS } from '../public/tarot.js';
+import { classify, crisisAnswer, noticeFor } from './safety.js';
 import { identifyHexagram, HEXAGRAMS } from './iching.js';
 import { natalChart, transitContacts } from './natal.js';
 import { PLANET_TH, ASPECT_TH, TOPIC_TH, HORIZON_TH, TOPIC_GUIDANCE_TH, SPREAD_TH, tarotThai } from './th.js';
@@ -76,12 +77,13 @@ export function periodReading({ date, timezone, sign = null, topic = 'general', 
   };
 }
 
+const TOPIC_SPREAD = { love: 'relationship', career: 'career', study: 'study', money: 'money', general: 'general' };
+export const spreadForTopic = topic => TOPIC_SPREAD[topic] || 'general';
+
 export function routeQuestion(question, requestedMethod) {
   if (typeof question !== 'string' || !question.trim() || question.length > 500) throw new Error('Question must contain 1–500 characters');
   if (requestedMethod && !['auto', 'western', 'tarot', 'iching', 'belief'].includes(requestedMethod)) throw new Error('Invalid method');
   const q = question.trim().toLowerCase();
-  const highStakes = /\b(suicid|self.harm|kill myself|medication|diagnos|lawsuit|court|invest|stock|crypto)\b|ฆ่าตัวตาย|ทำร้ายตัวเอง|(?:กิน|ทาน|หยุด|เลิก|เปลี่ยน|ปรับ|เพิ่ม|ลด)ยา|ยารักษา|วินิจฉัย|ฟ้อง|คดี|ลงทุน|หุ้น|คริปโต/i.test(q);
-  if (highStakes) return { intent: 'high-stakes', method: 'reflection', topic: 'general', horizon: 'day', spread: null, reason: 'Question contains a high-stakes topic; fortune methods should not decide it.' };
   const accuracy = /แม่น|accura|most reliable|ศาสตร์ไหน|which (?:method|system|science)/i.test(q);
   if (accuracy) return { intent: 'accuracy', method: 'reflection', topic: 'general', horizon: 'day', spread: null, reason: 'Method-accuracy questions get an honest explanation instead of a ranking.' };
   const support = /เครียด|กังวล|หมดแรง|เหนื่อยใจ|หนักใจ|\b(stress(?:ed)?|anxious|anxiety|burn.?out|overwhelmed)\b/i.test(q);
@@ -96,12 +98,19 @@ export function routeQuestion(question, requestedMethod) {
   const year = /\b(year|years|next few years)\b|ปีหน้า|อีก\s*\d+\s*ปี|รายปี/i.test(q);
   const month = /\b(month|monthly)\b|เดือนหน้า|เดือนนี้|รายเดือน/i.test(q);
   const week = /\b(week|weekly)\b|สัปดาห์|รายสัปดาห์/i.test(q);
-  const topic = relationship ? 'love' : job ? 'career' : /\b(study|school|exam)\b|เรียน|สอบ/i.test(q) ? 'study' : /\b(money|finance|budget)\b|การเงิน|เงิน/i.test(q) ? 'money' : 'general';
+  const studyHit = /\b(study|school|exam)\b|เรียน|สอบ/i.test(q);
+  // investing and lottery questions are money questions; health/legal ones are general ones,
+  // so a UI default of "career" can never turn them into résumé advice
+  const moneyHit = /\b(money|finance|budget|invest|stock|crypto|lotter)\b|การเงิน|เงิน|ลงทุน|หุ้น|คริปโต|หวย|เลขเด็ด|ลอตเตอรี่/i.test(q);
+  const sensitiveHit = /ป่วย|โรค(?!ง)|หมอ(?!ดู)|มะเร็ง|(?:กิน|ทาน|หยุด|เลิก|เปลี่ยน|ปรับ|เพิ่ม|ลด)ยา|ฟ้อง|คดี|ตายไหม|medic|diagnos|lawsuit|court|cancer/i.test(q);
+  const topicExplicit = Boolean(relationship || job || studyHit || moneyHit || sensitiveHit);
+  const horizonExplicit = Boolean(year || month || week);
+  const topic = relationship ? 'love' : job ? 'career' : studyHit ? 'study' : moneyHit ? 'money' : 'general';
   const horizon = year ? 'year' : month ? 'month' : week ? 'week' : 'day';
   let method = requestedMethod && requestedMethod !== 'auto' ? requestedMethod : decision ? 'iching' : (relationship || /สัมภาษณ์|ได้งาน|interview|hired/i.test(q)) ? 'tarot' : 'western';
   if (method === 'belief') return { intent: 'belief', method, topic, horizon, spread: null, reason: 'Belief questions need a tradition and user preference, not an assigned deity.' };
   const intent = support ? 'support' : color ? 'ritual' : decision ? 'decision' : relationship ? 'relationship' : job ? 'career' : 'general';
-  return { intent, method, topic, horizon, spread: method === 'tarot' ? (relationship ? 'relationship' : job ? 'career' : topic === 'study' || topic === 'money' ? topic : 'general') : null, reason: requestedMethod && requestedMethod !== 'auto' ? 'User selected this method.' : 'Rule-based question routing; the user may override the method.' };
+  return { intent, method, topic, horizon, topicExplicit, horizonExplicit, spread: method === 'tarot' ? spreadForTopic(topic) : null, reason: requestedMethod && requestedMethod !== 'auto' ? 'User selected this method.' : 'Rule-based question routing; the user may override the method.' };
 }
 
 function secureIndex(max) {
@@ -111,13 +120,58 @@ function secureIndex(max) {
   return value % max;
 }
 
-export function tarotReading({ question, spread = 'general' }) {
+// The POC draws from the 22 Major Arcana only: those are the cards that have face art.
+// The 56 Minor Arcana stay in public/tarot.js as data but are never drawn.
+const MAJOR_DECK = TAROT_DECK.filter(card => card.arcana === 'major');
+
+/** Counter-mode SHA-256 stream: the same seed string always yields the same sequence. */
+function seededRandom(seed) {
+  let counter = 0, block = Buffer.alloc(0), offset = 0;
+  const nextUint32 = () => {
+    if (offset + 4 > block.length) { block = createHash('sha256').update(`${seed}|${counter++}`).digest(); offset = 0; }
+    const value = block.readUInt32BE(offset); offset += 4; return value;
+  };
+  return max => {
+    const limit = Math.floor(0x100000000 / max) * max;
+    let value;
+    do { value = nextUint32(); } while (value >= limit);
+    return value % max;
+  };
+}
+
+/** Fisher-Yates over a copy of the deck, driven by the seeded stream. */
+function seededShuffle(deck, seed) {
+  const randomInt = seededRandom(seed);
+  const cards = [...deck];
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = randomInt(i + 1);
+    [cards[i], cards[j]] = [cards[j], cards[i]];
+  }
+  return cards;
+}
+
+export const tarotSeed = ({ date, topic, spread, reshuffle }) => `${date}|${topic}|${spread}|${reshuffle}`;
+
+/** The card of the day: first card of a shuffle seeded by the date alone. */
+export function dailyCard(date) {
+  if (!validDate(date)) throw new Error('Invalid date');
+  const card = seededShuffle(MAJOR_DECK, tarotSeed({ date, topic: 'daily', spread: 'daily', reshuffle: 0 }))[0];
+  const t = tarotThai(card);
+  return { id: card.id, name: card.name, theme: card.theme, interpretation: card.meaning, nameTh: t.nameTh, themeTh: t.themeTh, interpretationTh: t.meaningTh };
+}
+
+export function tarotReading({ question, spread = 'general', date, topic = 'general', reshuffle = 0 }) {
   if (typeof question !== 'string' || !question.trim() || question.length > 500) throw new Error('Question must contain 1–500 characters');
   if (!SPREADS[spread]) throw new Error('Invalid spread');
+  if (!validDate(date)) throw new Error('A valid local date (YYYY-MM-DD) is required for a Tarot draw');
+  if (!TOPICS.includes(topic)) throw new Error('Invalid topic');
+  // One reshuffle per topic per local day. The server is stateless, so it can only cap the
+  // value; the client keeps the count and a client that lies about it is not stopped here.
+  if (!Number.isInteger(reshuffle) || reshuffle < 0 || reshuffle > 1) throw new Error('reshuffle must be 0 or 1');
   const roles = SPREADS[spread].roles;
-  const deck = [...TAROT_DECK];
-  const cards = roles.map(role => {
-    const card = deck.splice(secureIndex(deck.length), 1)[0];
+  const deck = seededShuffle(MAJOR_DECK, tarotSeed({ date, topic, spread, reshuffle })).slice(0, roles.length);
+  const cards = roles.map((role, index) => {
+    const card = deck[index];
     const t = tarotThai(card);
     return { role, id: card.id, name: card.name, theme: card.theme, interpretation: card.meaning, nameTh: t.nameTh, themeTh: t.themeTh, interpretationTh: t.meaningTh };
   });
@@ -130,11 +184,12 @@ export function tarotReading({ question, spread = 'general' }) {
       ? `Contact or distance may continue; neither can be inferred from another person's private feelings. The ${cards[0].name} highlights ${cards[0].theme}, while the ${cards[2].name} points to ${cards[2].theme} in choices you control.`
       : `The ${cards[0].name} brings ${cards[0].theme} into focus. You could notice whether that theme appears in your real situation before deciding what to do.`;
   return {
-    type: 'question', method: 'tarot', methodologyVersion: 'rws-style-78-compositional-v1', spread,
+    type: 'question', method: 'tarot', methodologyVersion: 'major-22-seeded-v2', spread, topic, reshuffle, date,
     cards, signal: cards.map(c => c.theme).join(' · '), cardContext, possibleDevelopment,
     scenario: spread === 'career' ? 'The spread offers perspectives on an opportunity, an obstacle and an action you control. An employer’s decision cannot be known from the cards.' : spread === 'relationship' ? 'The spread offers perspectives on the present dynamic, what feels unresolved and your own choice. Another person’s feelings cannot be known from the cards.' : 'The card offers one perspective to consider; it does not determine the outcome.',
     action: SPREADS[spread].action, actionTh: SPREAD_TH[spread].action, spreadNameTh: SPREAD_TH[spread].name,
-    why: 'Cards were selected without replacement using cryptographic randomness, then interpreted through fixed card meanings and spread roles.',
+    why: 'Cards were shuffled with a seed from the date and topic, so the same question today gives the same cards.',
+    whyTh: 'ไพ่ถูกสับด้วย seed จากวันที่และหัวข้อ ถามเรื่องเดิมวันนี้จะได้ไพ่ชุดเดิม',
     limits: 'A symbolic reading for entertainment and reflection; no guaranteed outcome or objective probability.'
   };
 }
@@ -191,8 +246,17 @@ const ACCURACY = {
   en: 'There is no scientific evidence that any divination system predicts life events accurately, so this system does not rank which is “most accurate” and shows no accuracy figures. What it can say is which method suits which kind of question, and which parts are calculated versus interpreted.'
 };
 
-function answerCore({ question, date, timezone, sign = null, method = 'auto', spread = null, birthProfile = null, lang = null }) {
+function answerCore({ question, date, timezone, sign = null, method = 'auto', spread = null, birthProfile = null, lang = null, topic = null, horizon = null, reshuffle = 0 }) {
   const route = routeQuestion(question, method);
+  if (topic !== null && topic !== undefined) {
+    if (!TOPICS.includes(topic)) throw new Error('Invalid topic');
+    if (!route.topicExplicit) route.topic = topic;
+  }
+  if (horizon !== null && horizon !== undefined) {
+    if (!HORIZONS.includes(horizon)) throw new Error('Invalid horizon');
+    if (!route.horizonExplicit && route.intent !== 'life-timeline') route.horizon = horizon;
+  }
+  if (route.method === 'tarot') route.spread = spreadForTopic(route.topic);
   const thai = lang === 'th' || (lang !== 'en' && /[\u0e00-\u0e7f]/.test(question));
   const L = thai ? 'th' : 'en';
   if (route.intent === 'accuracy') return { route, answer: { type: 'accuracy', method: 'reflection', scenario: ACCURACY.en, message: ACCURACY[L], methodFit: METHOD_FIT[L], limits: 'No accuracy score is produced because none can be supported.' } };
@@ -205,7 +269,6 @@ function answerCore({ question, date, timezone, sign = null, method = 'auto', sp
     const x = SUPPORT[L];
     return { route, answer: { type: 'support', method: 'reflection', scenario: SUPPORT.en.message, message: x.message, steps: x.steps, care: x.care, action: x.steps[0], limits: 'Supportive reflection only; not medical or mental-health advice.' } };
   }
-  if (route.intent === 'high-stakes') return { route, answer: { type: 'safety', method: 'reflection', scenario: 'A fortune reading cannot safely decide this question.', action: 'Use reliable facts and qualified support for this decision; if you may be in immediate danger, contact local emergency help.', limits: 'No divination result was generated.', ...(thai ? { message: 'คำถามนี้มีความเสี่ยงสูง ดูดวงไม่ควรใช้ตัดสินใจแทนข้อมูลจริงหรือผู้เชี่ยวชาญ หากมีอันตรายเร่งด่วนให้ติดต่อบริการฉุกเฉินในพื้นที่' } : {}) } };
   if (route.method === 'belief') return { route, answer: { type: 'belief', method: 'belief exploration', scenario: 'No system can objectively assign a deity or guarantee that worship will improve life.', action: 'Consider your own tradition, values and comfort. If you wish, ask a trusted person from that tradition about respectful practices.', limits: 'No religious preference is inferred or stored.', ...(thai ? { message: 'ระบบไม่สามารถระบุได้ว่าเทพองค์ใดถูกกำหนดมาให้คุณ หรือรับรองว่าการบูชาจะทำให้ชีวิตดีขึ้น ลองเริ่มจากความเชื่อและประเพณีที่คุณนับถือ แล้วศึกษาวิธีปฏิบัติจากแหล่งที่เชื่อถือได้' } : {}) } };
   if (spread !== null) {
     if (!SPREADS[spread]) throw new Error('Invalid Tarot spread');
@@ -223,7 +286,7 @@ function answerCore({ question, date, timezone, sign = null, method = 'auto', sp
       message: `${colorLine}. ${thai ? ritual.noteTh : ritual.noteEn}`, steps: ritual.badLuckSteps[L], reminders: ritual.reminders[L], practices: ritual.practices[L] } };
   }
   if (route.method === 'tarot') {
-    const answer = tarotReading({ question, spread: route.spread || 'general' });
+    const answer = tarotReading({ question, spread: route.spread || 'general', date, topic: route.topic, reshuffle });
     if (thai) answer.message = route.spread === 'career'
       ? `ไพ่ ${answer.cards.map(c => c.nameTh).join(', ')} ชวนมองโอกาส อุปสรรค และสิ่งที่คุณควบคุมได้ตามลำดับ ผลรับเข้าทำงานยังขึ้นกับนายจ้างและผู้สมัครคนอื่น ลองติดตามผลอย่างสุภาพ เตรียมตัวเลือกสำรอง และทบทวนจุดที่คุณอธิบายความสามารถได้ชัดขึ้น`
       : route.spread === 'relationship'
@@ -259,10 +322,17 @@ const DOWN = {
 const LEVELS = ['low', 'medium', 'good'];
 
 export function answerQuestion(input) {
-  const result = answerCore(input);
-  const { route, answer } = result;
+  if (typeof input.question !== 'string' || !input.question.trim() || input.question.length > 500) throw new Error('Question must contain 1–500 characters');
   const thai = input.lang === 'th' || (input.lang !== 'en' && /[\u0e00-\u0e7f]/.test(input.question));
   const L = thai ? 'th' : 'en';
+  // Safety first: a crisis gets the support panel only, never a reading.
+  const safety = classify(input.question);
+  if (safety.level === 'crisis') {
+    return { route: { intent: 'crisis', method: 'support', topic: 'general', horizon: 'day', spread: null, reason: 'Crisis wording detected; no divination is produced.' }, answer: crisisAnswer(L) };
+  }
+  const result = answerCore(input);
+  const { route, answer } = result;
+  if (safety.level === 'warn') answer.safety = { level: 'warn', cats: safety.cats, notice: noticeFor(safety.cats, L) };
   if (['safety', 'belief', 'accuracy', 'support', 'needs-profile'].includes(answer.type)) return result;
   // Qualitative confidence: how much the inputs support this kind of reading. Not a probability.
   const reasons = [DOWN[L].base];

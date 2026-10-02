@@ -9,6 +9,9 @@ import { natalChart } from './lib/natal.js';
 import { vedicTiming } from './lib/vedic.js';
 import { ritualGuide } from './lib/ritual.js';
 import { lifeTimeline } from './lib/life.js';
+import { HOTLINE } from './lib/safety.js';
+import { dailyCard, tarotReading, spreadForTopic } from './lib/oracle.js';
+import { readingFor as readingForDate } from './lib/compass.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
@@ -41,6 +44,13 @@ export function createServer() {
           return send(res, 200, ritualGuide({ birthDate: input.birthDate || null, date: input.date, timezone: input.timezone }));
         } catch (err) { return send(res, err.message === 'Body too large' ? 413 : 400, { error: err.message }); }
       }
+      if (req.method === 'POST' && url.pathname === '/api/tarot') {
+        try {
+          const input = await readJson(req);
+          const topic = input.topic || 'general';
+          return send(res, 200, tarotReading({ question: 'tarot table', spread: input.spread || spreadForTopic(topic), date: input.date, topic, reshuffle: input.reshuffle ?? 0 }));
+        } catch (err) { return send(res, err.message === 'Body too large' ? 413 : 400, { error: err.message }); }
+      }
       if (req.method === 'POST' && url.pathname === '/api/vedic-timing') {
         try {
           const input = await readJson(req);
@@ -60,10 +70,19 @@ export function createServer() {
         try { return send(res, 200, periodReading({ date: url.searchParams.get('date'), timezone: url.searchParams.get('timezone'), sign: url.searchParams.get('sign') || null, topic: url.searchParams.get('topic') || 'general', horizon: url.searchParams.get('horizon') || 'day' })); }
         catch (err) { return send(res, 400, { error: err.message }); }
       }
+      if (url.pathname === '/api/safety') return send(res, 200, { hotline: HOTLINE });
+      if (url.pathname === '/api/today') {
+        try {
+          const date = url.searchParams.get('date'), timezone = url.searchParams.get('timezone');
+          const consent = url.searchParams.get('ai') === '1';
+          const reading = await withNarrative(readingForDate({ date, timezone, sign: url.searchParams.get('sign') || null }), { consent, lang: url.searchParams.get('lang') || 'th' });
+          return send(res, 200, { reading, ritual: ritualGuide({ date, timezone }), dailyCard: dailyCard(date) });
+        } catch (err) { return send(res, 400, { error: err.message }); }
+      }
       if (url.pathname === '/api/reading') {
         try {
           const result = readingFor({ date: url.searchParams.get('date'), timezone: url.searchParams.get('timezone'), sign: url.searchParams.get('sign') || null });
-          return send(res, 200, await withNarrative(result));
+          return send(res, 200, await withNarrative(result, { consent: url.searchParams.get('ai') === '1' }));
         } catch (err) { return send(res, 400, { error: err.message }); }
       }
       const file = url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname.slice(1));
@@ -95,5 +114,5 @@ function send(res, status, payload) {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT || 4174);
-  createServer().listen(port, '127.0.0.1', () => console.log(`Daily Compass: http://127.0.0.1:${port}`));
+  createServer().listen(port, '127.0.0.1', () => console.log(`Celestra: http://127.0.0.1:${port}`));
 }

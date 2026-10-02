@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from '../server.js';
 import { answerQuestion, ichingCast, periodReading, routeQuestion, tarotReading } from '../lib/oracle.js';
 import { ritualGuide } from '../lib/ritual.js';
+import { classify } from '../lib/safety.js';
 import { lifeTimeline } from '../lib/life.js';
 
 test('period reading uses date-bounded calculated samples and explicit topic', () => {
@@ -22,12 +23,12 @@ test('question routing covers common intents and method override', () => {
   assert.equal(routeQuestion('A กับ B ควรเลือกอะไร').method, 'iching');
   assert.equal(routeQuestion('การเงินเดือนหน้า').horizon, 'month');
   assert.equal(routeQuestion('เทพองค์ไหนเหมาะกับฉัน').method, 'belief');
-  assert.equal(routeQuestion('Should I invest all my money?').intent, 'high-stakes');
+  assert.equal(routeQuestion('Should I invest all my money?').topic, 'money'); // safety is classified separately (lib/safety.js)
   assert.equal(routeQuestion('Will I get the job?', 'western').method, 'western');
 });
 
 test('Tarot has unique cards and I Ching transformation follows changing lines', () => {
-  const tarot = tarotReading({ question: 'Will I get the job?', spread: 'career' });
+  const tarot = tarotReading({ question: 'Will I get the job?', spread: 'career', date: '2026-10-01', topic: 'career' });
   assert.equal(tarot.cards.length, 3);
   assert.equal(new Set(tarot.cards.map(card => card.id)).size, 3);
   const cast = ichingCast({ question: 'A or B?' });
@@ -43,8 +44,14 @@ test('Tarot has unique cards and I Ching transformation follows changing lines',
 test('answer policy does not fabricate deity assignment or high-stakes divination', () => {
   const input = { date: '2026-10-01', timezone: 'Asia/Bangkok' };
   assert.equal(answerQuestion({ ...input, question: 'เทพองค์ไหนเหมาะกับฉัน' }).answer.type, 'belief');
-  assert.equal(answerQuestion({ ...input, question: 'Should I stop medication?' }).answer.type, 'safety');
-  assert.equal(answerQuestion({ ...input, question: 'Should I invest in this stock?', method: 'tarot', spread: 'money' }).answer.type, 'safety');
+  // warn categories still get a reading, with a notice above it; only a crisis is blocked
+  const med = answerQuestion({ ...input, question: 'Should I stop medication?' }).answer;
+  assert.equal(med.safety.level, 'warn');
+  assert.ok(med.safety.cats.includes('health'));
+  assert.notEqual(med.type, 'crisis');
+  const stock = answerQuestion({ ...input, question: 'Should I invest in this stock?', method: 'tarot', spread: 'money' }).answer;
+  assert.equal(stock.type, 'question');
+  assert.ok(stock.safety.cats.includes('money'));
   assert.equal(answerQuestion({ ...input, question: 'วันนี้ควรใส่สีอะไร' }).answer.type, 'ritual');
   assert.match(answerQuestion({ ...input, question: 'จะได้งานที่สัมภาษณ์มาไหม' }).answer.message, /ผลรับเข้าทำงานยังขึ้นกับนายจ้าง/);
   assert.match(answerQuestion({ ...input, question: 'คนเก่าจะกลับมาไหม' }).answer.message, /ไพ่ไม่บอกความคิด/);
@@ -67,7 +74,7 @@ test('system API exposes capabilities, period and question endpoints without sto
     assert.equal(payload.route.method, 'tarot');
     assert.equal(payload.answer.cards.length, 3);
     assert.equal(JSON.stringify(payload).includes('จะได้งานที่สัมภาษณ์มาไหม'), false);
-    const customSpread = await fetch(`${base}/api/ask`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ question: 'How should I approach this?', method: 'tarot', spread: 'money' }) });
+    const customSpread = await fetch(`${base}/api/ask`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ question: 'How should I approach this?', method: 'tarot', spread: 'money', date: '2026-10-01', timezone: 'Asia/Bangkok' }) });
     const customPayload = await customSpread.json();
     assert.equal(customPayload.answer.spread, 'money');
     assert.equal(customPayload.answer.cards.length, 3);
@@ -84,9 +91,9 @@ const BASE = { date: '2026-10-02', timezone: 'Asia/Bangkok' };
 const PROFILE = { birthDate: '2000-05-14', birthTime: '08:30', timezone: 'Asia/Bangkok', latitude: 13.7563, longitude: 100.5018 };
 
 test('Thai words containing "ยา" (e.g. อยาก) are not treated as medication questions', () => {
-  assert.notEqual(routeQuestion('อยากรู้ว่าจะได้งานไหม').intent, 'high-stakes');
-  assert.equal(routeQuestion('ต้องกินยาอะไรดี').intent, 'high-stakes');
-  assert.equal(routeQuestion('Should I stop medication?').intent, 'high-stakes');
+  assert.equal(classify('อยากรู้ว่าจะได้งานไหม').level, 'normal');
+  assert.deepEqual(classify('ต้องกินยาอะไรดี').cats, ['health']);
+  assert.deepEqual(classify('Should I stop medication?').cats, ['health']);
 });
 
 test('accuracy questions get an honest answer with no ranking or score', () => {
