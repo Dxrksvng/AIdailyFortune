@@ -1,7 +1,7 @@
 import { $, api, aiOn, esc, fadeWords, profile, prefs, bindSeg, renderPopular, todayISO, TZ, T, H, yearRows, levelHtml } from './common.js';
 
-const TITLES = { accuracy: 'ไม่มีศาสตร์ไหนพิสูจน์ได้ว่าแม่นที่สุด', support: 'ความเครียดเป็นสัญญาณที่ควรรับฟัง', ritual: 'สี ธรรมเนียม และข้อควรระวัง', 'life-timeline': 'ธีมหลายปีข้างหน้า', 'needs-profile': 'ภาพหลายปีต้องใช้วัน เวลา และสถานที่เกิด', belief: 'ไม่มีระบบไหนบอกได้ว่าคุณต้องบูชาองค์ไหน' };
-const JUMP = { accuracy: ['/honest', 'ดูรายละเอียด'], support: ['/care', 'ดูรายละเอียด'], 'needs-profile': ['/chart', 'ไปกรอกข้อมูลเกิด'], 'life-timeline': ['/chart', 'ดูที่หน้าดวงกำเนิด'], ritual: ['/ritual', 'ดูสีและพระประจำวัน'] };
+const TITLES = { accuracy: 'ไม่มีศาสตร์ไหนพิสูจน์ได้ว่าแม่นที่สุด', support: 'ความเครียดเป็นสัญญาณที่ควรรับฟัง', ritual: 'สี ธรรมเนียม และข้อควรระวัง', 'life-timeline': 'ธีมหลายปีข้างหน้า', 'needs-profile': 'ภาพหลายปีต้องใช้วัน เวลา และสถานที่เกิด', belief: 'ไม่มีระบบไหนบอกได้ว่าคุณต้องบูชาองค์ไหน', unsupported: 'เรื่องนี้ระบบยังไม่รองรับ' };
+const JUMP = { unsupported: ['/ritual', 'ดูสีและพระประจำวัน'], accuracy: ['/honest', 'ดูรายละเอียด'], support: ['/care', 'ดูรายละเอียด'], 'needs-profile': ['/chart', 'ไปกรอกข้อมูลเกิด'], 'life-timeline': ['/chart', 'ดูที่หน้าดวงกำเนิด'], ritual: ['/ritual', 'ดูสีและพระประจำวัน'] };
 const shortName = name => name.split(' (')[0];
 
 let topic = prefs.topic, horizon = prefs.horizon;

@@ -1,0 +1,26 @@
+{
+ "dev": {
+  "min": {
+   "crisisRecall": 1,
+   "warnRecall": 1,
+   "intentAccuracy": 0.97,
+   "topicAccuracy": 0.96,
+   "horizonAccuracy": 0.98,
+   "methodAccuracy": 0.98,
+   "exactRoute": 0.97,
+   "unsupportedHandled": 1
+  },
+  "max": {
+   "normalFalsePositive": 0,
+   "answerCollisions": 3
+  }
+ },
+ "heldout": {
+  "min": {
+   "crisisRecall": 1
+  },
+  "max": {
+   "normalFalsePositive": 0
+  }
+ }
+}

@@ -26,13 +26,13 @@ export function normalize(text) {
     .replace(/1/g, 'i').replace(/0/g, 'o').replace(/3/g, 'e').replace(/@/g, 'a').replace(/\$/g, 's');
 }
 
-const CRISIS = /ฆ่าตัวตาย|อยากตาย|ไม่อยากอยู่|ไม่อยากมีชีวิต|อยากหายไป|จบชีวิต|ทำร้ายตัวเอง|กรีดข้อมือ|ไม่อยากตื่น|suicid|kill\s*my\s*self|\bkms\b|want\s*to\s*die|end\s*(my\s*life|it\s*all)|self[\s-]*harm|cut\s*my\s*self|unalive/;
+const CRISIS = /ฆ่าตัวตาย|อยากตาย|ไม่อยากอยู่|ไม่อยากมีชีวิต|อยากหายไป|จบชีวิต|ทำร้ายตัวเอง|กรีดข้อมือ|ไม่อยากตื่น|คิดสั้น|จบทุกอย่าง|อยากจากไป|อยากจากโลก|ไม่อยากอยู่ต่อ|suicid|kill\s*my\s*self|\bkms\b|want\s*to\s*die|end\s*(my\s*life|it\s*all)|self[\s-]*harm|cut\s*my\s*self|unalive/;
 
 const WARN = {
   lottery: /หวย|เลขเด็ด|ลอตเตอรี่|lotter/,
   health: /ป่วย|โรค(?!ง)|หมอ(?!ดู)|มะเร็ง|เบาหวาน|ผ่าตัด|(?:กิน|ทาน|หยุด|เลิก|เปลี่ยน|ปรับ|เพิ่ม|ลด)ยา|ยารักษา|วินิจฉัย|medic|diagnos|cancer/,
   money: /ลงทุน|หุ้น|คริปโต|invest|stock|crypto/,
-  legal: /ฟ้อง|คดี|lawsuit|court/,
+  legal: /ฟ้อง|(?<!โช)คดี|lawsuit|court/,
   death: /จะตายไหม|ตายไหม|อายุสั้น|อายุขัย|when\s*will\s*i\s*die/
 };
 
