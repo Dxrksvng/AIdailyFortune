@@ -1,29 +1,45 @@
 # Assignment 4 — Daily Compass
 
-**Design proposal (1 October 2026).** The [official brief](../assignment-brief/Forward%20Deployed%20AI-Eng%20Assignment%202026.pdf) asks for an AI daily fortune system but specifies neither platform nor method. Daily Compass is a responsive web experience for adults who enjoy short, low-risk daily reflection. Its astrology-inspired and card-based interpretations are entertainment, not scientifically validated predictions.
+**Design proposal (updated 2 October 2026; demo shown under the brand name Celestra).** The [official brief](../assignment-brief/Forward%20Deployed%20AI-Eng%20Assignment%202026.pdf) asks for an AI daily fortune system but specifies neither platform nor method. Daily Compass is a responsive web experience for adults who enjoy short, low-risk daily reflection. Its astrology-inspired and card-based interpretations are entertainment, not scientifically validated predictions.
 
-**Core loop:** Signal → Why → Action → Reflection. Show a theme, the source signals and rule behind it, one optional small action, and an evening check-in. “Why” describes inputs and rules, not model chain-of-thought.
+**Core loop:** Signal → Why → Action → Reflection (theme of the day and the signals/rules behind it, one optional small action, an evening check-in). Show a theme, the source signals and rule behind it, one optional small action, and an evening check-in. “Why” describes inputs and rules, not model chain-of-thought.
 
-The expanded product answers **today, week, month and year** questions across **love, career, study and money**, plus direct questions such as “Will I get this job?” and “Will my ex return?” The [intent router](INTENT_ROUTER.md) selects a suitable method and answer format. The [method framework](METHOD_SELECTION.md) ranks methods by product fit and implementation burden, never predictive accuracy. [Question examples](QUESTION_CATALOG.md) show calibrated, concrete responses.
+The expanded product answers **today, week, month and year** questions across **love, career, study and money**, plus direct questions such as “Will I get this job?” and “Will my ex return?” A **Safety Gate** runs first, then the [intent router](INTENT_ROUTER.md) selects a suitable method and answer format. Ranking of methods is by product fit and implementation burden, not predictive accuracy. The [method framework](METHOD_SELECTION.md) ranks methods by product fit and implementation burden, never predictive accuracy. [Question examples](QUESTION_CATALOG.md) show calibrated, concrete responses.
 
 ## 4.1 Features
 
 | Priority | Feature | Purpose |
 |---|---|---|
-| POC | General daily reading or optional local Sun-sign context | Let users try without identity; keep only the derived sign in this browser. |
-| POC | Daily Compass card | One short, stable reading per local day. |
-| POC | Ask with Tarot: career, relationship or one-card spread | Give an interactive answer to a specific question with a visible random draw and fixed card meanings. |
-| POC | Why this reading? | Explain calculated context, selected rule and profile precision. |
-| POC | One safe action | Turn a theme into an optional, reversible action. |
-| POC | Evening reflection | Collect relevance/usefulness and an optional private note. |
-| MVP | Birth chart, daily/weekly/monthly/yearly scopes and love/career/study/money filters | Provide selected long- and short-horizon readings from precise profile data and reviewed rules. |
+| POC | General daily reading, or optional Sun-sign context from a birth date | Let users try without identity; the derived sign stays in this browser. |
+| POC | Daily Compass card (theme, colour of the day, card of the day, what to watch for) | Short reading, one set per day, same result on reopening. |
+| POC | Ask with Tarot: career, relationship, or a single-card spread | Specific questions answered with a visible random draw and fixed card meanings. |
+| POC | “Why this reading?” | Show the calculated inputs, the selected rule and the profile precision. |
+| POC | Thai weekday colour, birth-day deity and light remedies | Familiar Thai cultural framing for “bad luck” or stress; labelled as custom/ritual, not a way to change luck. |
+| POC | Stress and crisis path | Small actionable steps for stress; if distress wording is detected, show support panel and the Department of Mental Health hotline **1323** instead of a reading. |
+| POC | “Which astrology is most accurate?” page | State plainly that no system is proven; show which method suits which kind of question. |
+| POC | One safe action | Turn the theme into a small, reversible, optional action. |
+| POC | Evening reflection | Relevance/usefulness scores and an optional private note, stored locally. |
+| MVP | Birth chart; day/week/month/year scope; love/career/study/money filters | Longer and shorter horizon readings from precise profile data and reviewed rules. |
 | MVP | 78-card Tarot catalog and I Ching decision mode | Expand question formats after validating the POC. |
-| Production | History, language/timezone preferences, opt-in reminder | Support repeat use and user control. |
-| Experimental system API | Vedic timing | Prototype sidereal Moon/nakshatra and Vimshottari major periods; withhold user-facing launch until specialist validation. |
+| Production | History, language/timezone preferences, opt-in reminders | Support repeat use and user control. |
+| Experimental system API | Vedic timing | Sidereal Moon/nakshatra and Vimshottari periods; withheld from users until a specialist validates it. |
 
-Guest mode receives a general theme. The POC may ask users for **birth date only** to derive an approximate natal Sun sign in the browser, then discards the date; it does not claim a full chart. Exact birth time and place are not requested in the POC. A later registered/full-chart method needs separate consent, precision handling and a feature justification.
+**Example question handling** (behaviour tested against the running POC):
 
-**Method roles:** Western astrology supplies profile and sampled time-horizon themes; Tarot handles question-specific situations; I Ching frames decisions and change; the experimental Vedic endpoint exposes traditional long-horizon timing structure. A proposed “lucky color,” conflict-avoidance prompt, or harmless remedy is labeled as a cultural/reflective ritual, not a mechanism that changes luck. A deity question receives respectful belief exploration with the user's tradition and consent, never a claim that a deity is objectively assigned or that worship guarantees life improvement.
+| Question | Answer format |
+|---|---|
+| Will I get the job I just interviewed for? | 3 cards (“possible opportunity”), no prediction of the employer's decision. |
+| Will I have work this month? | 30-day theme, watch-outs and preparation; states the hiring outcome is the employer's decision. |
+| Should I invest in stocks? | Reading plus a notice that it is not investment advice. |
+| Bad luck lately — what can I do? | Colour of the day and practical steps: separate real causes from the feeling of bad luck, pick one fixable thing, note that remedies need not cost money. |
+| Should I worship or believe in something to improve my life? | Says outcomes cannot be guaranteed; follow your own belief or consult a trusted religious advisor; belief is not stored. |
+| Very stressed, want advice | Small immediate steps, no prediction. |
+| Text suggesting self-harm | Support panel with 1323 only; no reading, no cards. |
+| Which astrology is the best? | No system is scientifically proven; see which one fits which question. |
+
+Guest mode receives a general theme. The POC may ask users for **birth date only** to derive an approximate natal Sun sign in the browser, then discards the date; it does not claim a full chart. The POC birth-chart page (Western, tropical) asks for date, time (optional) and a place chosen from a list; the server calculates in memory and the browser stores only what is needed on that device, with a delete button. Nothing is kept server-side. A later registered/full-chart method needs separate consent, precision handling and a feature justification.
+
+**Method roles:** Western astrology supplies profile and time-horizon themes; Tarot handles question-specific situations; I Ching frames decisions and change; the experimental Vedic endpoint exposes traditional long-horizon timing structure. A proposed “lucky color,” conflict-avoidance prompt, or harmless remedy is labeled as a Thai custom/reflective ritual, not a mechanism that changes luck. A deity question receives respectful belief exploration with the user's tradition and consent, never a claim that a deity is objectively assigned or that worship guarantees life improvement.
 
 ## 4.2 Market positioning
 
@@ -35,13 +51,23 @@ Guest mode receives a general theme. The POC may ask users for **birth date only
 
 Official pages checked **1 October 2026**. This describes published capabilities, not a complete product audit. The proposed differentiation is the **combination and emphasis** of explanation, action and feedback in one daily flow. It is a hypothesis to test, not a claim of superior accuracy or that competitors lack reflection.
 
+**Proposed differentiators** (to test with users, not claims of being better or that competitors lack them):
+1. **Thai-first with Thai custom:** weekday colour, birth-day deity and remedies that need no spending, labelled as custom.
+2. **Safety before fortune:** crisis wording gets a support panel and 1323, no prediction; high-risk questions get a notice.
+3. **No fatalism:** questions like “will I get the job” return themes, possibilities and things the user can control, with limits stated.
+4. **Repeatable:** cards are drawn server-side by date and question; asking again returns the same set, with answer and version.
+5. **Candid about accuracy:** a page saying no astrology is proven most accurate and what each method suits.
+6. **Minimal data:** the question API does not store questions; the POC has no server-side user data.
+
 ## 4.3 Technical blueprint
 
-The multi-method design adds `Intent Router → Method Adapter` before source calculation/draw. Routing uses explicit user choices first; later AI classification may suggest a mode with user override. Each adapter returns a common evidence envelope: method, horizon, domain, source IDs, rule/catalog version, interpretation, limitations and allowed actions. The narrative layer cannot invent a different method result.
+The multi-method design adds `Safety Gate → Intent Router → Method Adapter` before source calculation/draw. The Safety Gate runs first: crisis wording returns the support panel and 1323 with no reading; other high-risk topics continue with a notice attached. Routing uses explicit user choices first; later AI classification may suggest a mode with user override. Each adapter returns a common evidence envelope: method, horizon, domain, source IDs, rule/catalog version, interpretation, limitations and allowed actions. The narrative layer cannot invent a different method result.
 
 ```mermaid
 flowchart LR
-    Q[User question + horizon + domain] --> R[Intent router]
+    Q[User question + horizon + domain] --> G{Safety gate}
+    G -->|crisis wording| H[Support panel and 1323, no reading]
+    G -->|normal or caution| R[Intent router]
     R --> W[Western adapter: chart/transit rules]
     R --> T[Tarot adapter: random draw + card catalog]
     R --> I[I Ching adapter: hexagram + changing lines]
@@ -50,7 +76,7 @@ flowchart LR
     T --> C
     I --> C
     V --> C
-    C --> N[Narrative + safety + provenance]
+    C --> N[Narrative + limits + provenance]
     N --> F[Answer + action + reflection]
 ```
 
