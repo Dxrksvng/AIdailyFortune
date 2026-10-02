@@ -1,287 +1,261 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#05040a" />
-  <title>Daily Compass · เข็มทิศรายวัน</title>
-  <link rel="stylesheet" href="/style.css" />
-  <link rel="stylesheet" href="/tarot.css" />
-  <link rel="stylesheet" href="/celestial.css" />
-  <link rel="stylesheet" href="/system.css" />
-  <link rel="stylesheet" href="/thai.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05040a">
+<title>Celestra · ดูดวงรายวันเพื่อทบทวนตัวเอง</title>
+<meta property="og:image" content="/assets/logo.webp">
+<meta name="description" content="ดูดวงรายวันเพื่อความบันเทิงและทบทวนตัวเอง ตำแหน่งดาวคำนวณด้วยโค้ด ทุกคำตอบบอกที่มา ไม่ฟันธง">
+<link rel="icon" type="image/webp" href="/assets/logo-mark.webp">
+<link rel="preload" href="/fonts/anuphan-thai.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/noto-serif-thai-thai.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/app.css">
 </head>
 <body>
-  <div class="shell">
-    <header class="topbar">
-      <a class="brand" href="#home" aria-label="Daily Compass"><span class="brand-mark">✳</span><span>daily compass</span></a>
-      <nav class="nav-links" aria-label="เมนูหลัก" data-i18n-aria="nav.main">
-        <a href="#home" id="nav-home" data-i18n="nav.home">จักรวาล</a>
-        <button id="nav-daily" data-i18n="nav.daily">เข็มทิศวันนี้</button>
-        <button id="nav-ask" data-i18n="nav.ask">ถามหมอดู AI</button>
-        <button id="nav-tarot" data-i18n="nav.tarot">ไพ่ทาโรต์</button>
-        <button id="nav-iching" data-i18n="nav.iching">อี้จิง</button>
-        <button id="nav-chart" data-i18n="nav.chart">ดวงกำเนิด</button>
-        <button id="nav-life" data-i18n="nav.life">เส้นทางหลายปี</button>
-        <button id="nav-ritual" data-i18n="nav.ritual">สี · มงคล</button>
-      </nav>
-      <div class="top-actions">
-        <div class="lang-toggle" role="group" aria-label="Language"><button id="lang-th" aria-pressed="true">ไทย</button><button id="lang-en" aria-pressed="false">EN</button></div>
-        <span class="demo-pill" data-i18n="nav.poc">ต้นแบบทดลอง</span>
-      </div>
-    </header>
-    <nav class="mobile-nav" aria-label="Quick navigation">
-      <button data-go="daily" data-i18n="mnav.daily">วันนี้</button>
-      <button data-go="ask" data-i18n="mnav.ask">ถาม</button>
-      <button data-go="tarot" data-i18n="mnav.tarot">ไพ่</button>
-      <button data-go="life" data-i18n="mnav.life">หลายปี</button>
-      <button data-go="ritual" data-i18n="mnav.ritual">สีมงคล</button>
-    </nav>
-
-    <main>
-      <!-- ============ HOME / SCROLLYTELLING ============ -->
-      <section class="screen active" id="home" aria-labelledby="home-title">
-        <div class="space-stage" aria-hidden="true"><canvas id="universe-canvas"></canvas><div class="space-fallback"><span class="fallback-sun"></span><span class="fallback-orbit one"></span><span class="fallback-orbit two"></span></div></div>
-        <div class="hero-content">
-          <p class="eyebrow" data-i18n="home.eyebrow">DAILY COMPASS · เข็มทิศชีวิตรายวัน</p>
-          <h1 id="home-title" data-i18n-html="home.title">จักรวาลของคุณ<br>กำลัง<em>เคลื่อนไหว</em>อยู่แล้ว</h1>
-          <p class="lead" data-i18n="home.lead">ดูสัญญาณของวันนี้ เดือนนี้ และปีข้างหน้า ผ่านโหราศาสตร์ ไพ่ทาโรต์ และอี้จิง แล้วถามสิ่งที่ค้างใจ เหมือนได้คุยกับที่ปรึกษาที่ฟังก่อนตอบ</p>
-          <div class="hero-buttons">
-            <button class="button primary" id="guest-start"><span data-i18n="home.cta1">ดูดวงวันนี้</span> <span>↗</span></button>
-            <button class="button outline" id="ask-start"><span data-i18n="home.cta2">ถามหมอดู AI</span> <span>✦</span></button>
-          </div>
-          <button class="hero-profile" id="profile-toggle" data-i18n="home.profile">สร้างดวงกำเนิดจากวันเวลาและสถานที่เกิด →</button>
-          <p class="hero-disclaimer" data-i18n="home.disclaimer">เพื่อความบันเทิงและการสะท้อนตัวเอง ไม่ใช่คำทำนายที่รับประกันได้ ฉากดาวเคราะห์เป็นภาพประกอบ ไม่ใช่ตำแหน่งจริง</p>
-        </div>
-        <div class="scroll-cue"><span data-i18n="home.scroll">เลื่อนลงเพื่อสำรวจ</span> <span>↓</span></div>
-
-        <div class="story">
-          <section class="story-panel"><span class="story-index" data-i18n="s1.idx">01 / แผนที่ของคุณ</span><h2 data-i18n-html="s1.h">แผนที่เริ่มต้น<br><em>ที่ตัวคุณ</em></h2><p data-i18n="s1.p">ใส่วันเกิด เวลา และจังหวัดที่เกิด ระบบคำนวณตำแหน่งดาวจริงเพื่อสร้างดวงกำเนิดแบบตะวันตก หรือสำรวจมหาทศาแบบเวทิก (ทดลอง) ข้อมูลใช้ในคำขอนั้นเท่านั้น ไม่ถูกเก็บ</p><button class="text-cta" id="story-onboard" data-i18n="s1.cta">สร้างดวงกำเนิด ↗</button></section>
-          <section class="story-panel right"><span class="story-index" data-i18n="s2.idx">02 / สัญญาณและความหมาย</span><h2 data-i18n-html="s2.h">เริ่มจาก<em>สัญญาณ</em><br>แล้วค่อยหาความหมาย</h2><p data-i18n="s2.p">เลือกช่วงเวลา วัน สัปดาห์ เดือน หรือปี และหัวข้อ ความรัก การงาน การเงิน การเรียน ทุกข้อความเป็นข้อสังเกตเชิงตีความ ไม่ใช่เหตุการณ์ที่รับประกันว่าจะเกิด</p><button class="text-cta" id="story-daily" data-i18n="s2.cta">เปิดเข็มทิศวันนี้ ↗</button></section>
-          <section class="story-panel"><span class="story-index" data-i18n="s3.idx">03 / เส้นทางหลายปี</span><h2 data-i18n-html="s3.h">อีก 1–10 ปี<br><em>ธีมชีวิตเป็นอย่างไร</em></h2><p data-i18n="s3.p">เส้นเวลาจากมุมของดาวพฤหัสบดีและเสาร์ที่ทำกับดวงกำเนิด ร่วมกับมหาทศา ไม่ใช่การบอกเหตุการณ์ แต่ช่วยให้เห็นว่าช่วงไหนควรเร่ง ช่วงไหนควรทบทวน</p><button class="text-cta" id="story-life" data-i18n="s3.cta">ดูเส้นทางหลายปี ↗</button></section>
-          <section class="story-panel right"><span class="story-index" data-i18n="s4.idx">04 / ไพ่และอี้จิง</span><h2 data-i18n-html="s4.h">สุ่มไพ่<br><em>หรือโยนเหรียญ</em></h2><p data-i18n="s4.p">เลือกไพ่ทาโรต์ที่สุ่มจริงด้วยรหัสสุ่มเชิงคริปโต หรือโยนเหรียญสร้างเฮกซะแกรมอี้จิง แล้วเชื่อมความหมายกับสิ่งที่คุณควบคุมได้</p><button class="text-cta" id="tarot-start" data-i18n="s4.cta">เปิดไพ่ ↗</button> <button class="text-cta" id="story-iching" data-i18n="s4.cta2">โยนเหรียญอี้จิง ↗</button></section>
-          <section class="story-panel"><span class="story-index" data-i18n="s5.idx">05 / สี มงคล และข้อควรระวัง</span><h2 data-i18n-html="s5.h">พิธีเล็ก ๆ<br><em>ที่ช่วยให้ใจนิ่ง</em></h2><p data-i18n="s5.p">สีประจำวัน ปางพระตามวันเกิดตามธรรมเนียมไทย และข้อควรระวังเชิงปฏิบัติ เช่น เผื่อเวลาเดินทาง หรือหยุดหายใจก่อนเถียงกัน ไม่มีหลักฐานว่าเปลี่ยนโชคได้ ใช้เพื่อกำลังใจเท่านั้น</p><button class="text-cta" id="story-ritual" data-i18n="s5.cta">ดูสีและข้อควรระวัง ↗</button></section>
-          <section class="story-panel final"><span class="story-index" data-i18n="s6.idx">06 / เข็มทิศรายวัน</span><h2 data-i18n-html="s6.h">อ่าน เข้าใจ <em>แล้วทบทวน</em></h2><p data-i18n="s6.p">สัญญาณ แหล่งที่มา ก้าวเล็ก ๆ หนึ่งก้าว และบันทึกของคุณเอง เป็นกิจวัตรสั้น ๆ ที่เลือกเองได้ทุกขั้น</p><button class="button primary" id="story-last-daily"><span data-i18n="home.cta1">ดูดวงวันนี้</span> <span>↗</span></button></section>
-        </div>
-
-        <section class="bento-wrap" aria-labelledby="bento-title">
-          <p class="eyebrow" data-i18n="bento.eyebrow">คำถามที่คนมักถาม</p>
-          <h2 id="bento-title" class="bento-title" data-i18n-html="bento.h">ถามแบบที่คุณอยากถาม <em>เราช่วยเลือกศาสตร์ให้</em></h2>
-          <div class="bento">
-            <button class="bento-tile wide glass" data-q="งานที่เพิ่งสัมภาษณ์มาจะได้งานมั้ย"><span class="bento-ico">✦</span><strong data-i18n="q.interview">งานที่เพิ่งสัมภาษณ์มาจะได้งานมั้ย</strong><small data-i18n="q.interview.h">ไพ่ 3 ใบ: โอกาส อุปสรรค สิ่งที่คุณควบคุมได้</small></button>
-            <button class="bento-tile glass" data-q="จะมีงานทำภายในเดือนนี้ไหม เตรียมตัวยังไงดี"><span class="bento-ico">☾</span><strong data-i18n="q.jobmonth">จะมีงานทำภายในเดือนนี้ไหม</strong><small data-i18n="q.jobmonth.h">ธีม 30 วัน + แผนเตรียมตัว</small></button>
-            <button class="bento-tile glass" data-q="อีก 5 ปีชีวิตจะเป็นยังไง"><span class="bento-ico">✺</span><strong data-i18n="q.years">อีก 5 ปีชีวิตจะเป็นยังไง</strong><small data-i18n="q.years.h">เส้นเวลาหลายปี (ต้องมีข้อมูลเกิด)</small></button>
-            <button class="bento-tile glass" data-q="ช่วงนี้โชคไม่ดี ทำยังไงดี"><span class="bento-ico">◌</span><strong data-i18n="q.luck">ช่วงนี้โชคไม่ดี ทำยังไงดี</strong><small data-i18n="q.luck.h">ขั้นตอนจริง + พิธีเล็ก ๆ ตามที่สบายใจ</small></button>
-            <button class="bento-tile glass" data-q="วันนี้ควรใส่สีอะไรดี ต้องระวังอะไร"><span class="bento-ico">❖</span><strong data-i18n="q.color">วันนี้ใส่สีอะไร ระวังอะไร</strong><small data-i18n="q.color.h">สีประจำวัน + ข้อควรระวัง</small></button>
-            <button class="bento-tile wide glass" data-q="ศาสตร์ไหนแม่นที่สุด"><span class="bento-ico">?</span><strong data-i18n="q.accuracy">ศาสตร์ไหนแม่นที่สุด</strong><small data-i18n="q.accuracy.h">คำตอบตรง ๆ ไม่มีการจัดอันดับเกินจริง</small></button>
-            <button class="bento-tile full glass" data-q="เครียดมาก อยากได้คำแนะนำในการใช้ชีวิต"><span class="bento-ico">♡</span><strong data-i18n="q.stress">เครียด อยากได้คำแนะนำในการใช้ชีวิต</strong><small data-i18n="q.stress.h">ก้าวเล็ก ๆ ที่ทำได้ทันที และเมื่อไหร่ควรหาผู้เชี่ยวชาญ</small></button>
-          </div>
-        </section>
-      </section>
-
-      <!-- ============ ONBOARD / BIRTH ============ -->
-      <section class="screen" id="onboard" aria-labelledby="onboard-title">
-        <div class="onboard-layout">
-          <div><p class="eyebrow" data-i18n="ob.eyebrow">แผนที่ส่วนตัว / ไม่บังคับ</p><h1 id="onboard-title" data-i18n-html="ob.h">สร้าง<em>จักรวาล</em>ของคุณ</h1><p class="lead" data-i18n="ob.lead">ใช้วันเวลาและสถานที่เกิดคำนวณดวงกำเนิดแบบตะวันตก ดูมหาทศาแบบเวทิก (ทดลอง) และใช้กับเส้นทางหลายปี ต้นแบบนี้ไม่เก็บข้อมูล</p><div class="onboard-orb" aria-hidden="true">☼</div></div>
-          <div class="profile-panel glass" id="profile-panel">
-            <div class="ob-progress"><span class="tiny-label" id="ob-step-label"></span><div class="ob-dots" id="ob-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
-            <h2 class="ob-title" id="ob-title"></h2>
-            <p class="fineprint" id="ob-sub"></p>
-            <div class="ob-step" data-step="1"><label for="birth-date" data-i18n="ob.date">วันเกิด</label><input type="date" id="birth-date" /></div>
-            <div class="ob-step" data-step="2"><label for="birth-time" data-i18n="ob.time">เวลาเกิด (เวลาท้องถิ่น)</label><input type="time" id="birth-time" value="12:00" />
-              <label class="consent-row"><input type="checkbox" id="birth-time-unknown" /> <span data-i18n="ob.unknown">ฉันไม่รู้เวลาเกิด (ระบบจะบอกว่าส่วนไหนแม่นน้อยลง)</span></label></div>
-            <div class="ob-step" data-step="3"><div class="profile-fields">
-              <label><span data-i18n="ob.city">จังหวัด / เมืองที่เกิด</span><select id="birth-city"></select></label>
-              <label><span data-i18n="ob.tz">เขตเวลา</span><input type="text" id="birth-timezone" autocomplete="off" /></label>
-              <label><span data-i18n="ob.lat">ละติจูด</span><input type="number" id="birth-lat" step="0.0001" placeholder="13.7563" /></label>
-              <label><span data-i18n="ob.lon">ลองจิจูด</span><input type="number" id="birth-lon" step="0.0001" placeholder="100.5018" /></label></div>
-              <p class="fineprint" data-i18n="ob.cityNote">พิกัดของเมืองเป็นค่าโดยประมาณระดับตัวเมือง แก้เองได้</p></div>
-            <div class="ob-step" data-step="4"><div class="chips" id="interests" role="group" aria-label="interests"></div></div>
-            <div class="ob-step" data-step="5">
-              <label class="consent-row"><input type="checkbox" id="birth-consent" /> <span data-i18n="ob.consent">ฉันยินยอมให้ส่งข้อมูลการเกิดเพื่อการคำนวณครั้งนี้</span></label>
-              <div class="profile-actions"><button class="button primary" id="western-chart" data-i18n="ob.western">คำนวณดวงกำเนิด</button><button class="button outline" id="vedic-chart" data-i18n="ob.vedic">ดูมหาทศา (ทดลอง)</button><button class="button outline" id="to-life" data-i18n="ob.life">ดูเส้นทางหลายปี →</button></div>
-              <p class="fineprint" data-i18n="ob.fine">เวลาและพิกัดมีผลต่อมุมของดวง ห้ามกรอกหากไม่ยินยอม ข้อมูลถูกประมวลผลในหน่วยความจำและไม่ถูกบันทึก</p></div>
-            <div class="ob-nav"><button class="button quiet" id="ob-back" data-i18n="ob.back">← ย้อนกลับ</button><button class="button primary" id="ob-next" data-i18n="ob.next">ถัดไป →</button></div>
-            <button class="button quiet" id="onboard-guest" data-i18n="ob.guest">ไปต่อโดยไม่ใส่ข้อมูลเกิด →</button>
-          </div>
-        </div>
-        <div id="profile-result" class="profile-result hidden" aria-live="polite"></div>
-      </section>
-
-      <section class="screen" id="loading" aria-labelledby="loading-title"><div class="loading-wrap"><div class="loading-orbit" aria-hidden="true"><span></span></div><p class="eyebrow" data-i18n="ld.eyebrow">กำลังเตรียมเข็มทิศของคุณ</p><h1 id="loading-title" data-i18n-html="ld.h">กำลังอ่าน<em>สัญญาณวันนี้…</em></h1><p data-i18n="ld.p">คำนวณเฟสดวงจันทร์และเลือกกฎการตีความ</p></div></section>
-
-      <!-- ============ ASK ============ -->
-      <section class="screen" id="ask" aria-labelledby="ask-title">
-        <aside class="birth-summary glass" id="birth-summary" aria-live="polite"></aside>
-        <div class="ask-layout">
-          <div class="oracle-orb" aria-hidden="true">✦</div>
-          <p class="eyebrow" data-i18n="ask.eyebrow">ถามหมอดู AI / เลือกเส้นทางของคุณ</p>
-          <h1 id="ask-title" data-i18n-html="ask.h">มีอะไร<em>ค้างใจ?</em></h1>
-          <p class="page-sub" data-i18n="ask.sub">พิมพ์คำถามตรง ๆ เลือกศาสตร์เอง หรือให้ระบบเลือกให้ตามประเภทคำถาม ตัวเลขและตำแหน่งดาวมาจากการคำนวณ ส่วนความหมายเป็นการตีความ</p>
-          <textarea id="oracle-question" rows="3" maxlength="500" data-i18n-ph="ask.ph" placeholder="งานที่เพิ่งสัมภาษณ์มาจะได้งานมั้ย"></textarea>
-          <div class="ask-suggestions">
-            <button data-question="งานที่เพิ่งสัมภาษณ์มาจะได้งานมั้ย" data-i18n="q.interview">งานที่เพิ่งสัมภาษณ์มาจะได้งานมั้ย</button>
-            <button data-question="จะมีงานทำภายในเดือนนี้ไหม เตรียมตัวยังไงดี" data-i18n="q.jobmonth">จะมีงานทำภายในเดือนนี้ไหม</button>
-            <button data-question="แฟนเก่าจะกลับมาไหม" data-i18n="q.ex">แฟนเก่าจะกลับมาไหม</button>
-            <button data-question="A กับ B ควรเลือกอะไรดี" data-i18n="q.ab">A กับ B เลือกอะไรดี</button>
-            <button data-question="อีก 5 ปีชีวิตจะเป็นยังไง" data-i18n="q.years">อีก 5 ปีชีวิตจะเป็นยังไง</button>
-            <button data-question="ช่วงนี้โชคไม่ดี ทำยังไงดี" data-i18n="q.luck">ช่วงนี้โชคไม่ดี ทำยังไงดี</button>
-            <button data-question="วันนี้ควรใส่สีอะไรดี ต้องระวังอะไร" data-i18n="q.color">วันนี้ใส่สีอะไร ระวังอะไร</button>
-            <button data-question="ควรบูชาหรือนับถืออะไรแล้วชีวิตดีขึ้น" data-i18n="q.belief">ควรบูชาอะไรแล้วชีวิตดีขึ้น</button>
-            <button data-question="ศาสตร์ไหนแม่นที่สุด" data-i18n="q.accuracy">ศาสตร์ไหนแม่นที่สุด</button>
-            <button data-question="เครียดมาก อยากได้คำแนะนำในการใช้ชีวิต" data-i18n="q.stress">เครียด อยากได้คำแนะนำ</button>
-          </div>
-          <div class="ask-controls">
-            <label><span data-i18n="ask.method">ศาสตร์ที่ใช้</span>
-              <select id="oracle-method"><option value="auto" data-i18n="ask.m.auto">ให้ระบบเลือกให้</option><option value="western" data-i18n="ask.m.western">โหราศาสตร์ตะวันตก</option><option value="tarot" data-i18n="ask.m.tarot">ไพ่ทาโรต์</option><option value="iching" data-i18n="ask.m.iching">อี้จิง</option></select></label>
-            <button class="button primary" id="oracle-submit"><span data-i18n="ask.go">ขอมุมมอง</span> <span>↗</span></button>
-          </div>
-          <div class="oracle-thread" id="oracle-answer" aria-live="polite"></div>
-          <p class="fineprint" data-i18n="ask.fine">ระบบให้มุมมองเพื่อสะท้อนตัวเอง ไม่ใช่เหตุการณ์ที่รับประกัน และไม่รู้ความคิดส่วนตัวของคนอื่น คำถามเสี่ยงสูง เช่น ยา กฎหมาย การลงทุน จะถูกส่งต่อไปยังข้อมูลจริงและผู้เชี่ยวชาญ</p>
-        </div>
-      </section>
-
-      <!-- ============ I CHING ============ -->
-      <section class="screen" id="iching" aria-labelledby="iching-title">
-        <div class="iching-preview">
-          <p class="eyebrow" data-i18n="ic.eyebrow">อี้จิง / เข็มทิศการตัดสินใจ</p>
-          <h1 id="iching-title" data-i18n-html="ic.h">เลนส์มองการ<em>เปลี่ยนแปลง</em></h1>
-          <p data-i18n="ic.p">ตั้งคำถามหนึ่งข้อในใจ ระบบโยนเหรียญสามเหรียญหกครั้งด้วยรหัสสุ่มเชิงคริปโต แล้วจับคู่กับเฮกซะแกรมตามลำดับเหวินหวัง</p>
-          <label class="iching-question-label" for="iching-question" data-i18n="ic.q">คำถามของคุณ</label>
-          <textarea id="iching-question" rows="3" maxlength="500" data-i18n-ph="ic.ph" placeholder="ฉันควรให้ความสำคัญกับอะไรในการเลือกระหว่างสองทางนี้"></textarea>
-          <button class="button primary" id="iching-cast"><span id="iching-cast-label" data-i18n="ic.cast">โยนเหรียญ</span> <span>✦</span></button> <button class="button quiet" id="iching-reset" data-i18n="ic.reset">เริ่มใหม่</button>
-          <div class="iching-lines" id="iching-lines" aria-hidden="true"></div>
-          <p class="fineprint" id="iching-status"></p>
-          <div class="iching-result hidden" id="iching-result" aria-live="polite"></div>
-          <p class="fineprint" data-i18n="ic.fine">ผลลัพธ์เป็นข้อความชวนคิดเชิงสัญลักษณ์ ไม่ใช่การทำนายหรือคำสั่งให้เลือกทางใดทางหนึ่ง ไม่แสดงคำพิพากษาหรือคำแปลดั้งเดิม ชื่อเฮกซะแกรมเป็นภาษาอังกฤษพร้อมอักษรจีนและพินอิน</p>
-        </div>
-      </section>
-
-      <!-- ============ TAROT ============ -->
-      <section class="screen" id="tarot" aria-labelledby="tarot-title">
-        <div class="page-head"><p class="eyebrow" data-i18n="tr.eyebrow">ถามตอนนี้ / ไพ่ทาโรต์</p><h1 id="tarot-title" data-i18n-html="tr.h">เปลี่ยนคำถามให้เป็น<em>มุมมอง</em></h1><p class="page-sub" data-i18n="tr.sub">เลือกรูปแบบการเปิดไพ่ สุ่มไพ่ แล้วดูว่าอะไรอยู่ในมือคุณ</p></div>
-        <div class="tarot-layout">
-          <div class="tarot-input">
-            <span class="tiny-label" data-i18n="tr.l1">01 / คำถามของคุณ</span>
-            <label for="tarot-question" data-i18n="tr.q">อยากสำรวจเรื่องอะไร</label>
-            <textarea id="tarot-question" maxlength="500" rows="3" data-i18n-ph="tr.ph" placeholder="งานที่เพิ่งสัมภาษณ์มาจะได้งานมั้ย"></textarea>
-            <p class="fineprint" data-i18n="tr.f1">คำถามใช้ในการอ่านครั้งนี้เท่านั้น ไม่ถูกเก็บ</p>
-            <span class="tiny-label" data-i18n="tr.l2">02 / เลือกรูปแบบ</span>
-            <div class="spread-options">
-              <label><input type="radio" name="spread" value="career" checked><span><b data-i18n="tr.s.career">การงาน</b><small data-i18n="tr.3">3 ใบ</small></span></label>
-              <label><input type="radio" name="spread" value="study"><span><b data-i18n="tr.s.study">การเรียน</b><small data-i18n="tr.3">3 ใบ</small></span></label>
-              <label><input type="radio" name="spread" value="money"><span><b data-i18n="tr.s.money">การเงิน</b><small data-i18n="tr.3">3 ใบ</small></span></label>
-              <label><input type="radio" name="spread" value="relationship"><span><b data-i18n="tr.s.love">ความรักและความสัมพันธ์</b><small data-i18n="tr.3">3 ใบ</small></span></label>
-              <label><input type="radio" name="spread" value="timeline"><span><b data-i18n="tr.s.time">อดีต · ปัจจุบัน · แนวโน้ม</b><small data-i18n="tr.3">3 ใบ</small></span></label>
-              <label><input type="radio" name="spread" value="general"><span><b data-i18n="tr.s.one">ไพ่ใบเดียว</b><small data-i18n="tr.1">1 ใบ</small></span></label>
-            </div>
-            <span class="tiny-label" data-i18n="tr.l3">03 / เลือกไพ่จากกอง</span>
-            <p class="fineprint" id="fan-hint"></p>
-            <div class="fan" id="tarot-fan" role="group" aria-label="cards"></div>
-            <button class="button outline tarot-draw" id="draw-tarot"><span data-i18n="tr.draw">สุ่มให้เลย</span> <span>↗</span></button>
-            <p class="fineprint" data-i18n="tr.f2">สุ่มไม่คืนไพ่จากสำรับ 78 ใบ ความหมายมาจากแคตตาล็อกคงที่ที่เขียนขึ้นเอง ไม่ใช่คำทำนายตามตำรา</p>
-          </div>
-          <div class="tarot-result">
-            <div class="tarot-empty" id="tarot-empty"><div class="tarot-empty-symbol">✶</div><h2 data-i18n="tr.empty.h">ไพ่ของคุณกำลังรออยู่</h2><p data-i18n="tr.empty.p">ไพ่แต่ละใบมีความหมายที่เขียนไว้ล่วงหน้า การสุ่มเป็นของจริง ความหมายมาจากแคตตาล็อกคงที่</p></div>
-            <div class="hidden" id="tarot-reading">
-              <div class="tarot-result-head"><span class="tiny-label" id="spread-name"></span><button class="inline-button" id="draw-again" data-i18n="tr.again">จั่วใหม่ ↻</button></div>
-              <div class="tarot-cards" id="tarot-cards"></div>
-              <div class="tarot-guidance"><span class="tiny-label" data-i18n="tr.point">สิ่งที่อาจชี้ถึง</span><p id="tarot-possibility"></p><span class="tiny-label" data-i18n="tr.do">สิ่งที่คุณทำได้</span><p id="tarot-action"></p><p class="fineprint" data-i18n="tr.f3">ไพ่เป็นการสะท้อนเชิงสัญลักษณ์ ไม่รู้ความคิดของคนอื่นและไม่รับประกันผล</p></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============ DAILY ============ -->
-      <section class="screen" id="daily" aria-labelledby="daily-title">
-        <div class="page-head"><p class="eyebrow"><span data-i18n="d.eyebrow">เข็มทิศของคุณ</span> <span id="date-label"></span></p><h1 id="daily-title" data-i18n-html="d.h">ข้อคิดสำหรับ<em>วันนี้</em></h1><p class="page-sub" data-i18n="d.sub">คำเชิญเล็ก ๆ จากเฟสดวงจันทร์ที่คำนวณได้ของวันนี้</p></div>
-        <div class="period-controls">
-          <label><span data-i18n="d.horizon">ช่วงเวลา</span><select id="period-horizon"><option value="day" data-i18n="d.h.day">วันนี้</option><option value="week" data-i18n="d.h.week">7 วันนี้</option><option value="month" data-i18n="d.h.month">30 วันนี้</option><option value="year" data-i18n="d.h.year">365 วันนี้</option></select></label>
-          <label><span data-i18n="d.focus">หัวข้อ</span><select id="period-topic"><option value="general" data-i18n="t.general">ภาพรวมชีวิต</option><option value="love" data-i18n="t.love">ความรัก</option><option value="career" data-i18n="t.career">การงาน</option><option value="study" data-i18n="t.study">การเรียน</option><option value="money" data-i18n="t.money">การเงิน</option></select></label>
-          <button class="button outline" id="period-load"><span data-i18n="d.explore">สำรวจช่วงนี้</span> ↗</button>
-        </div>
-        <div class="dashboard-strip">
-          <div class="dashboard-wheel" aria-label="Illustrative wheel"><div class="wheel-rings"><span class="wheel-center">☉</span><span class="wheel-marker" id="wheel-marker">☽</span></div></div>
-          <div class="dashboard-summary"><span class="tiny-label" data-i18n="d.orbit">วงโคจรวันนี้ / เฟสดวงจันทร์</span><h2 id="dashboard-theme">—</h2><p id="dashboard-phase"></p><div class="dashboard-actions"><button class="button primary" id="dashboard-ask"><span data-i18n="d.ask">ถามอะไรก็ได้</span> <span>✦</span></button><button class="button outline" id="dashboard-tarot"><span data-i18n="d.tarot">จั่วไพ่</span> <span>↗</span></button></div></div>
-          <div class="topic-lenses"><span class="tiny-label" data-i18n="d.choose">เลือกหัวข้อ</span>
-            <button data-period-topic="love"><b data-i18n="t.love">ความรัก</b> <small data-i18n="d.t.love">สะท้อนความสัมพันธ์</small></button>
-            <button data-period-topic="career"><b data-i18n="t.career">การงาน</b> <small data-i18n="d.t.career">งานและทิศทาง</small></button>
-            <button data-period-topic="study"><b data-i18n="t.study">การเรียน</b> <small data-i18n="d.t.study">สมาธิและการฝึก</small></button>
-            <button data-period-topic="money"><b data-i18n="t.money">การเงิน</b> <small data-i18n="d.t.money">ทรัพยากรและทางเลือก</small></button>
-          </div>
-        </div>
-        <article class="period-card hidden glass" id="period-result" aria-live="polite"><span class="tiny-label" id="period-kicker"></span><h2 id="period-signal"></h2><p id="period-scenario"></p><div class="period-meta"><span id="period-interval"></span><span id="period-why"></span></div><div class="action-block"><span class="tiny-label" data-i18n="d.step">ก้าวที่ทำได้จริง</span><p id="period-action"></p></div></article>
-        <article class="period-card glass caution-card" id="daily-caution" aria-live="polite"><span class="tiny-label" data-i18n="d.caution">เตือนวันนี้</span><ul class="answer-list" id="daily-caution-list"></ul></article>
-        <details class="why-panel glass" id="daily-sources"><summary data-i18n="d.src">ทำไมถึงเห็นข้อความนี้</summary><div class="why-cols"><div><b data-i18n="d.used">สิ่งที่ใช้</b><p data-i18n="d.used.p">วันที่และเขตเวลาของคุณ เฟสดวงจันทร์ที่คำนวณได้ หัวข้อที่คุณเลือก และราศีอาทิตย์โดยประมาณ (ถ้าให้)</p></div><div><b data-i18n="d.notused">สิ่งที่ไม่ได้ใช้</b><p data-i18n="d.notused.p">ข้อมูลสุขภาพ การเงินจริง ตำแหน่งที่อยู่ ข้อมูลจากแอปอื่น หรือบันทึกที่คุณเขียน ตำแหน่งดาวมาจากโค้ดคำนวณ</p></div></div></details>
-        <div class="reading-layout">
-          <article class="reading-card">
-            <div class="card-top"><span class="card-kicker" data-i18n="d.signal">สัญญาณวันนี้</span><span class="card-symbol">✳</span></div>
-            <h2 id="signal-title">—</h2><p class="reading-copy" id="reading-copy"></p>
-            <div class="card-divider"></div><div class="action-block"><span class="tiny-label" data-i18n="d.one">หนึ่งก้าวเล็ก ๆ</span><p id="action-copy"></p></div>
-            <div class="card-bottom"><button class="inline-button" id="why-open"><span data-i18n="d.why">ทำไมถึงอ่านแบบนี้</span> <span>↗</span></button><span class="card-index" id="narrative-source">DC / 01</span></div>
-          </article>
-          <aside class="side-note"><span class="side-icon">☾</span><p class="side-kicker" data-i18n="d.note.k">โน้ตเตือนใจ</p><h3 data-i18n="d.note.h">เอาสิ่งที่เป็นประโยชน์ไป ที่เหลือวางไว้ได้</h3><p data-i18n="d.note.p">การอ่านนี้เป็นมุมมองให้พิจารณา ไม่ใช่การพยากรณ์ว่าสิ่งใดต้องเกิด</p><button class="button dark" id="reflect-open"><span data-i18n="d.reflect">ทบทวนวันนี้</span> <span>↗</span></button></aside>
-        </div>
-      </section>
-
-      <!-- ============ LIFE TIMELINE ============ -->
-      <section class="screen" id="life" aria-labelledby="life-title">
-        <div class="page-head"><p class="eyebrow" data-i18n="lf.eyebrow">เส้นทางหลายปี / ต้องใช้ข้อมูลเกิด</p><h1 id="life-title" data-i18n-html="lf.h">อีกหลายปีข้างหน้า <em>ธีมชีวิตเป็นอย่างไร</em></h1><p class="page-sub" data-i18n="lf.sub">เส้นเวลารายปีจากมุมดาวพฤหัสบดี/เสาร์ที่ทำกับดวงกำเนิด และมหาทศาที่ใช้อยู่ เป็นธีมเชิงตีความ ไม่ใช่เหตุการณ์ที่จะเกิด</p></div>
-        <div class="period-controls">
-          <label><span data-i18n="lf.years">จำนวนปี</span><select id="life-years"><option value="3">3</option><option value="5" selected>5</option><option value="10">10</option></select></label>
-          <label><span data-i18n="d.focus">หัวข้อ</span><select id="life-topic"><option value="general" data-i18n="t.general">ภาพรวมชีวิต</option><option value="love" data-i18n="t.love">ความรัก</option><option value="career" data-i18n="t.career">การงาน</option><option value="study" data-i18n="t.study">การเรียน</option><option value="money" data-i18n="t.money">การเงิน</option></select></label>
-          <button class="button primary" id="life-load"><span data-i18n="lf.go">สร้างเส้นเวลา</span> ↗</button>
-        </div>
-        <div id="life-needs" class="life-needs glass hidden"><p data-i18n="lf.needs">ต้องกรอกวันเวลาและสถานที่เกิดก่อน (ไม่เก็บข้อมูล)</p><button class="button outline" id="life-to-onboard" data-i18n="lf.fill">กรอกข้อมูลเกิด →</button></div>
-        <div id="life-result" class="life-result hidden" aria-live="polite"></div>
-      </section>
-
-      <!-- ============ RITUAL ============ -->
-      <section class="screen" id="ritual" aria-labelledby="ritual-title">
-        <div class="page-head"><p class="eyebrow" data-i18n="rt.eyebrow">สี · ของมงคล · ข้อควรระวัง</p><h1 id="ritual-title" data-i18n-html="rt.h">พิธีเล็ก ๆ ที่ช่วยให้<em>ใจนิ่ง</em></h1><p class="page-sub" data-i18n="rt.sub">ธรรมเนียมไทยกับข้อควรระวังเชิงปฏิบัติ ไม่มีหลักฐานว่าเปลี่ยนโชค ใช้เพื่อกำลังใจตามที่คุณสบายใจ</p></div>
-        <div class="period-controls">
-          <label><span data-i18n="rt.birth">วันเกิด (ไม่บังคับ)</span><input type="date" id="ritual-birth" /></label>
-          <button class="button primary" id="ritual-load"><span data-i18n="rt.go">ดูสีและข้อควรระวัง</span> ↗</button>
-        </div>
-        <div id="ritual-result" class="ritual-result hidden" aria-live="polite"></div>
-      </section>
-
-      <!-- ============ GUIDE ============ -->
-      <section class="screen" id="guide" aria-labelledby="guide-title">
-        <div class="page-head"><p class="eyebrow" data-i18n="g.eyebrow">คู่มือระบบ</p><h1 id="guide-title" data-i18n-html="g.h">ศาสตร์ไหน<em>แม่นสุด</em></h1><p class="page-sub" data-i18n="g.sub">ตอบตรง ๆ: ไม่มีศาสตร์ไหนมีหลักฐานทางวิทยาศาสตร์ว่าทำนายอนาคตได้แม่นยำ แต่ละศาสตร์ใช้ได้ต่างกันในฐานะเครื่องมือสะท้อนตัวเองและวางจังหวะ เว็บนี้จึงไม่แสดงเปอร์เซ็นต์ความแม่น</p></div>
-        <div id="guide-body" class="guide-body"></div>
-      </section>
-
-      <!-- ============ WHY / REFLECT ============ -->
-      <section class="screen" id="why" aria-labelledby="why-title">
-        <div class="page-head"><p class="eyebrow" data-i18n="w.eyebrow">เหตุผลเบื้องหลังการอ่าน</p><h1 id="why-title" data-i18n-html="w.h">ชัดขึ้น<em>อีกนิด</em></h1><p class="page-sub" data-i18n="w.sub">อะไรกำหนดธีมของวันนี้ อธิบายแบบเข้าใจง่าย</p></div>
-        <div class="why-grid">
-          <div class="explain-card"><span class="number" data-i18n="w.1">01 / แหล่งข้อมูล</span><div class="explain-icon">☾</div><h2 data-i18n="w.1h">บริบทของท้องฟ้าวันนี้</h2><p id="phase-copy"></p><div class="data-line"><span data-i18n="w.calc">คำนวณเมื่อ</span><strong id="instant-copy"></strong></div></div>
-          <div class="explain-card"><span class="number" data-i18n="w.2">02 / การตีความ</span><div class="explain-icon">✳</div><h2 data-i18n="w.2h">กฎการอ่านของเรา</h2><p id="rule-copy"></p><div class="data-line"><span data-i18n="w.rule">กฎ</span><strong id="rule-id"></strong></div></div>
-          <div class="explain-card"><span class="number" data-i18n="w.3">03 / บริบทของคุณ</span><div class="explain-icon">◌</div><h2 data-i18n="w.3h">ระดับการปรับให้เป็นส่วนตัว</h2><p id="precision-copy"></p><div class="data-line"><span data-i18n="w.mode">โหมด</span><strong id="mode-copy"></strong></div></div>
-        </div>
-        <div class="explain-footer"><p data-i18n-html="w.foot"><strong>อ่านอย่างไร:</strong> ตำแหน่งดาวคำนวณได้ แต่ความหมายที่เรากำหนดให้เป็นการตีความแบบโหราศาสตร์ ไม่ใช่การพยากรณ์ทางวิทยาศาสตร์</p><button class="button outline" id="back-daily" data-i18n="w.back">← กลับไปที่การอ่าน</button></div>
-      </section>
-
-      <section class="screen" id="reflect" aria-labelledby="reflect-title">
-        <div class="reflection-layout">
-          <div class="reflection-intro"><p class="eyebrow" data-i18n="r.eyebrow">เช็กอินตอนเย็น</p><h1 id="reflect-title" data-i18n-html="r.h">วันนี้<em>เป็นอย่างไร</em></h1><p class="lead" data-i18n="r.lead">คุณเป็นคนตัดสินว่าเข็มทิศวันนี้มีประโยชน์ไหม ใช้เวลาไม่กี่วินาทีก็พอ</p><div class="quote-card"><span>✦</span><p id="reflection-prompt"></p></div></div>
-          <form class="reflection-form" id="feedback-form">
-            <div class="form-title"><span data-i18n="r.form">บันทึกของคุณ</span> <span data-i18n="r.opt">ไม่บังคับ</span></div>
-            <fieldset><legend data-i18n="r.rel">ตรงกับวันของคุณแค่ไหน</legend><div class="choice-row" id="relevance-options"><label><input type="radio" name="relevance" value="3" /><span data-i18n="r.rel3">ตรง</span></label><label><input type="radio" name="relevance" value="2" /><span data-i18n="r.rel2">ค่อนข้างตรง</span></label><label><input type="radio" name="relevance" value="1" /><span data-i18n="r.rel1">ไม่ตรงวันนี้</span></label></div></fieldset>
-            <fieldset><legend data-i18n="r.use">มีประโยชน์ไหม</legend><div class="choice-row" id="usefulness-options"><label><input type="radio" name="usefulness" value="3" /><span data-i18n="r.use3">มี</span></label><label><input type="radio" name="usefulness" value="2" /><span data-i18n="r.use2">นิดหน่อย</span></label><label><input type="radio" name="usefulness" value="1" /><span data-i18n="r.use1">ไม่มี</span></label></div></fieldset>
-            <label class="note-label" for="reflection-note" data-i18n="r.note">โน้ตส่วนตัว (ถ้าอยากเขียน)</label>
-            <textarea id="reflection-note" maxlength="500" rows="4" data-i18n-ph="r.ph" placeholder="วันนี้อะไรที่ยังอยู่ในใจ"></textarea>
-            <p class="fineprint" data-i18n="r.fine">บันทึกไว้ในเบราว์เซอร์นี้เท่านั้น โน้ตไม่ถูกส่งไปที่เซิร์ฟเวอร์</p>
-            <div class="form-buttons"><button class="button primary" type="submit"><span data-i18n="r.save">บันทึก</span> <span>↗</span></button><button class="button quiet" type="button" id="skip-reflection" data-i18n="r.skip">ข้ามไปก่อน</button></div>
-            <p class="saved-message" id="saved-message" role="status"></p>
-          </form>
-        </div>
-      </section>
-    </main>
-    <footer class="footer"><span>✳ DAILY COMPASS</span><nav aria-label="Footer"><button id="footer-home" data-i18n="f.home">เริ่มใหม่</button><button id="footer-guide" data-i18n="f.guide">คู่มือระบบ</button><button id="clear-data" data-i18n="f.clear">ล้างข้อมูลในเครื่องนี้</button></nav><span data-i18n="f.tag">สะท้อนใจ ไม่ใช่ทำนาย</span></footer>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="page">
+<nav class="nav" aria-label="หมวดหลัก">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Celestra"><img src="assets/logo-mark.webp" alt="" width="40" height="31">Celestra</a>
+    <ul>
+      <li><a class="l" href="#today">วันนี้</a></li>
+      <li><a class="l" href="#ask">ถามดวง</a></li>
+      <li><a class="l" href="#tarot">ไพ่ทาโรต์</a></li>
+      <li><a class="l" href="#chart">ดวงกำเนิด</a></li>
+      <li><a class="l" href="#ritual">สีมงคล</a></li>
+      <li><a class="l" href="#honest">ศาสตร์ไหนแม่น</a></li>
+      <li><a class="l" href="#care">เครียด</a></li>
+    </ul>
   </div>
-  <script type="module" src="/app.js"></script>
-  <script type="module" src="/scene.bundle.js"></script>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="wrap">
+    <span class="eyebrow">ดูดวงรายวัน · เพื่อความบันเทิงและทบทวนตัวเอง</span>
+    <h1 class="kin" id="heroTitle">ถามเรื่องที่ค้างใจ แล้วดูว่า<em>ดวงดาววันนี้</em>ชวนให้คุณคิดเรื่องอะไร</h1>
+    <p class="lede">ตำแหน่งดาวคำนวณด้วยโค้ด ความหมายมาจากกฎที่เขียนไว้ชัดเจน และทุกคำตอบบอกว่ามาจากไหน ไม่มีการทำนายแบบฟันธง</p>
+    <form class="ask" id="askForm" autocomplete="off">
+      <div class="ask-row">
+        <input type="text" id="q" aria-label="คำถามของคุณ" maxlength="500" placeholder="เช่น งานที่เพิ่งสัมภาษณ์ไปจะได้ไหม" value="งานที่เพิ่งสัมภาษณ์ไปจะได้ไหม">
+        <button class="btn" type="submit">ถามดวง</button>
+      </div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="ด้าน" id="topicSeg">
+          <button type="button" data-v="general" aria-pressed="false">ภาพรวม</button>
+          <button type="button" data-v="love" aria-pressed="false">ความรัก</button>
+          <button type="button" data-v="career" aria-pressed="true">การงาน</button>
+          <button type="button" data-v="money" aria-pressed="false">การเงิน</button>
+          <button type="button" data-v="study" aria-pressed="false">การเรียน</button>
+        </div>
+        <div class="seg" role="group" aria-label="ช่วงเวลา" id="horizonSeg">
+          <button type="button" data-v="day" aria-pressed="true">วันนี้</button>
+          <button type="button" data-v="week" aria-pressed="false">สัปดาห์</button>
+          <button type="button" data-v="month" aria-pressed="false">เดือน</button>
+          <button type="button" data-v="year" aria-pressed="false">ปี</button>
+        </div>
+      </div>
+      <div class="chips" id="popular" aria-label="คำถามยอดฮิต"></div>
+    </form>
+  </div>
+</header>
+
+<main>
+<section class="block" id="today">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow" id="todayDate">วันนี้</span><h2>เข็มทิศประจำวัน</h2></div>
+      <p class="muted">อ่านจบในหนึ่งนาที: ธีมของวัน สีประจำวัน ไพ่ประจำวัน และสิ่งที่ควรระวัง</p>
+    </div>
+    <div class="bento">
+      <article class="glass b-read reveal">
+        <img class="orb" src="assets/orb.webp" alt="" width="320" height="320">
+        <div class="phase"><span>เฟสดวงจันทร์ <b id="phaseName">-</b></span><span>มุม <b id="phaseDeg">-</b></span></div>
+        <div class="txt">
+          <span class="tag" id="readTag">คำนวณจากเฟสดวงจันทร์</span>
+          <h3 id="readSignal">-</h3>
+          <p id="readText">-</p>
+          <p class="muted" id="readAction">-</p>
+          <p class="muted" style="font-size:var(--s-1)">คำถามชวนคิด: <span id="readPrompt">-</span></p>
+        </div>
+      </article>
+      <article class="glass b-color reveal">
+        <span class="eyebrow">สีประจำวัน</span>
+        <div class="swatch" id="swatch"></div>
+        <h3 id="colorName">-</h3>
+        <p class="muted" style="font-size:var(--s-1)">ธรรมเนียมไทย ใส่เพื่อความสบายใจ ไม่มีหลักฐานว่าเปลี่ยนโชคได้</p>
+      </article>
+      <article class="glass b-card reveal">
+        <div class="mini" id="dailyMini"><img src="assets/back.webp" alt="หลังไพ่" width="84" height="206"></div>
+        <div style="display:grid;gap:.35rem;min-width:0">
+          <span class="eyebrow">ไพ่ประจำวัน</span>
+          <h3 id="dailyName">-</h3>
+          <p class="muted" style="font-size:var(--s-1)" id="dailyMeaning">-</p>
+        </div>
+      </article>
+      <article class="glass b-warn reveal">
+        <span class="eyebrow">ระวังวันนี้</span>
+        <ul class="list warn" id="warnList" style="margin-top:.7rem"></ul>
+      </article>
+      <article class="glass b-do reveal">
+        <span class="eyebrow">ลองทำ</span>
+        <ul class="list" id="doList" style="margin-top:.7rem"></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="ask">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">ถามดวง</span><h2>คุยเหมือนนั่งคุยกับหมอดู แต่ตอบตรงไปตรงมา</h2></div>
+      <p class="muted">ทุกคำตอบแยกให้เห็นว่าอะไรอาจเกิดขึ้น ควรระวังอะไร เตรียมตัวยังไง และระบบตอบแบบนี้เพราะอะไร</p>
+    </div>
+    <div class="consult">
+      <div class="thread reveal" id="thread" aria-live="polite"></div>
+      <article class="glass ans reveal" id="answer" aria-live="polite"></article>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="tarot">
+  <div class="wrap table">
+    <div class="head reveal">
+      <div><span class="eyebrow">ไพ่ทาโรต์ · ชุดหลัก 22 ใบ (ไพ่ใบเล็กยังไม่มีภาพ จึงยังไม่ใช้)</span><h2>หยิบไพ่ 3 ใบ</h2></div>
+      <p class="muted" id="spreadDesc">โอกาส · อุปสรรค · สิ่งที่คุณควบคุมได้</p>
+    </div>
+    <div class="spread" id="spread"></div>
+    <div class="fan" id="fan" aria-label="กองไพ่ คลิกเพื่อหยิบ"></div>
+    <div class="policy">
+      <span id="seedInfo">-</span>
+      <button class="btn ghost" type="button" id="reshuffle">สับใหม่ (เหลือ 1 ครั้งวันนี้)</button>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="chart">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">ดวงกำเนิด · ชีวิตหลายปีข้างหน้า</span><h2>ใส่วัน เวลา และสถานที่เกิด</h2></div>
+      <span class="tag exp">ทดลอง · รอผู้เชี่ยวชาญตรวจ</span>
+    </div>
+    <div class="chart">
+      <form class="glass birth reveal" id="birthForm">
+        <div class="row2">
+          <div class="field"><label for="bdate">วันเกิด</label><input type="date" id="bdate" value="2003-08-14" required></div>
+          <div class="field"><label for="btime">เวลาเกิด</label><input type="time" id="btime" value="09:30"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="bunknown"> ไม่ทราบเวลาเกิด (ลัคนาและเรือนจะไม่แม่น)</label>
+        <label class="check"><input type="checkbox" id="bconsent" required> ฉันยินยอมให้ส่งข้อมูลนี้เพื่อคำนวณครั้งนี้</label>
+        <div class="field"><label for="bplace">สถานที่เกิด</label>
+          <select id="bplace">
+            <option value="13.7563,100.5018">กรุงเทพมหานคร</option>
+            <option value="18.7883,98.9853">เชียงใหม่</option>
+            <option value="16.4322,102.8236">ขอนแก่น</option>
+            <option value="7.0084,100.4747">หาดใหญ่</option>
+          </select>
+        </div>
+        <div class="field"><label for="byears">ดูล่วงหน้า</label>
+          <select id="byears"><option>3</option><option selected>5</option><option>10</option></select>
+        </div>
+        <button class="btn" type="submit">คำนวณดวงกำเนิด</button>
+        <p class="muted" style="font-size:.75rem">ข้อมูลเกิดถูกประมวลผลในหน่วยความจำของเซิร์ฟเวอร์เพื่อคำนวณครั้งนี้ ไม่ถูกบันทึก (ยังไม่มีบัญชีหรือโปรไฟล์)</p>
+      </form>
+      <div class="glass reveal" style="display:grid;gap:1rem">
+        <div class="wheel idle" id="wheel" role="img" aria-label="วงราศี 12 ราศี"></div>
+        <div class="facts" id="facts" aria-live="polite"></div>
+        <div>
+          <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;align-items:center">
+            <h3>ธีมรายปี</h3><span class="tag exp">ทดลอง</span>
+          </div>
+          <div class="timeline" id="timeline" aria-live="polite"><p class="empty-note">กรอกข้อมูลเกิดแล้วกดคำนวณ เพื่อดูธีมรายปี</p></div>
+          <p class="muted" id="tlNote" style="font-size:.75rem;margin-top:.6rem">เป็นธีมเชิงตีความจากมุมดาวพฤหัสบดี/เสาร์และมหาทศา ไม่ใช่การทำนายเหตุการณ์ อย่าใช้ตัดสินใจเรื่องสุขภาพ กฎหมาย การเงิน หรือความสัมพันธ์</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="ritual">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">สีมงคล · แก้เคล็ด · การบูชา</span><h2>พิธีกรรมเพื่อความสบายใจ ไม่ใช่สิ่งที่ต้องจ่ายแพง</h2></div>
+    </div>
+    <div class="ritual">
+      <div class="glass reveal" style="display:grid;gap:.9rem">
+        <h3>สีและพระประจำวันตามธรรมเนียมไทย</h3>
+        <div class="days" id="days"></div>
+        <div class="legend"><span>วันนี้</span><span class="b">วันเกิดของคุณ</span></div>
+        <p class="muted" style="font-size:var(--s-1)" id="postureLine">กรอกวันเกิดเพื่อดูพระและสีประจำวันเกิด</p>
+      </div>
+      <div class="glass reveal" style="display:grid;gap:.8rem">
+        <h3>ช่วงนี้โชคไม่ดี ทำยังไงดี</h3>
+        <ul class="list calm">
+          <li>แยกให้ออกว่าอะไรคือเหตุการณ์จริง อะไรคือความรู้สึกว่าโชคไม่ดี</li>
+          <li>เลือกเรื่องที่แก้ได้หนึ่งเรื่อง แล้วลงมือเล็ก ๆ วันนี้</li>
+          <li>บอกคนที่ไว้ใจ หรือขอความช่วยเหลือจากผู้เชี่ยวชาญตามเรื่องที่เจอ</li>
+          <li>ถ้าอยากแก้เคล็ดตามความเชื่อ ให้ทำเพื่อให้ใจสงบ ไม่ต้องจ่ายเงินก้อนใหญ่หรือกู้เงินมาทำ</li>
+        </ul>
+        <div class="box"><h4>เรื่องการบูชา</h4><p style="font-size:var(--s-1)">ระบบไม่บอกว่าคุณ "ถูกกำหนด" ให้นับถือองค์ไหน และไม่เก็บข้อมูลความเชื่อ ลองเริ่มจากประเพณีที่คุณนับถืออยู่แล้ว แล้วศึกษาวิธีปฏิบัติจากแหล่งที่เชื่อถือได้</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="honest">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">คำถามยอดฮิต</span><h2>ศาสตร์ไหนแม่นที่สุด</h2></div>
+      <p class="muted">ไม่มีหลักฐานทางวิทยาศาสตร์ว่าศาสตร์ใดทำนายเหตุการณ์ได้แม่น เราจึงไม่จัดอันดับและไม่แสดงเปอร์เซ็นต์ความแม่น สิ่งที่บอกได้คือแต่ละศาสตร์เหมาะกับคำถามแบบไหน</p>
+    </div>
+    <div class="methods" id="methods"></div>
+    <div class="legend" style="margin-top:1rem"><span>ส่วนที่คำนวณได้</span><span class="t">ส่วนที่เป็นการตีความ</span></div>
+  </div>
+</section>
+
+<section class="block" id="care">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">เครียด อยากได้คำแนะนำ</span><h2>เรื่องนี้ดวงไม่ควรตัดสินแทนคุณ</h2></div>
+    </div>
+    <div class="support">
+      <div class="glass reveal" style="display:grid;gap:.8rem">
+        <h3>เริ่มจากสิ่งเล็ก ๆ ที่ทำได้ทันที</h3>
+        <ul class="list calm">
+          <li>หายใจเข้า 4 วินาที ออก 6 วินาที ทำซ้ำ 5 รอบ</li>
+          <li>เขียนสิ่งที่กังวลออกมา แล้วแยกเป็น "ควบคุมได้" กับ "ควบคุมไม่ได้"</li>
+          <li>เลือกเรื่องที่ควบคุมได้ 1 เรื่อง แล้วทำเป็นก้าวเล็ก ๆ วันนี้</li>
+          <li>คุยกับคนที่ไว้ใจ พักผ่อน และกินอาหารให้เป็นเวลา</li>
+        </ul>
+      </div>
+      <div class="crisis reveal">
+        <span class="eyebrow" style="color:var(--calm)">ถ้าคิดทำร้ายตัวเอง หรือรู้สึกไม่ไหวแล้ว</span>
+        <div class="copy"><span class="num" id="hotline">1323</span><button class="btn ghost" type="button" id="copyHot">คัดลอกเบอร์</button></div>
+        <p>สายด่วนสุขภาพจิต กรมสุขภาพจิต ปรึกษาฟรีตลอด 24 ชั่วโมง ถ้าอยู่ในอันตรายเร่งด่วน ให้ติดต่อบริการฉุกเฉินในพื้นที่</p>
+        <p class="muted" style="font-size:.75rem">เมื่อระบบเจอคำถามแนวนี้ จะไม่ดูดวงให้ และแสดงข้อมูลช่วยเหลือแทน · ยังไม่ได้ยืนยันหมายเลขกับแหล่งทางการ ตรวจที่ dmh.go.th ก่อนใช้งานจริง</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div style="display:grid;gap:.6rem">
+      <span class="brand"><img src="assets/logo-mark.webp" alt="" width="40" height="31">Celestra</span>
+      <p class="muted" style="font-size:var(--s-1);max-width:40em">การตีความเชิงโหราศาสตร์เพื่อความบันเทิงและการสะท้อนตัวเอง ไม่ใช่คำทำนายที่รับประกันได้ เรื่องหวย สุขภาพ การเงิน และกฎหมาย ระบบจะตอบพร้อมคำเตือน และแนะนำให้ปรึกษาผู้เชี่ยวชาญ</p>
+    </div>
+    <div style="display:grid;gap:.8rem;align-content:start">
+      <label class="switch"><input type="checkbox" id="aiConsent"> ให้ AI ช่วยเรียบเรียงข้อความรายวัน (ส่งเฉพาะข้อความที่ระบบอนุมัติแล้ว ไม่ส่งข้อมูลเกิดหรือคำถามของคุณ · ต้องตั้งค่า API key ที่เซิร์ฟเวอร์)</label>
+      <div><button class="btn ghost" type="button" id="wipe">ลบข้อมูลของฉัน</button></div>
+    </div>
+  </div>
+</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script type="module" src="/app.js"></script>
+<script type="module" src="/scene.bundle.js"></script>
 </body>
 </html>

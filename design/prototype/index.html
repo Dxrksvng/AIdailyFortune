@@ -1,0 +1,787 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Daily Compass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;500;700&family=Anuphan:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one long night-sky scroll. Hero ask box -> today bento -> consultant answer -> tarot table -> birth chart + years -> rituals -> honesty -> support. Dark-only by design. */
+:root{
+  --paper:#05040a; --paper-2:#0c0a16; --ink:#f5f0e7; --muted:#9ca3b4; --accent:#eab66d; --accent-soft:#eab66d33;
+  --glass:rgba(18,16,30,.58); --glass-hi:rgba(30,26,46,.72); --line:rgba(234,182,109,.22); --line-soft:rgba(245,240,231,.08);
+  --warn:#e9a46b; --calm:#9cc3e6; --crisis-bg:#13202b;
+  --f-display:"Noto Serif Thai","Noto Serif",Georgia,serif;
+  --f-body:"Anuphan","Noto Sans Thai",system-ui,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,monospace;
+  --s-1:.8125rem; --s0:1rem; --s1:1.2rem; --s2:1.5rem; --s3:2rem; --s4:clamp(2.4rem,6vw,4.2rem);
+  --r:18px; --gutter:clamp(16px,4vw,40px);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:var(--s0);line-height:1.7;overflow-x:hidden}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.page{position:relative;z-index:1}
+.wrap{max-width:1180px;margin-inline:auto;padding-inline:var(--gutter)}
+h1,h2,h3{font-family:var(--f-display);font-weight:500;text-wrap:balance;line-height:1.3;margin:0}
+h2{font-size:var(--s3)}
+h3{font-size:var(--s1)}
+p{margin:0}
+.eyebrow{font-family:var(--f-data);font-size:var(--s-1);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+.tag{display:inline-flex;align-items:center;gap:.4em;font-family:var(--f-data);font-size:.72rem;letter-spacing:.08em;padding:.15em .7em;border-radius:99px;border:1px solid var(--line);color:var(--accent);white-space:nowrap}
+.tag.exp{border-color:#9cc3e655;color:var(--calm)}
+.tag.sample{border-color:var(--line-soft);color:var(--muted)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(5,4,10,.6);border-bottom:1px solid var(--line-soft)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:60px}
+.brand{font-family:var(--f-display);font-size:1.1rem;display:flex;align-items:center;gap:.5rem;white-space:nowrap;color:var(--ink);text-decoration:none}
+.brand i{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
+.nav ul{display:flex;gap:.2rem;list-style:none;margin:0 0 0 auto;padding:0;overflow-x:auto;scrollbar-width:none}
+.nav a.l{display:block;padding:.35rem .7rem;border-radius:99px;color:var(--muted);text-decoration:none;font-size:var(--s-1);white-space:nowrap}
+.nav a.l:hover,.nav a.l.on{color:var(--ink);background:var(--accent-soft)}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding-block:clamp(3rem,9vw,6.5rem) clamp(2.5rem,6vw,4rem)}
+.hero-bg{position:absolute;inset:-8% -4%;background:url(assets/hero.webp) right center/cover no-repeat;opacity:.85;will-change:transform}
+.hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--paper) 18%,rgba(5,4,10,.55) 55%,rgba(5,4,10,.1)),linear-gradient(0deg,var(--paper),transparent 40%)}
+.hero .wrap{position:relative;display:grid;gap:1.6rem}
+.hero h1{font-size:var(--s4);font-weight:300;max-width:13em;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--accent);font-weight:500}
+.kin .w{display:inline-block;animation:rise .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*55ms)}
+@keyframes rise{from{transform:translateY(.45em);opacity:.001;filter:blur(6px)}to{transform:none;opacity:1;filter:none}}
+.lede{max-width:36em;color:var(--muted);font-size:var(--s1)}
+
+.ask{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:1rem;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);display:grid;gap:.85rem;max-width:760px;box-shadow:0 30px 80px -40px #eab66d40}
+.ask-row{display:flex;gap:.6rem;align-items:stretch}
+.ask input[type=text]{flex:1;min-width:0;background:rgba(5,4,10,.6);border:1px solid var(--line-soft);border-radius:14px;padding:.85rem 1rem;font-size:var(--s1)}
+.ask input[type=text]::placeholder{color:#9ca3b499}
+.btn{border:0;border-radius:14px;padding:.75rem 1.2rem;background:var(--accent);color:#1b1205;font-weight:600;cursor:pointer;white-space:nowrap;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 30px -10px var(--accent)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.controls{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center}
+.seg{display:inline-flex;background:rgba(5,4,10,.5);border:1px solid var(--line-soft);border-radius:99px;padding:3px;flex-wrap:wrap}
+.seg button{background:none;border:0;padding:.3rem .8rem;border-radius:99px;color:var(--muted);cursor:pointer;font-size:var(--s-1)}
+.seg button[aria-pressed=true]{background:var(--accent-soft);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:.45rem}
+.chip{background:rgba(245,240,231,.04);border:1px solid var(--line-soft);border-radius:99px;padding:.3rem .8rem;font-size:var(--s-1);color:var(--ink);cursor:pointer;transition:border-color .2s,background .2s}
+.chip:hover{border-color:var(--accent);background:var(--accent-soft)}
+
+section.block{padding-block:clamp(3rem,7vw,5.5rem)}
+.head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:.6rem 2rem;margin-bottom:1.6rem}
+.head p{max-width:34em}
+
+/* glass card */
+.glass{background:var(--glass);border:1px solid var(--line-soft);border-radius:var(--r);padding:1.25rem;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);min-width:0}
+
+/* bento */
+.bento{display:grid;gap:14px;grid-template-columns:repeat(6,1fr)}
+.b-read{grid-column:span 4;grid-row:span 2;position:relative;overflow:hidden;display:grid;align-content:space-between;gap:1.2rem;min-height:340px}
+.b-read .orb{position:absolute;right:-70px;top:-60px;width:320px;opacity:.9;mix-blend-mode:screen;animation:spin 80s linear infinite;pointer-events:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.b-read .txt{position:relative;max-width:30em;display:grid;gap:.7rem}
+.b-read h3{font-size:var(--s2)}
+.phase{font-family:var(--f-data);font-size:var(--s-1);color:var(--muted);display:flex;gap:1rem;flex-wrap:wrap;position:relative}
+.phase b{color:var(--ink);font-weight:500}
+.b-color{grid-column:span 2;display:grid;gap:.6rem}
+.swatch{height:84px;border-radius:14px;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.swatch::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.25),transparent 70%);transform:translateX(-100%);animation:sheen 5s ease-in-out infinite}
+@keyframes sheen{50%,100%{transform:translateX(100%)}}
+.b-card{grid-column:span 2;display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:center}
+.b-warn{grid-column:span 3}
+.b-do{grid-column:span 3}
+.list{margin:0;padding:0;list-style:none;display:grid;gap:.55rem}
+.list li{display:grid;grid-template-columns:18px 1fr;gap:.6rem;align-items:baseline}
+.list li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);transform:translateY(-2px);justify-self:center}
+.list.warn li::before{background:var(--warn)}
+.list.calm li::before{background:var(--calm)}
+.conf{display:inline-flex;gap:.35rem;align-items:center;font-family:var(--f-data);font-size:.75rem;color:var(--muted)}
+.conf .d{width:8px;height:8px;border-radius:50%;border:1px solid var(--accent)}
+.conf .d.f{background:var(--accent)}
+
+/* mini card */
+.mini{width:84px;aspect-ratio:200/490;border-radius:8px;overflow:hidden;box-shadow:0 10px 30px -12px #000,0 0 0 1px var(--line)}
+.mini img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* consultant */
+.consult{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:18px;align-items:start}
+.thread{display:grid;gap:.8rem}
+.bub{padding:.9rem 1.1rem;border-radius:18px;max-width:92%}
+.bub.me{justify-self:end;background:var(--accent-soft);border:1px solid var(--line);border-bottom-right-radius:6px}
+.bub.ai{background:var(--glass-hi);border:1px solid var(--line-soft);border-bottom-left-radius:6px}
+.ans{display:grid;gap:1rem}
+.ans-top{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between}
+.ans h3{font-size:var(--s2)}
+.ans .cards3{display:flex;gap:.7rem;flex-wrap:wrap}
+.ans .cards3 figure{margin:0;display:grid;gap:.3rem;width:96px;font-size:.75rem;color:var(--muted);text-align:center}
+.ans .cards3 .mini{width:96px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.box{border:1px solid var(--line-soft);border-radius:14px;padding:1rem;display:grid;gap:.5rem;align-content:start;min-width:0}
+.box h4{margin:0;font-size:var(--s-1);font-family:var(--f-data);letter-spacing:.08em;color:var(--accent);font-weight:500}
+.notice{border-radius:14px;padding:.8rem 1rem;font-size:var(--s-1);border:1px solid #e9a46b55;background:#e9a46b14;color:#f3d2b4}
+.why{font-size:var(--s-1);color:var(--muted);border-top:1px dashed var(--line-soft);padding-top:.8rem;display:grid;gap:.3rem}
+.why b{color:var(--ink);font-weight:500}
+.crisis{background:var(--crisis-bg);border:1px solid #9cc3e655;border-radius:var(--r);padding:1.4rem;display:grid;gap:.8rem}
+.crisis .num{font-family:var(--f-data);font-size:2.6rem;color:var(--calm);letter-spacing:.06em;line-height:1}
+.crisis .copy{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+
+/* tarot table */
+.table{display:grid;gap:1.4rem}
+.spread{display:grid;grid-template-columns:repeat(3,minmax(0,170px));gap:clamp(10px,3vw,28px);justify-content:center}
+.slot{display:grid;gap:.5rem;text-align:center}
+.slot small{font-family:var(--f-data);font-size:.72rem;color:var(--muted);letter-spacing:.06em}
+.flip{perspective:1200px;aspect-ratio:200/490;max-width:100%;border-radius:12px;border:1px dashed var(--line)}
+.flip .in{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.3,.7,.2,1)}
+.flip.open .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;overflow:hidden;box-shadow:0 20px 50px -20px #000}
+.face img{width:100%;height:100%;object-fit:cover;display:block}
+.face.front{transform:rotateY(180deg)}
+.flip.empty .face.front{display:none}
+.flip.empty .face.back{opacity:.28}
+.flip.empty{border-color:transparent}
+.slot .meaning{font-size:var(--s-1);color:var(--muted);min-height:3.2em}
+.slot .meaning b{display:block;color:var(--ink);font-weight:500}
+.fan{position:relative;height:190px;max-width:760px;margin-inline:auto;width:100%}
+.fan button{position:absolute;bottom:0;left:50%;width:62px;aspect-ratio:200/490;border:0;padding:0;background:url(assets/back.webp) center/cover;border-radius:6px;box-shadow:0 8px 20px -8px #000,0 0 0 1px var(--line);cursor:pointer;transform-origin:50% 140%;transition:transform .35s cubic-bezier(.2,.7,.2,1),filter .2s}
+.fan button:hover:not(:disabled){filter:brightness(1.25)}
+.fan button:disabled{opacity:.25;cursor:default}
+.policy{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;justify-content:center;align-items:center;font-size:var(--s-1);color:var(--muted);text-align:center}
+
+/* chart */
+.chart{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:18px}
+form.birth{display:grid;gap:.8rem}
+.field{display:grid;gap:.25rem}
+.field label{font-size:var(--s-1);color:var(--muted)}
+.field input,.field select{background:rgba(5,4,10,.6);border:1px solid var(--line-soft);border-radius:12px;padding:.65rem .8rem;width:100%;min-width:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.check{display:flex;gap:.5rem;align-items:center;font-size:var(--s-1);color:var(--muted)}
+.wheel{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.wheel figure{margin:0;display:grid;justify-items:center;gap:.2rem;font-size:.72rem;color:var(--muted);transition:transform .3s,opacity .3s;opacity:.55}
+.wheel img{width:100%;max-width:72px;border-radius:50%}
+.wheel figure.on{opacity:1;transform:scale(1.08);color:var(--accent)}
+.wheel figure.on img{box-shadow:0 0 0 1px var(--accent),0 0 30px -4px var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fact{border:1px solid var(--line-soft);border-radius:12px;padding:.7rem .8rem;display:grid;gap:.1rem;min-width:0}
+.fact span{font-size:.72rem;color:var(--muted)}
+.fact b{font-family:var(--f-display);font-weight:500;font-size:1.05rem}
+.timeline{display:grid;gap:0;position:relative;margin-top:.4rem}
+.yr{display:grid;grid-template-columns:4.2rem 1fr;gap:1rem;padding-block:.85rem;border-top:1px solid var(--line-soft);font-variant-numeric:tabular-nums}
+.yr .y{font-family:var(--f-data);color:var(--accent)}
+.yr .e{font-size:.72rem;font-family:var(--f-data);color:var(--muted)}
+.yr p{font-size:var(--s-1)}
+.yr .pill{display:inline-block;font-size:.7rem;padding:.05em .6em;border-radius:99px;margin-right:.4rem;border:1px solid var(--line-soft)}
+.pill.open{border-color:#eab66d66;color:var(--accent)}
+.pill.review{border-color:#e9a46b66;color:var(--warn)}
+.pill.quiet{color:var(--muted)}
+
+/* ritual */
+.ritual{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.day{border-radius:12px;padding:.6rem .3rem;text-align:center;border:1px solid var(--line-soft);display:grid;gap:.35rem;justify-items:center;font-size:.72rem;min-width:0}
+.day i{width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.day.today{border-color:var(--accent);background:var(--accent-soft)}
+.day.birth{box-shadow:inset 0 -3px 0 var(--calm)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.72rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:3px;margin-right:.35rem;vertical-align:middle;background:var(--accent)}
+.legend span.b::before{background:var(--calm)}
+.legend span.t::before{background:#9ca3b466}
+
+/* honesty */
+.methods{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.method{display:grid;gap:.5rem;align-content:start}
+.method .meter{display:flex;gap:4px;margin-top:.3rem}
+.method .meter i{flex:1;height:4px;border-radius:2px;background:var(--line-soft)}
+.method .meter i.c{background:var(--accent)}
+.method .meter i.t{background:#9ca3b466}
+
+/* support */
+.support{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+
+footer{border-top:1px solid var(--line-soft);padding-block:2.5rem 3.5rem}
+footer .wrap{display:grid;gap:1rem;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+.switch{display:flex;gap:.7rem;align-items:center;cursor:pointer;font-size:var(--s-1)}
+.switch input{appearance:none;width:40px;height:22px;border-radius:99px;background:var(--line-soft);position:relative;cursor:pointer;flex:none;transition:background .2s}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--ink);transition:transform .2s}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{transform:translateX(18px);background:#1b1205}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);background:var(--glass-hi);border:1px solid var(--line);padding:.6rem 1rem;border-radius:12px;z-index:30;transition:transform .35s;font-size:var(--s-1);backdrop-filter:blur(12px)}
+.toast.show{transform:translate(-50%,0)}
+
+/* scroll reveal: visible at rest, progressive enhancement only */
+@supports (animation-timeline: view()){
+  .reveal{animation:lift linear both;animation-timeline:view();animation-range:entry 0% entry 40%}
+  @keyframes lift{from{transform:translateY(28px)}to{transform:none}}
+}
+
+@media (max-width:900px){
+  .bento{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .b-read,.b-color,.b-card,.b-warn,.b-do{grid-column:span 2}
+  .b-read{grid-row:auto}
+  .b-color{grid-column:span 1}.b-card{grid-column:span 1;grid-template-columns:1fr;justify-items:start}
+  .consult,.chart,.ritual,.support,footer .wrap{grid-template-columns:1fr}
+  .methods{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:560px){
+  .b-color,.b-card{grid-column:span 2}
+  .grid2,.methods{grid-template-columns:1fr}
+  .ask-row{flex-direction:column}
+  .wheel{grid-template-columns:repeat(4,1fr)}
+  .facts{grid-template-columns:1fr 1fr}
+  .days{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .fan{height:150px}.fan button{width:48px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="page">
+<nav class="nav" aria-label="หมวดหลัก">
+  <div class="wrap">
+    <a class="brand" href="#top"><i></i>Daily Compass</a>
+    <ul>
+      <li><a class="l" href="#today">วันนี้</a></li>
+      <li><a class="l" href="#ask">ถามดวง</a></li>
+      <li><a class="l" href="#tarot">ไพ่ทาโรต์</a></li>
+      <li><a class="l" href="#chart">ดวงกำเนิด</a></li>
+      <li><a class="l" href="#ritual">สีมงคล</a></li>
+      <li><a class="l" href="#honest">ศาสตร์ไหนแม่น</a></li>
+      <li><a class="l" href="#care">เครียด</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="wrap">
+    <span class="eyebrow">ดูดวงรายวัน · เพื่อความบันเทิงและทบทวนตัวเอง</span>
+    <h1 class="kin" id="heroTitle">ถามเรื่องที่ค้างใจ แล้วดูว่า<em>ดวงดาววันนี้</em>ชวนให้คุณคิดเรื่องอะไร</h1>
+    <p class="lede">ตำแหน่งดาวคำนวณด้วยโค้ด ความหมายมาจากกฎที่เขียนไว้ชัดเจน และทุกคำตอบบอกว่ามาจากไหน ไม่มีการทำนายแบบฟันธง</p>
+    <form class="ask" id="askForm" autocomplete="off">
+      <div class="ask-row">
+        <input type="text" id="q" aria-label="คำถามของคุณ" maxlength="500" placeholder="เช่น งานที่เพิ่งสัมภาษณ์ไปจะได้ไหม" value="งานที่เพิ่งสัมภาษณ์ไปจะได้ไหม">
+        <button class="btn" type="submit">ถามดวง</button>
+      </div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="ด้าน" id="topicSeg">
+          <button type="button" data-v="general" aria-pressed="false">ภาพรวม</button>
+          <button type="button" data-v="love" aria-pressed="false">ความรัก</button>
+          <button type="button" data-v="career" aria-pressed="true">การงาน</button>
+          <button type="button" data-v="money" aria-pressed="false">การเงิน</button>
+          <button type="button" data-v="study" aria-pressed="false">การเรียน</button>
+        </div>
+        <div class="seg" role="group" aria-label="ช่วงเวลา" id="horizonSeg">
+          <button type="button" data-v="day" aria-pressed="true">วันนี้</button>
+          <button type="button" data-v="week" aria-pressed="false">สัปดาห์</button>
+          <button type="button" data-v="month" aria-pressed="false">เดือน</button>
+          <button type="button" data-v="year" aria-pressed="false">ปี</button>
+        </div>
+      </div>
+      <div class="chips" id="popular" aria-label="คำถามยอดฮิต"></div>
+    </form>
+  </div>
+</header>
+
+<main>
+<section class="block" id="today">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow" id="todayDate">วันนี้</span><h2>เข็มทิศประจำวัน</h2></div>
+      <p class="muted">อ่านจบในหนึ่งนาที: ธีมของวัน สีประจำวัน ไพ่ประจำวัน และสิ่งที่ควรระวัง</p>
+    </div>
+    <div class="bento">
+      <article class="glass b-read reveal">
+        <img class="orb" src="assets/orb.webp" alt="" width="320" height="320">
+        <div class="phase"><span>เฟสดวงจันทร์ <b id="phaseName">-</b></span><span>มุม <b id="phaseDeg">-</b></span></div>
+        <div class="txt">
+          <span class="tag">MVP · คำนวณจากเฟสดวงจันทร์</span>
+          <h3 id="readSignal">-</h3>
+          <p id="readText">-</p>
+          <p class="muted" id="readAction">-</p>
+          <p class="muted" style="font-size:var(--s-1)">คำถามชวนคิด: <span id="readPrompt">-</span></p>
+        </div>
+      </article>
+      <article class="glass b-color reveal">
+        <span class="eyebrow">สีประจำวัน</span>
+        <div class="swatch" id="swatch"></div>
+        <h3 id="colorName">-</h3>
+        <p class="muted" style="font-size:var(--s-1)">ธรรมเนียมไทย ใส่เพื่อความสบายใจ ไม่มีหลักฐานว่าเปลี่ยนโชคได้</p>
+      </article>
+      <article class="glass b-card reveal">
+        <div class="mini" id="dailyMini"><img src="assets/back.webp" alt="หลังไพ่" width="84" height="206"></div>
+        <div style="display:grid;gap:.35rem;min-width:0">
+          <span class="eyebrow">ไพ่ประจำวัน</span>
+          <h3 id="dailyName">-</h3>
+          <p class="muted" style="font-size:var(--s-1)" id="dailyMeaning">-</p>
+        </div>
+      </article>
+      <article class="glass b-warn reveal">
+        <span class="eyebrow">ระวังวันนี้</span>
+        <ul class="list warn" id="warnList" style="margin-top:.7rem"></ul>
+      </article>
+      <article class="glass b-do reveal">
+        <span class="eyebrow">ลองทำ</span>
+        <ul class="list" id="doList" style="margin-top:.7rem"></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="ask">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">ถามดวง</span><h2>คุยเหมือนนั่งคุยกับหมอดู แต่ตอบตรงไปตรงมา</h2></div>
+      <p class="muted">ทุกคำตอบแยกให้เห็นว่าอะไรอาจเกิดขึ้น ควรระวังอะไร เตรียมตัวยังไง และระบบตอบแบบนี้เพราะอะไร</p>
+    </div>
+    <div class="consult">
+      <div class="thread reveal" id="thread" aria-live="polite"></div>
+      <article class="glass ans reveal" id="answer" aria-live="polite"></article>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="tarot">
+  <div class="wrap table">
+    <div class="head reveal">
+      <div><span class="eyebrow">ไพ่ทาโรต์ · ชุดหลัก 22 ใบ</span><h2>หยิบไพ่ 3 ใบ</h2></div>
+      <p class="muted" id="spreadDesc">โอกาส · อุปสรรค · สิ่งที่คุณควบคุมได้</p>
+    </div>
+    <div class="spread" id="spread"></div>
+    <div class="fan" id="fan" aria-label="กองไพ่ คลิกเพื่อหยิบ"></div>
+    <div class="policy">
+      <span id="seedInfo">-</span>
+      <button class="btn ghost" type="button" id="reshuffle">สับใหม่ (เหลือ 1 ครั้งวันนี้)</button>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="chart">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">ดวงกำเนิด · ชีวิตหลายปีข้างหน้า</span><h2>ใส่วัน เวลา และสถานที่เกิด</h2></div>
+      <span class="tag exp">ทดลอง · รอผู้เชี่ยวชาญตรวจ</span>
+    </div>
+    <div class="chart">
+      <form class="glass birth reveal" id="birthForm">
+        <div class="row2">
+          <div class="field"><label for="bdate">วันเกิด</label><input type="date" id="bdate" value="2003-08-14" required></div>
+          <div class="field"><label for="btime">เวลาเกิด</label><input type="time" id="btime" value="09:30"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="bunknown"> ไม่ทราบเวลาเกิด (ลัคนาและเรือนจะไม่แม่น)</label>
+        <div class="field"><label for="bplace">สถานที่เกิด</label>
+          <select id="bplace">
+            <option value="13.7563,100.5018">กรุงเทพมหานคร</option>
+            <option value="18.7883,98.9853">เชียงใหม่</option>
+            <option value="16.4322,102.8236">ขอนแก่น</option>
+            <option value="7.0084,100.4747">หาดใหญ่</option>
+          </select>
+        </div>
+        <div class="field"><label for="byears">ดูล่วงหน้า</label>
+          <select id="byears"><option>3</option><option selected>5</option><option>10</option></select>
+        </div>
+        <button class="btn" type="submit">คำนวณดวงกำเนิด</button>
+        <p class="muted" style="font-size:.75rem">ข้อมูลเกิดใช้คำนวณเฉพาะครั้งนี้ ไม่ถูกบันทึก เว้นแต่คุณกดบันทึกโปรไฟล์</p>
+      </form>
+      <div class="glass reveal" style="display:grid;gap:1rem">
+        <div class="wheel" id="wheel"></div>
+        <div class="facts" id="facts"></div>
+        <div>
+          <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;align-items:center">
+            <h3>ธีมรายปี</h3><span class="tag sample">ตัวอย่างข้อความ</span>
+          </div>
+          <div class="timeline" id="timeline"></div>
+          <p class="muted" style="font-size:.75rem;margin-top:.6rem">เป็นธีมเชิงตีความจากมุมดาวพฤหัสบดี/เสาร์และมหาทศา ไม่ใช่การทำนายเหตุการณ์ อย่าใช้ตัดสินใจเรื่องสุขภาพ กฎหมาย การเงิน หรือความสัมพันธ์</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="ritual">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">สีมงคล · แก้เคล็ด · การบูชา</span><h2>พิธีกรรมเพื่อความสบายใจ ไม่ใช่สิ่งที่ต้องจ่ายแพง</h2></div>
+    </div>
+    <div class="ritual">
+      <div class="glass reveal" style="display:grid;gap:.9rem">
+        <h3>สีและพระประจำวันตามธรรมเนียมไทย</h3>
+        <div class="days" id="days"></div>
+        <div class="legend"><span>วันนี้</span><span class="b">วันเกิดของคุณ</span></div>
+        <p class="muted" style="font-size:var(--s-1)" id="postureLine">-</p>
+      </div>
+      <div class="glass reveal" style="display:grid;gap:.8rem">
+        <h3>ช่วงนี้โชคไม่ดี ทำยังไงดี</h3>
+        <ul class="list calm">
+          <li>แยกให้ออกว่าอะไรคือเหตุการณ์จริง อะไรคือความรู้สึกว่าโชคไม่ดี</li>
+          <li>เลือกเรื่องที่แก้ได้หนึ่งเรื่อง แล้วลงมือเล็ก ๆ วันนี้</li>
+          <li>บอกคนที่ไว้ใจ หรือขอความช่วยเหลือจากผู้เชี่ยวชาญตามเรื่องที่เจอ</li>
+          <li>ถ้าอยากแก้เคล็ดตามความเชื่อ ให้ทำเพื่อให้ใจสงบ ไม่ต้องจ่ายเงินก้อนใหญ่หรือกู้เงินมาทำ</li>
+        </ul>
+        <div class="box"><h4>เรื่องการบูชา</h4><p style="font-size:var(--s-1)">ระบบไม่บอกว่าคุณ "ถูกกำหนด" ให้นับถือองค์ไหน และไม่เก็บข้อมูลความเชื่อ ลองเริ่มจากประเพณีที่คุณนับถืออยู่แล้ว แล้วศึกษาวิธีปฏิบัติจากแหล่งที่เชื่อถือได้</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="honest">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">คำถามยอดฮิต</span><h2>ศาสตร์ไหนแม่นที่สุด</h2></div>
+      <p class="muted">ไม่มีหลักฐานทางวิทยาศาสตร์ว่าศาสตร์ใดทำนายเหตุการณ์ได้แม่น เราจึงไม่จัดอันดับและไม่แสดงเปอร์เซ็นต์ความแม่น สิ่งที่บอกได้คือแต่ละศาสตร์เหมาะกับคำถามแบบไหน</p>
+    </div>
+    <div class="methods" id="methods"></div>
+    <div class="legend" style="margin-top:1rem"><span>ส่วนที่คำนวณได้</span><span class="t">ส่วนที่เป็นการตีความ</span></div>
+  </div>
+</section>
+
+<section class="block" id="care">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">เครียด อยากได้คำแนะนำ</span><h2>เรื่องนี้ดวงไม่ควรตัดสินแทนคุณ</h2></div>
+    </div>
+    <div class="support">
+      <div class="glass reveal" style="display:grid;gap:.8rem">
+        <h3>เริ่มจากสิ่งเล็ก ๆ ที่ทำได้ทันที</h3>
+        <ul class="list calm">
+          <li>หายใจเข้า 4 วินาที ออก 6 วินาที ทำซ้ำ 5 รอบ</li>
+          <li>เขียนสิ่งที่กังวลออกมา แล้วแยกเป็น "ควบคุมได้" กับ "ควบคุมไม่ได้"</li>
+          <li>เลือกเรื่องที่ควบคุมได้ 1 เรื่อง แล้วทำเป็นก้าวเล็ก ๆ วันนี้</li>
+          <li>คุยกับคนที่ไว้ใจ พักผ่อน และกินอาหารให้เป็นเวลา</li>
+        </ul>
+      </div>
+      <div class="crisis reveal">
+        <span class="eyebrow" style="color:var(--calm)">ถ้าคิดทำร้ายตัวเอง หรือรู้สึกไม่ไหวแล้ว</span>
+        <div class="copy"><span class="num" id="hotline">1323</span><button class="btn ghost" type="button" id="copyHot">คัดลอกเบอร์</button></div>
+        <p>สายด่วนสุขภาพจิต กรมสุขภาพจิต ปรึกษาฟรีตลอด 24 ชั่วโมง ถ้าอยู่ในอันตรายเร่งด่วน ให้ติดต่อบริการฉุกเฉินในพื้นที่</p>
+        <p class="muted" style="font-size:.75rem">เมื่อระบบเจอคำถามแนวนี้ จะไม่ดูดวงให้ และแสดงข้อมูลช่วยเหลือแทน · ตรวจเบอร์จาก dmh.go.th เมื่อ 2 ต.ค. 2026</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div style="display:grid;gap:.6rem">
+      <span class="brand"><i></i>Daily Compass</span>
+      <p class="muted" style="font-size:var(--s-1);max-width:40em">การตีความเชิงโหราศาสตร์เพื่อความบันเทิงและการสะท้อนตัวเอง ไม่ใช่คำทำนายที่รับประกันได้ เรื่องหวย สุขภาพ การเงิน และกฎหมาย ระบบจะตอบพร้อมคำเตือน และแนะนำให้ปรึกษาผู้เชี่ยวชาญ</p>
+    </div>
+    <div style="display:grid;gap:.8rem;align-content:start">
+      <label class="switch"><input type="checkbox" id="aiConsent"> ให้ AI ช่วยเรียบเรียงข้อความ (ส่งเฉพาะข้อความที่ระบบอนุมัติแล้ว ไม่ส่งข้อมูลเกิด)</label>
+      <div><button class="btn ghost" type="button" id="wipe">ลบข้อมูลของฉัน</button></div>
+    </div>
+  </div>
+</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const store = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  clear(){ try { Object.keys(localStorage).filter(k=>k.startsWith('dc:')).forEach(k=>localStorage.removeItem(k)); } catch {} }
+};
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove('show'),2600); }
+
+/* ---------- content (copied from lib/th.js and lib/ritual.js) ---------- */
+const TAROT = [
+ ['fool','ผู้เริ่มต้น (The Fool)','การเริ่มต้นใหม่','เริ่มสำรวจได้ แม้ยังไม่รู้รายละเอียดทั้งหมด'],
+ ['magician','นักมายากล (The Magician)','การลงมือทำ','ใช้ทักษะและเครื่องมือที่มีอยู่ใกล้ตัว'],
+ ['priestess','นักบวชหญิง (The High Priestess)','การสังเกต','ให้เวลาตัวเองสังเกตสิ่งที่ยังไม่ชัด'],
+ ['empress','จักรพรรดินี (The Empress)','การดูแล','ดูแลสิ่งที่ต้องการความใส่ใจอย่างสม่ำเสมอ'],
+ ['emperor','จักรพรรดิ (The Emperor)','โครงสร้าง','วางขอบเขตหรือแผนที่ชัดเจนและทำได้จริง'],
+ ['hierophant','ผู้นำทางจิตวิญญาณ (The Hierophant)','การชี้แนะ','ครูที่ไว้ใจได้หรือแนวปฏิบัติร่วมกันอาจช่วยได้'],
+ ['lovers','คู่รัก (The Lovers)','การเลือก','ลองดูว่าทางเลือกนี้ตรงกับคุณค่าของคุณหรือไม่'],
+ ['chariot','รถศึก (The Chariot)','ทิศทาง','ใช้แรงกับส่วนที่คุณบังคับทิศทางได้'],
+ ['strength','พลัง (Strength)','ความอดทน','ความสม่ำเสมออย่างอ่อนโยนอาจได้ผลกว่าการฝืน'],
+ ['hermit','ฤๅษี (The Hermit)','มุมมอง','ถอยออกมาสักพักเพื่อฟังมุมมองของตัวเอง'],
+ ['wheel','กงล้อโชคชะตา (Wheel of Fortune)','การเปลี่ยนแปลง','สถานการณ์เปลี่ยนได้ เตรียมใจไว้มากกว่าหนึ่งทาง'],
+ ['justice','ความยุติธรรม (Justice)','ความเป็นธรรม','ตรวจข้อเท็จจริงและผลที่ตามมาของแต่ละทางเลือก'],
+ ['hanged','ชายถูกแขวน (The Hanged Man)','การหยุดพัก','มองจากอีกมุมอาจเห็นอีกเส้นทาง'],
+ ['death','การเปลี่ยนผ่าน (Death)','การเปลี่ยนผ่าน','บทหนึ่งอาจกำลังจบเพื่อให้อีกบทเริ่ม ไพ่ใบนี้ไม่ได้หมายถึงความตายจริง'],
+ ['temperance','ความพอดี (Temperance)','ความสมดุล','วิธีที่พอดีอาจยั่งยืนกว่า'],
+ ['devil','ปีศาจ (The Devil)','การยึดติด','สังเกตนิสัยหรือความเชื่อที่จำกัดทางเลือกของคุณ'],
+ ['tower','หอคอย (The Tower)','ความปั่นป่วน','หากแผนเปลี่ยน ให้โฟกัสก้าวถัดไปตรงหน้า'],
+ ['star','ดวงดาว (The Star)','ความหวัง','เปิดที่ว่างให้การฟื้นตัว พร้อมลงมือกับสิ่งที่เป็นจริง'],
+ ['moon','พระจันทร์ (The Moon)','ความไม่แน่นอน','เทียบความรู้สึกกับข้อเท็จจริงก่อนตัดสินใจ'],
+ ['sun','พระอาทิตย์ (The Sun)','ความชัดเจน','ระบุสิ่งที่ได้ผลแล้วต่อยอดจากตรงนั้น'],
+ ['judgement','การพิพากษา (Judgement)','การทบทวน','ทบทวนสิ่งที่เรียนรู้ก่อนก้าวต่อ'],
+ ['world','โลก (The World)','ความสมบูรณ์','ยอมรับสิ่งที่สำเร็จแล้วและมองสิ่งที่จะมาถัดไป']
+].map(([id,name,theme,meaning])=>({id,name,short:name.split(' (')[0],theme,meaning}));
+
+const SPREADS = {
+  general:{name:'สถานการณ์ · สิ่งที่ควรรู้ · ก้าวถัดไป',roles:['สถานการณ์ตอนนี้','สิ่งที่ควรรู้','ก้าวถัดไป']},
+  career:{name:'โอกาส · อุปสรรค · สิ่งที่ควบคุมได้',roles:['โอกาสที่เป็นไปได้','อุปสรรคที่เป็นไปได้','สิ่งที่คุณควบคุมได้']},
+  love:{name:'ปัจจุบัน · สิ่งที่ค้างคา · ทางเลือกของคุณ',roles:['พลวัตในปัจจุบัน','สิ่งที่อาจยังค้างคา','สิ่งที่คุณควบคุมได้']},
+  money:{name:'ทรัพยากร · แรงกดดัน · ก้าวถัดไป',roles:['ทรัพยากรที่ควรสังเกต','ต้นทุนหรือแรงกดดัน','ก้าวที่ทำได้จริง']},
+  study:{name:'โฟกัส · ความท้าทาย · การฝึก',roles:['สิ่งที่ควรโฟกัส','สิ่งที่อาจขัดจังหวะ','การเรียนที่คุณทำได้']}
+};
+const DAYS = [
+ ['อาทิตย์','แดง','#d64545','ปางถวายเนตร'],['จันทร์','เหลือง','#e8c547','ปางห้ามญาติ'],['อังคาร','ชมพู','#e58bb4','ปางไสยาสน์'],
+ ['พุธ','เขียว','#4caf6d','ปางอุ้มบาตร (กลางวัน)'],['พฤหัสบดี','ส้ม','#e98a3c','ปางสมาธิ'],['ศุกร์','ฟ้า','#5aa9e6','ปางรำพึง'],['เสาร์','ม่วง','#8a63d2','ปางนาคปรก']
+];
+const RULES = {
+  NEW:{name:'ข้างขึ้นช่วงแรก',signal:'จุดเริ่มต้นเล็ก ๆ',reading:'การเริ่มต้นเล็ก ๆ อาจน่าใส่ใจในวันนี้',action:'เขียนสิ่งหนึ่งที่อยากเริ่ม แม้ก้าวแรกจะเล็กมาก',prompt:'วันนี้อะไรที่รู้สึกว่าเป็นไปได้',remind:['ก่อนตัดสินใจเรื่องสำคัญ ให้เช็กข้อมูลจริงอีกครั้ง','อย่ารับปากหลายเรื่องพร้อมกันเพราะกำลังมีไฟ']},
+  WAXING:{name:'ข้างขึ้นช่วงหลัง',signal:'แรงส่งแบบนุ่มนวล',reading:'ความสม่ำเสมออาจได้ผลมากกว่าการเร่งแรง ๆ ในวันนี้',action:'เลือกงานหนึ่งอย่างแล้วโฟกัสสัก 10 นาที',prompt:'วันนี้เห็นความคืบหน้าตรงไหนบ้าง',remind:['เผื่อเวลาเดินทางและตรวจเส้นทางล่วงหน้า','ถ้ารู้สึกเร่งรีบ ให้ทำทีละอย่าง']},
+  FULL:{name:'ข้างแรมช่วงแรก',signal:'มองให้ชัด',reading:'อาจเป็นช่วงที่ดีในการสังเกตว่าอะไรต้องการความสนใจ',action:'หยุดสักครั้งแล้วบอกตัวเองว่าอะไรกินพลังงานมากที่สุด',prompt:'วันนี้อะไรชัดขึ้นกว่าเดิม',remind:['ก่อนตอบโต้เรื่องที่ตึงเครียด ให้หยุดหายใจสักครู่ เพื่อลดโอกาสมีปากเสียง','อ่านข้อความสำคัญซ้ำก่อนกดส่ง']},
+  WANING:{name:'ข้างแรมช่วงหลัง',signal:'เว้นที่ว่างให้ตัวเอง',reading:'พื้นที่ว่างเล็กน้อยอาจช่วยให้เห็นก้าวถัดไป',action:'พักงานหรือความคาดหวังที่ไม่เร่งด่วนไว้ก่อน',prompt:'หลังจากเว้นที่ว่างแล้ว อะไรง่ายขึ้น',remind:['ถ้าเหนื่อยมาก หลีกเลี่ยงการตัดสินใจใหญ่ในวันนั้น','ถ้าต้องเดินทางไกล พักให้พอก่อนขับรถ']}
+};
+const SIGNS=[['aries','เมษ'],['taurus','พฤษภ'],['gemini','เมถุน'],['cancer','กรกฎ'],['leo','สิงห์'],['virgo','กันย์'],['libra','ตุลย์'],['scorpio','พิจิก'],['sagittarius','ธนู'],['capricorn','มังกร'],['aquarius','กุมภ์'],['pisces','มีน']];
+const POPULAR=['งานที่เพิ่งสัมภาษณ์ไปจะได้ไหม','เดือนนี้จะมีงานทำไหม','คนเก่าจะกลับมาไหม','วันนี้ใส่สีอะไรดี','ช่วงนี้โชคไม่ดี แก้เคล็ดยังไง','ควรบูชาอะไรแล้วชีวิตดี','อีก 5 ปีชีวิตจะเป็นยังไง','ศาสตร์ไหนแม่นสุด','เครียดมาก ขอคำแนะนำ','สอบเดือนหน้าจะผ่านไหม'];
+
+/* ---------- time helpers (Asia/Bangkok) ---------- */
+const TZ='Asia/Bangkok';
+const todayISO = new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const weekday = iso => new Date(iso+'T12:00:00Z').getUTCDay();
+const thDate = iso => new Intl.DateTimeFormat('th-TH',{dateStyle:'full',timeZone:'UTC'}).format(new Date(iso+'T12:00:00Z'));
+
+/* Prototype-only lunar phase: mean synodic month from a reference new moon.
+   The real app uses astronomy-engine MoonPhase() in lib/compass.js. */
+function moonAngle(iso){
+  const ref=Date.UTC(2000,0,6,18,14), syn=29.530588853*864e5;
+  const t=new Date(iso+'T05:00:00Z').getTime(); // local noon in Bangkok
+  return (((t-ref)%syn+syn)%syn)/syn*360;
+}
+function ruleFor(angle){ return angle<90?'NEW':angle<180?'WAXING':angle<270?'FULL':'WANING'; }
+
+/* ---------- deterministic draw: seed = date + topic + reshuffle count ---------- */
+function hash(str){ let h=2166136261; for(const c of str){ h^=c.codePointAt(0); h=Math.imul(h,16777619);} return h>>>0; }
+function rng(seed){ return () => { seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function shuffled(seedStr){ const r=rng(hash(seedStr)); const a=[...TAROT]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* ---------- safety: crisis first, then warn. Mirrors the planned lib/safety.js ---------- */
+function norm(s){
+  return s.normalize('NFC').toLowerCase().replace(/[​-‍﻿]/g,'')
+    .replace(/([฀-๿])[\s.\-_]+(?=[฀-๿])/g,'$1').replace(/(.)\1{2,}/g,'$1')
+    .replace(/1/g,'i').replace(/0/g,'o').replace(/3/g,'e').replace(/@/g,'a').replace(/\$/g,'s');
+}
+const CRISIS=/ฆ่าตัวตาย|อยากตาย|ไม่อยากอยู่|ไม่อยากมีชีวิต|อยากหายไป|จบชีวิต|ทำร้ายตัวเอง|กรีดข้อมือ|ไม่อยากตื่น|suicid|kill\s*my\s*self|\bkms\b|want\s*to\s*die|end\s*(my\s*life|it\s*all)|self[\s-]*harm|cut\s*my\s*self|unalive/;
+const WARN={lottery:/หวย|เลขเด็ด|lotter/, health:/ป่วย|โรค|หมอ|(กิน|หยุด|เลิก|เปลี่ยน)ยา|medic|diagnos/, money:/ลงทุน|หุ้น|คริปโต|invest|stock|crypto/, legal:/ฟ้อง|คดี|lawsuit|court/};
+const WARN_TEXT={lottery:'ผลหวยเป็นการสุ่ม ดวงบอกเลขไม่ได้ เล่นเท่าที่เสียได้',health:'เรื่องสุขภาพปรึกษาแพทย์ อย่าเริ่ม หยุด หรือเปลี่ยนยาเองเพราะดวง',money:'นี่ไม่ใช่คำแนะนำการลงทุน ตรวจตัวเลขจริงหรือปรึกษาผู้เชี่ยวชาญก่อนตัดสินใจ',legal:'เรื่องคดีความควรปรึกษานักกฎหมาย ดวงใช้แทนข้อเท็จจริงไม่ได้'};
+function classify(text){ const t=norm(text); if(CRISIS.test(t)) return {level:'crisis',cats:[]}; const cats=Object.keys(WARN).filter(k=>WARN[k].test(t)); return {level:cats.length?'warn':'normal',cats}; }
+
+/* ---------- state ---------- */
+const state = { topic:'career', horizon:'day', draws: store.get('dc:draws:'+todayISO) || {}, birth: null };
+
+/* ---------- kinetic headline (Intl.Segmenter, word level, Thai-safe) ---------- */
+function kinetic(el){
+  if(reduce || !('Segmenter' in Intl)) return;
+  const seg=new Intl.Segmenter('th',{granularity:'word'}); let i=0;
+  const walk=node=>{ [...node.childNodes].forEach(n=>{ if(n.nodeType===3){ const f=document.createDocumentFragment(); for(const {segment} of seg.segment(n.textContent)){ if(!segment.trim()){ f.append(segment); continue; } const s=document.createElement('span'); s.className='w'; s.style.setProperty('--i',i++); s.textContent=segment; f.append(s);} n.replaceWith(f);} else walk(n); }); };
+  walk(el);
+}
+kinetic($('#heroTitle'));
+
+/* ---------- today ---------- */
+function renderToday(){
+  $('#todayDate').textContent=thDate(todayISO);
+  const a=moonAngle(todayISO), r=RULES[ruleFor(a)];
+  $('#phaseName').textContent=r.name; $('#phaseDeg').textContent=Math.round(a)+'°';
+  $('#readSignal').textContent=r.signal; $('#readText').textContent=r.reading; $('#readAction').textContent='ลองทำ: '+r.action; $('#readPrompt').textContent=r.prompt;
+  const d=DAYS[weekday(todayISO)];
+  $('#swatch').style.background=`linear-gradient(135deg,${d[2]},${d[2]}aa)`; $('#colorName').textContent=`สี${d[1]} · วัน${d[0]}`;
+  const c=shuffled(todayISO+'|daily')[0];
+  $('#dailyMini').innerHTML=`<img src="assets/cards/${c.id}.webp" alt="${c.name}" width="84" height="206">`;
+  $('#dailyName').textContent=c.short; $('#dailyMeaning').textContent=c.meaning;
+  $('#warnList').innerHTML=r.remind.map(x=>`<li>${x}</li>`).join('');
+  $('#doList').innerHTML=[r.action,'เขียนสิ่งที่ขอบคุณ 3 ข้อก่อนนอน','จัดโต๊ะให้เป็นระเบียบสัก 10 นาที'].map(x=>`<li>${x}</li>`).join('');
+}
+
+/* ---------- answer engine (prototype copy of lib/oracle.js intents) ---------- */
+const H={day:'วันนี้',week:'7 วันนี้',month:'30 วันนี้',year:'365 วันนี้'};
+const T={general:'ภาพรวม',love:'ความรัก',career:'การงาน',money:'การเงิน',study:'การเรียน'};
+function route(q){
+  const s=norm(q);
+  if(/แม่น|accura/.test(s)) return 'accuracy';
+  if(/เครียด|กังวล|หมดแรง|เหนื่อยใจ|stress|anxi/.test(s)) return 'support';
+  if(/อีก\s*\d+\s*ปี|ปีข้างหน้า|years/.test(s)) return 'years';
+  if(/บูชา|เทพ|นับถือ|สิ่งศักดิ์สิทธิ์|ศักสิท/.test(s)) return 'belief';
+  if(/สีอะไร|สีมงคล|แก้เคล็ด|โชคไม่ดี|โชคร้าย|ของมงคล/.test(s)) return 'ritual';
+  if(/สัมภาษ|ได้งาน|มีงาน|หางาน|interview|job/.test(s)) return 'career';
+  if(/แฟน|คนเก่า|ความรัก|love|ex\b/.test(s)) return 'love';
+  if(/สอบ|เรียน|exam|study/.test(s)) return 'study';
+  if(/เงิน|หนี้|money/.test(s)) return 'money';
+  return 'general';
+}
+const level = n => `<span class="conf" title="ระดับความเหมาะของข้อมูล ไม่ใช่ความน่าจะเป็น">${[0,1,2].map(i=>`<i class="d ${i<n?'f':''}"></i>`).join('')} ${['','ต่ำ','ปานกลาง','ดี'][n]}</span>`;
+function answer(q){
+  const safety=classify(q);
+  if(safety.level==='crisis') return {crisis:true};
+  const intent=route(q); let topic=state.topic, horizon=state.horizon;
+  if(['career','love','money','study'].includes(intent)) topic=intent;
+  if(/เดือน/.test(q)) horizon='month'; else if(/สัปดาห์/.test(q)) horizon='week'; else if(/ปี/.test(q)) horizon='year';
+  const r=RULES[ruleFor(moonAngle(todayISO))];
+  const cards=shuffled(`${todayISO}|${topic}|${state.draws[topic]?.re||0}`).slice(0,3);
+  const sp=SPREADS[topic]; const d=DAYS[weekday(todayISO)];
+  const base={topic,horizon,warn:safety.cats,cards:null,why:[],conf:2};
+  const why=(...x)=>base.why.push(...x);
+  switch(intent){
+    case 'career': Object.assign(base,{title:'ผลอยู่ที่นายจ้าง แต่ช่วงรอคุณยังทำได้หลายอย่าง',cards:{cards,roles:sp.roles},
+      maybe:`ไพ่ ${cards[0].short} ในตำแหน่งโอกาส ชวนมองเรื่อง${cards[0].theme} ส่วน ${cards[1].short} ชี้ว่าอุปสรรคที่ควรเช็กคือ${cards[1].theme} อาจมีการติดต่อกลับหรือนัดคุยรอบถัดไปก็ได้ แต่ไพ่บอกผลการคัดเลือกไม่ได้`,
+      watch:['อย่ารอผลจากที่เดียว','อย่ารับเงื่อนไขที่ไม่ชัดเพราะกลัวพลาดโอกาส'],
+      prep:['ส่งข้อความติดตามผลสั้น ๆ อย่างสุภาพ ถ้าเลยวันที่เขาแจ้งไว้','สมัครหรือติดต่อที่อื่นต่อ และจดผลไว้','ซ้อมตอบคำถามที่ยากที่สุด 3 ข้อออกเสียง','วางแผนการเงินสำรองระหว่างรอ'],conf:1});
+      why(`<b>ไพ่</b> สับตามวันที่และหัวข้อ ${T[topic]} (ผลเดิมทั้งวัน)`,'<b>คำแนะนำ</b> มาจากแผนเตรียมตัวที่ทีมเขียนไว้','<b>ความมั่นใจต่ำ</b> เพราะผลขึ้นกับคนอื่นที่ดวงมองไม่เห็น'); break;
+    case 'love': Object.assign(base,{title:'ไพ่ช่วยมองใจตัวเอง แต่บอกใจอีกฝ่ายไม่ได้',cards:{cards,roles:sp.roles},
+      maybe:`${cards[0].short} ชวนมองพลวัตตอนนี้ผ่านเรื่อง${cards[0].theme} ส่วน ${cards[2].short} ชี้ว่าสิ่งที่คุณเลือกได้คือ${cards[2].theme} การติดต่อหรือระยะห่างอาจยังดำเนินต่อไป`,
+      watch:['อย่าสรุปความรู้สึกของอีกฝ่ายจากไพ่หรือดวง ถามตรง ๆ ดีกว่า','อย่าตัดสินใจเรื่องใหญ่ตอนโกรธหรือเหนื่อย'],
+      prep:['เขียนขอบเขตของตัวเองหนึ่งข้อ','ถ้ารู้สึกปลอดภัย ลองสื่อสารตรง ๆ หนึ่งเรื่อง'],conf:1});
+      why('<b>ไพ่</b> สับตามวันที่และหัวข้อความรัก','<b>ความมั่นใจต่ำ</b> เพราะเกี่ยวกับการตัดสินใจของอีกคน'); break;
+    case 'money': case 'study': Object.assign(base,{title:intent==='money'?'ดูตัวเลขจริงก่อน แล้วใช้ไพ่ช่วยคิด':'ผลสอบมาจากการเตรียมตัว ไพ่ช่วยจัดลำดับได้',cards:{cards,roles:sp.roles},
+      maybe:`${cards[0].short} ชวนโฟกัสที่${cards[0].theme} ส่วน ${cards[1].short} ชี้ว่าสิ่งที่อาจขวางคือ${cards[1].theme}`,
+      watch:intent==='money'?['อย่ายืมหรือค้ำประกันโดยไม่มีเอกสาร','อย่าตัดสินใจลงทุนเพราะดวง']:['อย่าอดนอนทั้งคืนเพื่อเร่งอ่าน'],
+      prep:intent==='money'?['เช็กงบประมาณและต้นทุนจริง','เปรียบเทียบตัวเลือกอย่างน้อย 2 ทาง']:['เลือกหัวข้อหนึ่งเรื่อง แบ่งเวลาอ่านที่ทำได้จริง','ทำข้อสอบเก่าจับเวลา 1 ชุด'],conf:2});
+      why(`<b>ไพ่</b> สับตามวันที่และหัวข้อ${T[topic]}`); break;
+    case 'ritual': Object.assign(base,{title:`วันนี้สี${d[1]} ตามธรรมเนียมวัน${d[0]}`,
+      maybe:'ใส่สีที่ทำให้รู้สึกมั่นใจหรือสงบ ถ้าอยากแก้เคล็ด ให้ทำเพื่อให้ใจนิ่ง ที่เหลือคือการลงมือจริง',
+      watch:r.remind, prep:['ทำสิ่งดี ๆ เล็ก ๆ ให้คนอื่นตามกำลัง','ถ้าอยากทำพิธี ไม่ต้องจ่ายเงินก้อนใหญ่หรือกู้มาทำ'],conf:2});
+      why('<b>สี</b> คำนวณจากวันในสัปดาห์ (Asia/Bangkok) ตามธรรมเนียมไทย','<b>ข้อควรระวัง</b> เลือกตามเฟสดวงจันทร์ เป็นนิสัยที่ดีทั่วไป ไม่ใช่คำทำนาย'); break;
+    case 'belief': Object.assign(base,{title:'ไม่มีระบบไหนบอกได้ว่าคุณต้องบูชาองค์ไหน',
+      maybe:'การบูชาให้ผลทางใจกับคนที่ศรัทธา ระบบนี้จะไม่ระบุว่าคุณถูกกำหนดให้นับถือสิ่งใด และไม่รับรองว่าชีวิตจะดีขึ้นเพราะการบูชา',
+      watch:['ระวังพิธีที่เรียกเงินจำนวนมาก'], prep:['เริ่มจากประเพณีที่คุณนับถืออยู่แล้ว','ถามผู้รู้ในศาสนานั้นถึงวิธีปฏิบัติที่เหมาะสม'],conf:0}); why('<b>ไม่ได้ดูดวง</b> คำถามเรื่องความเชื่อตอบด้วยข้อความที่ทีมอนุมัติไว้'); break;
+    case 'accuracy': Object.assign(base,{title:'ไม่มีศาสตร์ไหนพิสูจน์ได้ว่าแม่นที่สุด',maybe:'เราจึงไม่จัดอันดับและไม่มีเปอร์เซ็นต์ความแม่น ดูด้านล่างว่าแต่ละศาสตร์เหมาะกับคำถามแบบไหน',watch:['ระวังที่ที่อ้างตัวเลขความแม่น'],prep:['เลือกศาสตร์ตามชนิดคำถาม'],conf:0,jump:'#honest'}); why('<b>ไม่ได้ดูดวง</b> ตอบตามหลักฐานที่มี'); break;
+    case 'support': Object.assign(base,{title:'ความเครียดเป็นสัญญาณที่ควรรับฟัง',maybe:'ดวงไม่ควรตัดสินเรื่องนี้แทนคุณ ลองเริ่มจากสิ่งเล็ก ๆ ที่ทำได้ทันที',watch:['ถ้ารู้สึกแย่ต่อเนื่องหลายวันหรือกระทบการนอน โทร 1323 ได้ฟรีตลอด 24 ชั่วโมง'],prep:['หายใจเข้า 4 วินาที ออก 6 วินาที 5 รอบ','แยกเรื่องที่ควบคุมได้กับควบคุมไม่ได้'],conf:0,jump:'#care'}); why('<b>ไม่ได้ดูดวง</b> คำถามเรื่องความเครียดได้คำแนะนำดูแลตัวเองแทน'); break;
+    case 'years': Object.assign(base,{title:'ภาพหลายปีต้องใช้วัน เวลา และสถานที่เกิด',maybe:'กรอกดวงกำเนิดด้านล่าง ระบบจะแสดงธีมรายปีจากมุมดาวพฤหัสบดี/เสาร์และมหาทศา เป็นธีม ไม่ใช่เหตุการณ์',watch:['ยิ่งมองไกล ความไม่แน่นอนยิ่งมาก'],prep:['เลือกหนึ่งปีที่สนใจ แล้วเขียนเป้าหมายและสิ่งที่ต้องเตรียมหนึ่งข้อ'],conf:0,jump:'#chart'}); why('<b>ระบบทดลอง</b> ส่วนเวทิกยังรอผู้เชี่ยวชาญตรวจ'); break;
+    default: Object.assign(base,{title:r.signal,maybe:`${r.reading} ในด้าน${T[topic]} ลองสังเกตสิ่งที่เกิดขึ้นจริง แล้วเลือกการกระทำเล็ก ๆ ที่คุณควบคุมได้`,watch:r.remind,prep:[r.action],conf:1});
+      why(`<b>ธีม</b> มาจากเฟสดวงจันทร์ในช่วง${H[horizon]}`,'<b>ไม่มีข้อมูลเกิด</b> จึงเป็นการอ่านแบบทั่วไป');
+  }
+  if(horizon==='year' && base.conf>0) { base.conf--; why('<b>ช่วงเวลายาว</b> ความไม่แน่นอนสะสมมากขึ้น'); }
+  return base;
+}
+
+function words(el, text){
+  if(reduce || !('Segmenter' in Intl)){ el.textContent=text; return; }
+  el.textContent=''; const seg=new Intl.Segmenter('th',{granularity:'word'}); let i=0;
+  for(const {segment} of seg.segment(text)){ const s=document.createElement('span'); s.textContent=segment; s.style.cssText=`opacity:.001;transition:opacity .35s ${i++*28}ms`; el.append(s); }
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.querySelectorAll('span').forEach(s=>s.style.opacity=1)));
+}
+
+function ask(q){
+  q=q.trim(); if(!q) return;
+  const res=answer(q);
+  $('#thread').innerHTML=`<div class="bub me">${esc(q)}</div><div class="bub ai" id="aiBub"></div>`;
+  const A=$('#answer');
+  if(res.crisis){
+    $('#aiBub').textContent='ขอบคุณที่บอกนะ ตอนนี้เราขอไม่ดูดวงให้ เพราะเรื่องนี้สำคัญกว่าดวง อยากให้คุณได้คุยกับคนที่ช่วยได้จริง';
+    A.className='crisis ans';
+    A.innerHTML=`<span class="eyebrow" style="color:var(--calm)">ไม่ได้ดูดวงให้ในคำถามนี้</span><h3>คุณไม่จำเป็นต้องผ่านเรื่องนี้คนเดียว</h3>
+      <div class="copy"><span class="num">1323</span><span>สายด่วนสุขภาพจิต ฟรี ตลอด 24 ชั่วโมง</span></div>
+      <p>ถ้าอยู่ในอันตรายเร่งด่วน ให้ติดต่อบริการฉุกเฉินในพื้นที่ หรือบอกคนใกล้ตัวตอนนี้</p>
+      <ul class="list calm"><li>หายใจเข้า 4 วินาที ออก 6 วินาที ทำซ้ำ 5 รอบ</li><li>อยู่ใกล้คนที่ไว้ใจ หรือส่งข้อความหาเขาตอนนี้</li></ul>`;
+    return;
+  }
+  A.className='glass ans';
+  words($('#aiBub'), res.maybe);
+  const cardsHtml = res.cards ? `<div class="cards3">${res.cards.cards.map((c,i)=>`<figure><div class="mini"><img src="assets/cards/${c.id}.webp" alt="${c.name}" width="96" height="235"></div><figcaption>${res.cards.roles[i]}<br><b style="color:var(--ink);font-weight:500">${c.short}</b></figcaption></figure>`).join('')}</div>` : '';
+  A.innerHTML=`<div class="ans-top"><span class="tag">${T[res.topic]} · ${H[res.horizon]}</span>${level(res.conf)}</div>
+    <h3>${res.title}</h3>
+    ${res.warn.length?`<div class="notice">${res.warn.map(c=>WARN_TEXT[c]).join(' · ')}</div>`:''}
+    ${cardsHtml}
+    <div class="grid2">
+      <div class="box"><h4>สิ่งที่อาจเกิดขึ้น</h4><p style="font-size:var(--s-1)">${res.maybe}</p></div>
+      <div class="box"><h4>ควรระวัง</h4><ul class="list warn" style="font-size:var(--s-1)">${res.watch.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+      <div class="box" style="grid-column:1/-1"><h4>เตรียมตัวยังไงดี</h4><ul class="list" style="font-size:var(--s-1)">${res.prep.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    </div>
+    ${res.jump?`<a class="btn ghost" href="${res.jump}" style="justify-self:start;text-decoration:none">ดูรายละเอียด</a>`:''}
+    <div class="why"><span class="eyebrow" style="font-size:.7rem">ทำไมถึงตอบแบบนี้</span>${res.why.map(x=>`<span>${x}</span>`).join('')}<span>ระดับความมั่นใจคือความเหมาะของข้อมูล ไม่ใช่ความน่าจะเป็นว่าจะเกิดขึ้นจริง</span></div>`;
+  if(res.cards){ state.topic=res.topic; setSeg('#topicSeg',res.topic); renderTarot(); }
+}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- tarot table ---------- */
+function renderTarot(){
+  const topic=state.topic, rec=state.draws[topic]||{re:0,picked:0};
+  const deck=shuffled(`${todayISO}|${topic}|${rec.re}`); const sp=SPREADS[topic];
+  $('#spreadDesc').textContent=sp.name;
+  $('#spread').innerHTML=sp.roles.map((role,i)=>{ const c=deck[i], open=i<rec.picked; return `<div class="slot"><small>${role}</small>
+    <div class="flip ${open?'open':'empty'}" id="slot${i}"><div class="in"><div class="face back"><img src="assets/back.webp" alt="" width="170" height="416"></div><div class="face front"><img src="assets/cards/${c.id}.webp" alt="${c.name}" width="170" height="416" loading="lazy"></div></div></div>
+    <p class="meaning">${open?`<b>${c.short}</b>${c.meaning}`:'&nbsp;'}</p></div>`; }).join('');
+  const fan=$('#fan'); fan.innerHTML='';
+  const n=22, spread=Math.min(70, innerWidth/12);
+  for(let i=0;i<n;i++){ const b=document.createElement('button'); b.type='button'; b.setAttribute('aria-label',`หยิบไพ่ใบที่ ${i+1}`);
+    const ang=(i-(n-1)/2)*(spread/(n-1)); b.style.transform=`translateX(-50%) rotate(${ang}deg)`; b.disabled=rec.picked>=3;
+    b.onmouseenter=()=>{ if(!b.disabled) b.style.transform=`translateX(-50%) rotate(${ang}deg) translateY(-18px)`; };
+    b.onmouseleave=()=>{ b.style.transform=`translateX(-50%) rotate(${ang}deg)`; };
+    b.onclick=()=>pick(b); fan.append(b); }
+  $('#seedInfo').textContent=`ไพ่ถูกสับไว้แล้วตามวันที่ + หัวข้อ${T[topic]} ถามซ้ำวันนี้จะได้ชุดเดิม การเลือกใบเป็นพิธีกรรม`;
+  const rs=$('#reshuffle'); rs.disabled=rec.re>=1; rs.textContent=rec.re>=1?'ใช้สิทธิ์สับใหม่ของวันนี้แล้ว':'สับใหม่ (เหลือ 1 ครั้งวันนี้)';
+}
+function pick(btn){
+  const topic=state.topic, rec=state.draws[topic]||{re:0,picked:0}; if(rec.picked>=3) return;
+  btn.disabled=true; btn.style.opacity=.2;
+  const i=rec.picked; rec.picked++; state.draws[topic]=rec; store.set('dc:draws:'+todayISO,state.draws);
+  const deck=shuffled(`${todayISO}|${topic}|${rec.re}`), c=deck[i], slot=$('#slot'+i);
+  slot.classList.remove('empty'); requestAnimationFrame(()=>requestAnimationFrame(()=>slot.classList.add('open')));
+  slot.parentElement.querySelector('.meaning').innerHTML=`<b>${c.short}</b>${c.meaning}`;
+  if(rec.picked>=3) $('#fan').querySelectorAll('button').forEach(b=>b.disabled=true);
+}
+$('#reshuffle').onclick=()=>{ const rec=state.draws[state.topic]||{re:0,picked:0}; if(rec.re>=1) return; state.draws[state.topic]={re:rec.re+1,picked:0}; store.set('dc:draws:'+todayISO,state.draws); renderTarot(); toast('สับไพ่ใหม่แล้ว ใช้ได้วันละครั้งต่อหัวข้อ'); };
+
+/* ---------- birth chart (sun sign + weekday + life number are real rules from lib/) ---------- */
+function sunSign(iso){ const [,m,d]=iso.split('-').map(Number); const cut=[20,19,21,20,21,21,23,23,23,23,22,22]; const order=[9,10,11,0,1,2,3,4,5,6,7,8]; let idx=m-1; if(d>=cut[idx]) idx=(idx+1)%12; return order[idx]; }
+function lifeNumber(iso){ let n=iso.replace(/-/g,'').split('').reduce((a,d)=>a+ +d,0); while(n>9&&![11,22,33].includes(n)) n=String(n).split('').reduce((a,d)=>a+ +d,0); return n; }
+function renderChart(){
+  const iso=$('#bdate').value; if(!iso) return;
+  const s=sunSign(iso), wd=weekday(iso), unknown=$('#bunknown').checked;
+  state.birth={iso,wd};
+  $('#wheel').innerHTML=SIGNS.map(([id,th],i)=>`<figure class="${i===s?'on':''}"><img src="assets/zodiac/${id}.webp" alt="ราศี${th}" width="72" height="72" loading="lazy"><figcaption>${th}</figcaption></figure>`).join('');
+  $('#facts').innerHTML=[['ราศีอาทิตย์ (ตะวันตก)',SIGNS[s][1]],['เกิดวัน',DAYS[wd][0]],['เลขชีวิต',lifeNumber(iso)],['สีวันเกิด',DAYS[wd][1]],['พระประจำวันเกิด',DAYS[wd][3]],['ลัคนา',unknown?'ไม่ทราบเวลา':'คำนวณในแอปจริง']].map(([k,v])=>`<div class="fact"><span>${k}</span><b>${v}</b></div>`).join('');
+  const y0=+todayISO.slice(0,4), n=+$('#byears').value;
+  const lords=['เสาร์','เสาร์','เสาร์','พุธ','พุธ','พุธ','พุธ','พุธ','พุธ','พุธ'];
+  const rows=[['open','พฤหัสบดีทำมุม 120° จุดกลางฟ้า: ช่วงขยายโอกาสในเรื่องการงานและบทบาทในสังคม ลองสังเกตช่องทางที่เปิดให้'],['review','เสาร์ทำมุม 90° อาทิตย์: ช่วงที่เน้นความรับผิดชอบในเรื่องตัวตนและทิศทาง ควรทบทวนและเผื่อที่ปรับแผน'],['quiet','ไม่มีมุมดาวช้าที่เด่นชัด เป็นปีที่เหมาะกับการสะสมทักษะ'],['open','พฤหัสบดีทับ ศุกร์: ช่วงขยายโอกาสในเรื่องความสัมพันธ์และสิ่งที่คุณให้คุณค่า'],['review','เสาร์ตรงข้าม จันทร์: เรื่องอารมณ์และความมั่นคงภายใน ควรดูแลจังหวะชีวิตให้สม่ำเสมอ']];
+  const lab={open:'เปิดกว้าง',review:'ทบทวน',quiet:'เงียบ'};
+  $('#timeline').innerHTML=Array.from({length:n},(_,i)=>{ const [k,t]=rows[i%rows.length]; return `<div class="yr"><div><div class="y">${y0+i}</div><div class="e">มหาทศา${lords[i]}</div></div><p><span class="pill ${k}">${lab[k]}</span>${t}</p></div>`; }).join('');
+  renderDays();
+}
+$('#birthForm').addEventListener('submit',e=>{ e.preventDefault(); renderChart(); toast('คำนวณแล้ว ข้อมูลเกิดไม่ถูกบันทึก'); });
+$('#bunknown').onchange=()=>{ $('#btime').disabled=$('#bunknown').checked; renderChart(); };
+
+/* ---------- ritual days ---------- */
+function renderDays(){
+  const t=weekday(todayISO), b=state.birth?.wd;
+  $('#days').innerHTML=DAYS.map((d,i)=>`<div class="day ${i===t?'today':''} ${i===b?'birth':''}"><i style="background:${d[2]}"></i><b style="font-weight:500">${d[0]}</b><span class="muted">${d[1]}</span></div>`).join('');
+  $('#postureLine').textContent=b!=null?`คุณเกิดวัน${DAYS[b][0]} พระประจำวันเกิดคือ${DAYS[b][3]} สีประจำวันเกิดคือสี${DAYS[b][1]} · ข้อมูลเป็นธรรมเนียมไทย กำลังตรวจแหล่งอ้างอิง`:'กรอกวันเกิดเพื่อดูพระและสีประจำวันเกิด';
+}
+
+/* ---------- methods ---------- */
+const METHODS=[['โหราศาสตร์ตะวันตก','ธีมช่วงเวลา วัน เดือน ปี คำนวณตำแหน่งดาวได้ แต่ความหมายเป็นการตีความ',3,'MVP'],['ไพ่ทาโรต์','คำถามเฉพาะเรื่อง ใช้ไพ่เป็นกระจกมองสถานการณ์หลายมุม',0,'MVP'],['อี้จิง','การเลือกระหว่างทางเลือก หรือวางแผนรับมือการเปลี่ยนแปลง',0,'ทดลอง'],['เวทิก / มหาทศา','สำรวจธีมระยะยาว หลายปีข้างหน้า',2,'ทดลอง']];
+$('#methods').innerHTML=METHODS.map(([n,d,c,tag])=>`<article class="glass method reveal"><span class="tag ${tag==='ทดลอง'?'exp':''}">${tag}</span><h3>${n}</h3><p class="muted" style="font-size:var(--s-1)">${d}</p><div class="meter" aria-label="ส่วนที่คำนวณได้ ${c} จาก 5">${[0,1,2,3,4].map(i=>`<i class="${i<c?'c':'t'}"></i>`).join('')}</div></article>`).join('');
+
+/* ---------- controls ---------- */
+function setSeg(sel,v){ document.querySelectorAll(sel+' button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v)); }
+$('#topicSeg').onclick=e=>{ const v=e.target.dataset?.v; if(!v) return; state.topic=v; setSeg('#topicSeg',v); renderTarot(); };
+$('#horizonSeg').onclick=e=>{ const v=e.target.dataset?.v; if(!v) return; state.horizon=v; setSeg('#horizonSeg',v); };
+$('#popular').innerHTML=POPULAR.map(p=>`<button type="button" class="chip">${p}</button>`).join('');
+$('#popular').onclick=e=>{ if(e.target.classList.contains('chip')){ $('#q').value=e.target.textContent; ask(e.target.textContent); $('#ask').scrollIntoView(); } };
+$('#askForm').addEventListener('submit',e=>{ e.preventDefault(); ask($('#q').value); $('#ask').scrollIntoView(); });
+$('#copyHot').onclick=async()=>{ try{ await navigator.clipboard.writeText('1323'); toast('คัดลอก 1323 แล้ว'); }catch{ const r=document.createRange(); r.selectNodeContents($('#hotline')); getSelection().removeAllRanges(); getSelection().addRange(r); toast('เลือกเบอร์ไว้แล้ว กดคัดลอกได้เลย'); } };
+const consent=$('#aiConsent'); consent.checked=!!store.get('dc:consent'); consent.onchange=()=>{ store.set('dc:consent',consent.checked); toast(consent.checked?'เปิดให้ AI เรียบเรียงข้อความแล้ว':'ปิดแล้ว ใช้ข้อความแม่แบบ'); };
+$('#wipe').onclick=()=>{ store.clear(); state.draws={}; consent.checked=false; renderTarot(); toast('ลบข้อมูลในเครื่องนี้แล้ว'); };
+
+/* ---------- nav highlight ---------- */
+const links=[...document.querySelectorAll('.nav a.l')];
+if('IntersectionObserver' in window){ const io=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting) links.forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+en.target.id)); }),{rootMargin:'-45% 0px -50% 0px'}); document.querySelectorAll('main section').forEach(s=>io.observe(s)); }
+
+/* ---------- sky: canvas starfield with pointer + scroll parallax ---------- */
+const cv=$('#sky'), ctx=cv.getContext('2d'); let W,Hh,stars=[],mx=0,my=0,sy=0;
+function size(){ const dpr=Math.min(devicePixelRatio||1,2); W=cv.width=innerWidth*dpr; Hh=cv.height=innerHeight*dpr; stars=Array.from({length:Math.round(innerWidth*innerHeight/9000)},()=>({x:Math.random()*W,y:Math.random()*Hh,r:(Math.random()*1.3+.2)*dpr,z:Math.random()*.8+.2,p:Math.random()*6.28,g:Math.random()<.25})); }
+function draw(t){ ctx.clearRect(0,0,W,Hh); for(const s of stars){ const tw=reduce?1:.55+.45*Math.sin(t/900*s.z+s.p); const x=(s.x+mx*s.z*20)%W, y=((s.y-sy*s.z*.3+mx*0)%Hh+Hh)%Hh; ctx.globalAlpha=tw*.9; ctx.fillStyle=s.g?'#eab66d':'#f5f0e7'; ctx.beginPath(); ctx.arc(x,y,s.r,0,6.283); ctx.fill(); } if(!reduce) requestAnimationFrame(draw); }
+size(); addEventListener('resize',()=>{ size(); if(reduce) draw(0); renderTarot(); });
+addEventListener('pointermove',e=>{ mx=(e.clientX/innerWidth-.5); my=(e.clientY/innerHeight-.5); },{passive:true});
+const heroBg=$('#heroBg');
+addEventListener('scroll',()=>{ sy=scrollY; if(!reduce) heroBg.style.transform=`translate3d(${mx*-12}px,${scrollY*.25}px,0)`; },{passive:true});
+requestAnimationFrame(draw);
+
+/* ---------- boot ---------- */
+renderToday(); renderTarot(); renderChart(); renderDays(); ask($('#q').value);
+})();
+</script>
+
+</body></html>
