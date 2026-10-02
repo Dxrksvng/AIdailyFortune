@@ -111,8 +111,8 @@ section.block{padding-block:clamp(3rem,7vw,5.5rem)}
 .ans-top{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between}
 .ans h3{font-size:var(--s2)}
 .ans .cards3{display:flex;gap:.7rem;flex-wrap:wrap}
-.ans .cards3 figure{margin:0;display:grid;gap:.3rem;width:96px;font-size:.75rem;color:var(--muted);text-align:center}
-.ans .cards3 .mini{width:96px}
+.ans .cards3 figure{margin:0;display:grid;gap:.3rem;width:130px;font-size:.75rem;color:var(--muted);text-align:center}
+.ans .cards3 .mini{width:130px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .box{border:1px solid var(--line-soft);border-radius:14px;padding:1rem;display:grid;gap:.5rem;align-content:start;min-width:0}
 .box h4{margin:0;font-size:var(--s-1);font-family:var(--f-data);letter-spacing:.08em;color:var(--accent);font-weight:500}
@@ -125,7 +125,7 @@ section.block{padding-block:clamp(3rem,7vw,5.5rem)}
 
 /* tarot table */
 .table{display:grid;gap:1.4rem}
-.spread{display:grid;grid-template-columns:repeat(3,minmax(0,170px));gap:clamp(10px,3vw,28px);justify-content:center}
+.spread{display:grid;grid-template-columns:repeat(3,minmax(0,250px));gap:clamp(8px,3vw,40px);justify-content:center}
 .slot{display:grid;gap:.5rem;text-align:center}
 .slot small{font-family:var(--f-data);font-size:.72rem;color:var(--muted);letter-spacing:.06em}
 .flip{perspective:1200px;aspect-ratio:200/490;max-width:100%;border-radius:12px;border:1px dashed var(--line)}
@@ -260,3 +260,7 @@ main>section.block:first-child{padding-top:clamp(2rem,5vw,3.5rem)}
 .consult:has(#answer:empty){grid-template-columns:minmax(0,1fr)}
 .toast{visibility:hidden;opacity:0}
 .toast.show{visibility:visible;opacity:1}
+
+/* larger tarot cards: the table fills the width, and each card name stays readable */
+.slot .meaning{font-size:var(--s0)}
+@media (max-width:560px){.spread{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ans .cards3 figure,.ans .cards3 .mini{width:104px}.slot .meaning{font-size:var(--s-1)}}
