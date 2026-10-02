@@ -41,6 +41,20 @@ Guest mode receives a general theme. The POC may ask users for **birth date only
 
 **Method roles:** Western astrology supplies profile and time-horizon themes; Tarot handles question-specific situations; I Ching frames decisions and change; the experimental Vedic endpoint exposes traditional long-horizon timing structure. A proposed “lucky color,” conflict-avoidance prompt, or harmless remedy is labeled as a Thai custom/reflective ritual, not a mechanism that changes luck. A deity question receives respectful belief exploration with the user's tradition and consent, never a claim that a deity is objectively assigned or that worship guarantees life improvement.
 
+### Packages (production hypothesis, untested)
+
+Paid tiers sell **depth, convenience and continuity**, never safety. The crisis path, the “Why this reading?” explanation and the accuracy disclaimer stay free in every tier. Nothing is sold as a way to “fix” bad luck.
+
+| Package | Who it is for | Included | Positioning |
+|---|---|---|---|
+| **Free** (guest or account) | Curious first-time visitor | Daily Compass card, colour/card of the day, 1 Tarot question per day, Why, evening reflection | A calm daily ritual you can try with no identity. This is the acquisition tier. |
+| **Plus** (monthly subscription) | Daily habit users who ask about work, love and money | More questions per day (fair-use cap), week/month scopes, love/career/study/money filters, birth chart, history, reminders | “Come back every day and keep your own record.” Value is continuity and personalization. |
+| **Deep Reading** (one-off purchase) | Someone at a decision point (job change, new relationship, new year) | One long reading on a chosen topic or year, with the sources/rules shown and a saved copy | Pay only when needed, which suits users who do not want a subscription. |
+
+**Price points are hypotheses, not market facts.** I have not verified competitor prices or Thai willingness to pay. Test with a Van Westendorp price survey and a fake-door/paywall A/B in the pilot, in Thai baht and with PromptPay-style local payment as the default checkout. Publish the price only after the pilot shows who pays and why.
+
+**What “worth paying for” can honestly mean:** readings that users rate as relevant and useful *more than a mismatched reading*, answers that are specific to their question, and clear sources. It does not mean predictions proven correct, which this design cannot show.
+
 ## 4.2 Market positioning
 
 | Product | Observed offering from official source | Daily Compass emphasis |
@@ -124,6 +138,8 @@ The current POC is one local web service plus browser storage, with on-demand ge
 | Scores and optional note | Reflection and evaluation | Optional; note may be sensitive. |
 | Selected method, horizon, domain, rule/source IDs | Route and reproduce a reading | Per reading; low to personal. |
 | Optional question text and Tarot draw/hexagram result | Answer and replay a consented question reading | Sensitive text; allow ephemeral mode and deletion. |
+| Plan, billing status, payment-provider reference | Charge and renew | Paid users only; no card numbers stored by us. |
+| Question category only (not the text), as an aggregate event | Learn which topics users ask about (work, love, money…) | Anonymous count by default; text stays ephemeral. |
 | Exact birth time/place, if full chart enabled | Calculate precise chart/houses and timezone | Optional, sensitive; collect only for that mode. |
 
 No contacts, live GPS, health or financial records, or private messages. Restrict access, encrypt sensitive data, offer deletion of reading/note/account, and set retention periods with a product/privacy owner before launch. Do not claim legal compliance from this design alone.
@@ -133,6 +149,7 @@ erDiagram
     USER ||--o| USER_PREFERENCE : has
     USER ||--o| FORTUNE_PROFILE : has
     USER ||--o{ READING : receives
+    USER ||--o{ SUBSCRIPTION : holds
     READING ||--o| QUESTION_SESSION : may_answer
     READING ||--o{ TAROT_DRAW : may_include
     READING ||--o| HEXAGRAM_CAST : may_include
@@ -141,6 +158,14 @@ erDiagram
       uuid user_id PK
       string auth_provider_ref
       datetime created_at
+    }
+    SUBSCRIPTION {
+      uuid subscription_id PK
+      uuid user_id FK
+      string plan
+      string status
+      datetime period_end
+      string payment_provider_ref
     }
     USER_PREFERENCE {
       uuid user_id PK, FK
@@ -202,22 +227,78 @@ A registered profile remains optional because Tarot and I Ching need no birth da
 
 ## 4.5 KPIs
 
-**North star:** weekly returning Compass users = distinct users who complete a reading in one week and another in the next. Track guest sessions separately because cross-device identity is unknown. Do not optimize fear-driven engagement or time spent.
+**What success means here.** Not “the predictions are correct”: the system cannot show that, and no KPI claims it. Success is (1) users find a reading **relevant and useful**, (2) they **return**, (3) a share of them **pay and keep paying**, (4) all of it at a **safe, affordable cost** to serve. No baseline, target or result is claimed. Targets are set *after* a pilot produces a baseline.
 
-| Dimension | Proposed measure |
+**North star:** weekly returning users = distinct users with a completed reading in week *W* **and** in week *W+1*. Guest sessions are counted separately because cross-device identity is unknown. Do not optimize fear, urgency or time spent.
+
+### 1. Product value (is it worth paying for?)
+
+| KPI | Definition |
 |---|---|
-| Activation | First-reading completion; time to displayed card. |
-| Retention | D1/D7/D30 returns by first-reading cohort, split guest/registered. |
-| Engagement | Completion, Why expansion, action save, evening reflection completion. |
-| User value | Relevance/usefulness distributions and response rate to show selection bias. |
-| AI quality | Structured-output validity, supported-signal rate, sampled unsupported-claim rate, fallback rate. |
-| Safety | High-stakes violation rate on fixed eval set, blocked outputs, user reports. |
-| Reliability | Reading success, API errors, P50/P95 latency, job/notification failures. |
-| Cost | AI cost per completed reading, compute cost per active user, context-cache hit rate. |
+| Activation rate | First-time visitors who see a card or answer ÷ visitors, within the first session. Also time to first card. |
+| Question answered rate | Questions answered with a rating of “answered my question” ≥ threshold ÷ questions asked. |
+| Relevance / usefulness | Mean and distribution of the 1–5 evening scores, plus response rate (to show selection bias). |
+| **Personalization lift** (anti-Barnum test) | In a pilot A/B, some users see a reading generated for a *different* profile or question. Lift = mean relevance (own reading) − mean relevance (mismatched reading). If lift ≈ 0, the reading feels “accurate” only because it is generic, so it is not a reason to pay. |
+| Why-engagement | Readings where Why was expanded ÷ readings shown. |
 
-No baseline, targets or improvements are claimed. Use safety and reliability as release gates; gather a pilot baseline before setting targets. “It came true” is subjective feedback, not scientific accuracy.
+### 2. Retention
 
-Segment these measures by method, time horizon and domain. Add **intent-to-answer completion**, **question answered rating**, **draw completion**, and **method override rate** to learn whether routing is useful. Never optimize “prediction accuracy” from subjective votes as if objective outcomes were known.
+| KPI | Definition |
+|---|---|
+| D1 / D7 / D30 retention | Users from first-reading cohort *C* with a completed reading on day *N* (or within the day-N window) ÷ size of *C*. Split guest vs registered, free vs paid. |
+| Weekly returning users | The north star above. |
+| Reading streak | Median consecutive days with a completed reading among registered users. |
+
+### 3. Business (monetization)
+
+| KPI | Definition |
+|---|---|
+| Visitor → registered | Registered accounts ÷ unique visitors in the period. |
+| Free → paid conversion | Users who start a paid plan or buy a Deep Reading ÷ active free users in the same period. Report by entry point (paywall shown after which feature). |
+| Trial → paid | Paid after trial ÷ trials started. |
+| ARPU / ARPPU | Revenue ÷ all active users; revenue ÷ paying users. |
+| Monthly churn (subscriptions) | Subscribers lost in month ÷ subscribers at start of month. |
+| LTV / CAC | LTV ≈ ARPPU × gross margin ÷ churn; CAC = acquisition spend ÷ new paying users. Report the ratio and payback months only once real data exist. |
+| One-off repurchase rate | Deep Reading buyers who buy again within 90 days ÷ buyers. |
+| Refund / complaint rate | Refunds or “not as described” reports ÷ paid orders. |
+| Willingness-to-pay | Price-survey curves and paywall A/B results from the pilot. Used to set prices. |
+
+### 4. Demand discovery (do Thai users ask what we assume?)
+
+| KPI | Definition |
+|---|---|
+| Question-category mix | Share of questions by category (work, love, money, study, stress, other), stored as an anonymous count, never the question text. This tests the assumption that these topics dominate before roadmap and pricing decisions rely on it. |
+| Method preference | Share of questions answered via Tarot / Western / I Ching, and **method override rate** (user switches the suggested method). |
+| Draw completion | Tarot draws completed ÷ started. |
+
+### 5. AI quality, safety and trust
+
+| KPI | Definition |
+|---|---|
+| Structured-output validity | Responses that pass schema, grounding and safety validation ÷ responses generated. |
+| Supported-signal rate | Sampled readings whose claims all trace to a signal/rule ÷ sampled readings (human review). |
+| Fallback rate | Readings served from the approved template ÷ readings. |
+| High-stakes violation rate | Fixed eval set of risky prompts (investment, medical, legal, death certainty, spending pressure): outputs breaking a rule ÷ prompts. Release gate. |
+| **Crisis-routing recall** | Eval prompts with crisis wording that correctly return the support panel (with 1323) and no reading ÷ all crisis prompts. Release gate; any miss is investigated. |
+| User reports | Content reports per 1,000 readings. |
+
+### 6. Reliability and cost
+
+| KPI | Definition |
+|---|---|
+| Reading success rate | Successful readings ÷ requests. API errors, P50/P95 latency, notification failures. |
+| AI cost per completed reading | LLM spend ÷ completed readings; **gross margin per paying user** = (revenue − AI, compute and payment fees) ÷ revenue. |
+| Context-cache hit rate | Cached astronomical context reuses ÷ lookups. |
+
+### Guardrail metrics (must not get worse while growth KPIs improve)
+
+- Share of paid conversions that follow a distress or fear-related query. If this is high, the paywall may be exploiting anxiety, so redesign it.
+- Crisis path and safety notices remain free and undelayed in every plan.
+- Complaints about pressure to spend, and refund rate on Deep Readings.
+
+### How these are used
+
+Safety and reliability are release gates. Business KPIs are read only alongside value KPIs: a rise in conversion with a falling relevance score or rising refunds is a warning, not a win. Segment by method, horizon, domain and plan. “It came true” is subjective feedback, never reported as scientific accuracy. Pilot plan: recruit a small group, measure the baselines above for a few weeks, run the mismatched-reading test and price survey, then set targets and decide whether a paid tier is justified.
 
 ## POC and production
 
