@@ -1,4 +1,4 @@
-# Daily Compass POC
+# Celestra (Daily Compass POC)
 
 Run `npm install`, then `npm start`; open `http://localhost:4174`. Run `npm test` for calculation/rule, narrative, API, Tarot and I Ching cast checks. `npm run capture` builds the site, exercises core flows in a real browser and regenerates screenshots in `mockups/`. The site is an API-connected POC; there is no account, server database or notification. It stores only the daily reading snapshot and optional reflection in browser `localStorage`. Questions and exact birth details remain in page memory and are sent to the server only for the requested calculation. Clear local data from the footer.
 
@@ -8,7 +8,7 @@ To exercise the **optional AI wording layer**, start the server with `OPENAI_API
 
 The site offers an optional Western natal chart and experimental Vedic timing screen. Users must explicitly consent before exact birth time, timezone and coordinates are sent for a calculation. These details are held only in page memory for the session and are not persisted by the browser or server. General readings collect no birth data. Reflection text stays on the device. The stored daily reading and reflection can be deleted from the footer. The server does not keep PII.
 
-The Tarot screen calls the system API to draw from a **78-card compositional catalog** (22 Major + 56 Minor) with cryptographic random selection without replacement. It supports general, career, study, money and relationship spreads. These summaries are product interpretations, not canonical quotations. The site also calculates a Western tropical natal chart and displays King Wen I Ching casts; reviewed I Ching line-text readings remain future scope. Vedic timing is exposed in an experimental API and screen, described below.
+The Tarot table calls the system API to draw from the **22 Major Arcana** (the 56 Minor Arcana remain as data but have no art and are not drawn). The draw is **deterministic**: it is shuffled with a seed from `date|topic|spread|reshuffle`, so the same topic on the same day returns the same cards; one reshuffle per topic per day is allowed (the server rejects `reshuffle > 1` with HTTP 400; the count itself is kept by the client). It supports general, career, study, money and relationship spreads. These summaries are product interpretations, not canonical quotations. The site also calculates a Western tropical natal chart and displays King Wen I Ching casts; reviewed I Ching line-text readings remain future scope. Vedic timing is exposed in an experimental API and screen, described below.
 
 ## System API and website
 
@@ -26,8 +26,18 @@ POST /api/period accepts the same date/timezone/topic/horizon fields as GET and 
 
 The website exposes day/week/month/year and general/love/career/study/money filters, direct Ask Oracle routing with method selection, a Tarot spread selector and card reveal, I Ching coin casting, and Western/Vedic birth-profile calculations. Exact birth details require consent each page session; there is no profile save. `DESIGN.md` records the visual and motion system; `../WEB_PLAN.md` documents page scope and boundaries.
 
-For question mode, the server draws from the 78-card catalog using cryptographic randomness. An I Ching cast computes six lines, changing lines, King Wen primary/resulting hexagrams and original theme summaries from independent coin bits. Classical judgements and line texts are not reproduced. The server does not return the question text. High-stakes and belief questions have separate policy responses. Ask/period responses are deterministic templates or symbolic draws; the optional OpenAI rephrasing path is used only by the original `/api/reading` daily endpoint.
+For question mode, the server draws the same seeded way (see above); I Ching still uses cryptographic randomness. An I Ching cast computes six lines, changing lines, King Wen primary/resulting hexagrams and original theme summaries from independent coin bits. Classical judgements and line texts are not reproduced. The server does not return the question text. High-stakes and belief questions have separate policy responses. Ask/period responses are deterministic templates or symbolic draws; the optional OpenAI rephrasing path is used only by the original `/api/reading` daily endpoint.
 
 `POST /api/vedic-timing` accepts the natal profile fields plus optional `asOfDate` and returns sidereal placements, the Moon's nakshatra/pada, current Vimshottari Mahadasha and three upcoming major periods. It uses an explicitly versioned mean Lahiri IAE 1989 approximation and the tropical positions from `astronomy-engine`; this is experimental, not a canonical Vedic calculator. True-ayanamsa/TT and boundary conventions require domain review, and this endpoint does not predict specific events or calculate Antardashas. Birth data is processed in memory and is not returned or persisted. `GET /api/capabilities` describes this limitation.
 
 Current technical boundaries: Tarot meanings are compositional, not expert-reviewed canonical interpretations; Whole Sign is the only supported house system; I Ching has no classical judgement or changing-line text layer; Vedic timing is experimental and unvalidated; persistent account and full Thai/English narrative coverage are not implemented. Natal results have not yet been checked against external chart fixtures. `GET /api/capabilities` exposes method limitations so the UI cannot imply unsupported precision. Browser verification currently covers desktop core flows and mobile landing/daily no-overflow; it does not establish production readiness.
+
+
+## Celestra UI (ported from `../design/prototype/index.html`)
+
+- `public/` is plain HTML/CSS/JS plus a Three.js starfield (`scene.js`, bundled by esbuild). Thai only; fonts are self-hosted in `public/fonts` (sources and licences: `public/fonts/LICENSES.md`); no request leaves the origin.
+- All readings come from the API. New endpoints: `GET /api/today`, `POST /api/tarot`, `GET /api/safety`. `POST /api/ask` also accepts `topic`, `horizon` and `reshuffle`.
+- **Safety (`lib/safety.js`).** Crisis wording returns `answer.type === 'crisis'` (support panel and hotline only, no reading). Lottery, health, money, legal and death questions still get a reading with `answer.safety.notice`. The hotline number 1323 is flagged `verified: false` until it is checked against an official source.
+- **AI wording.** `lib/narrative.js` calls the LLM only when the request carries `ai=1` (the footer toggle) and `OPENAI_API_KEY` is set; it now rephrases Thai text too. The live call is still untested without a key.
+- `npm run capture` runs a real-browser check (screenshots in `../design/screens/`, overflow, console errors, no Google Fonts, crisis/warn, tarot determinism across reload).
+- Removed in this port: the EN toggle, the separate Years/Ritual/Guide pages (their content now lives in the chart, ritual and honesty sections).
