@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05040a">
+<title>Celestra · ถามดวง</title>
+<meta property="og:image" content="/assets/logo.webp">
+<meta name="description" content="คุยเหมือนนั่งคุยกับหมอดู แต่ตอบตรงไปตรงมา บอกที่มาของทุกคำตอบ">
+<link rel="icon" type="image/webp" href="/assets/logo-mark.webp">
+<link rel="preload" href="/fonts/anuphan-thai.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/noto-serif-thai-thai.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<!--include:top-->
+<main>
+<section class="block" id="ask">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">ถามดวง</span><h2>คุยเหมือนนั่งคุยกับหมอดู แต่ตอบตรงไปตรงมา</h2></div>
+      <p class="muted">ทุกคำตอบแยกให้เห็นว่าอะไรอาจเกิดขึ้น ควรระวังอะไร เตรียมตัวยังไง และระบบตอบแบบนี้เพราะอะไร</p>
+    </div>
+    <div class="wrap" style="padding:0;margin-bottom:1.4rem">
+<form class="ask" id="askForm" autocomplete="off">
+      <div class="ask-row">
+        <input type="text" id="q" aria-label="คำถามของคุณ" maxlength="500" placeholder="เช่น งานที่เพิ่งสัมภาษณ์ไปจะได้ไหม" value="งานที่เพิ่งสัมภาษณ์ไปจะได้ไหม">
+        <button class="btn" type="submit">ถามดวง</button>
+      </div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="ด้าน" id="topicSeg">
+          <button type="button" data-v="general" aria-pressed="false">ภาพรวม</button>
+          <button type="button" data-v="love" aria-pressed="false">ความรัก</button>
+          <button type="button" data-v="career" aria-pressed="true">การงาน</button>
+          <button type="button" data-v="money" aria-pressed="false">การเงิน</button>
+          <button type="button" data-v="study" aria-pressed="false">การเรียน</button>
+        </div>
+        <div class="seg" role="group" aria-label="ช่วงเวลา" id="horizonSeg">
+          <button type="button" data-v="day" aria-pressed="true">วันนี้</button>
+          <button type="button" data-v="week" aria-pressed="false">สัปดาห์</button>
+          <button type="button" data-v="month" aria-pressed="false">เดือน</button>
+          <button type="button" data-v="year" aria-pressed="false">ปี</button>
+        </div>
+      </div>
+      <div class="chips" id="popular" aria-label="คำถามยอดฮิต"></div>
+    </form>
+    </div>
+    <div class="consult">
+      <div class="thread reveal" id="thread" aria-live="polite"></div>
+      <article class="glass ans reveal" id="answer" aria-live="polite"></article>
+    </div>
+  </div>
+</section>
+</main>
+<!--include:bottom-->
+<script type="module" src="/js/ask.js"></script>
+<script type="module" src="/scene.bundle.js"></script>
+</body>
+</html>

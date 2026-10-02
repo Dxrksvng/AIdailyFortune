@@ -14,23 +14,7 @@
 <link rel="stylesheet" href="/app.css">
 </head>
 <body>
-<canvas id="sky" aria-hidden="true"></canvas>
-<div class="page">
-<nav class="nav" aria-label="หมวดหลัก">
-  <div class="wrap">
-    <a class="brand" href="#top" aria-label="Celestra"><img src="assets/logo-mark.webp" alt="" width="40" height="31">Celestra</a>
-    <ul>
-      <li><a class="l" href="#today">วันนี้</a></li>
-      <li><a class="l" href="#ask">ถามดวง</a></li>
-      <li><a class="l" href="#tarot">ไพ่ทาโรต์</a></li>
-      <li><a class="l" href="#chart">ดวงกำเนิด</a></li>
-      <li><a class="l" href="#ritual">สีมงคล</a></li>
-      <li><a class="l" href="#honest">ศาสตร์ไหนแม่น</a></li>
-      <li><a class="l" href="#care">เครียด</a></li>
-    </ul>
-  </div>
-</nav>
-
+<!--include:top-->
 <header class="hero" id="top">
   <div class="hero-bg" id="heroBg"></div>
   <div class="wrap">
@@ -61,201 +45,24 @@
     </form>
   </div>
 </header>
-
 <main>
-<section class="block" id="today">
+<section class="block" id="features">
   <div class="wrap">
-    <div class="head reveal">
-      <div><span class="eyebrow" id="todayDate">วันนี้</span><h2>เข็มทิศประจำวัน</h2></div>
-      <p class="muted">อ่านจบในหนึ่งนาที: ธีมของวัน สีประจำวัน ไพ่ประจำวัน และสิ่งที่ควรระวัง</p>
-    </div>
-    <div class="bento">
-      <article class="glass b-read reveal">
-        <img class="orb" src="assets/orb.webp" alt="" width="320" height="320">
-        <div class="phase"><span>เฟสดวงจันทร์ <b id="phaseName">-</b></span><span>มุม <b id="phaseDeg">-</b></span></div>
-        <div class="txt">
-          <span class="tag" id="readTag">คำนวณจากเฟสดวงจันทร์</span>
-          <h3 id="readSignal">-</h3>
-          <p id="readText">-</p>
-          <p class="muted" id="readAction">-</p>
-          <p class="muted" style="font-size:var(--s-1)">คำถามชวนคิด: <span id="readPrompt">-</span></p>
-        </div>
-      </article>
-      <article class="glass b-color reveal">
-        <span class="eyebrow">สีประจำวัน</span>
-        <div class="swatch" id="swatch"></div>
-        <h3 id="colorName">-</h3>
-        <p class="muted" style="font-size:var(--s-1)">ธรรมเนียมไทย ใส่เพื่อความสบายใจ ไม่มีหลักฐานว่าเปลี่ยนโชคได้</p>
-      </article>
-      <article class="glass b-card reveal">
-        <div class="mini" id="dailyMini"><img src="assets/back.webp" alt="หลังไพ่" width="84" height="206"></div>
-        <div style="display:grid;gap:.35rem;min-width:0">
-          <span class="eyebrow">ไพ่ประจำวัน</span>
-          <h3 id="dailyName">-</h3>
-          <p class="muted" style="font-size:var(--s-1)" id="dailyMeaning">-</p>
-        </div>
-      </article>
-      <article class="glass b-warn reveal">
-        <span class="eyebrow">ระวังวันนี้</span>
-        <ul class="list warn" id="warnList" style="margin-top:.7rem"></ul>
-      </article>
-      <article class="glass b-do reveal">
-        <span class="eyebrow">ลองทำ</span>
-        <ul class="list" id="doList" style="margin-top:.7rem"></ul>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="ask">
-  <div class="wrap">
-    <div class="head reveal">
-      <div><span class="eyebrow">ถามดวง</span><h2>คุยเหมือนนั่งคุยกับหมอดู แต่ตอบตรงไปตรงมา</h2></div>
-      <p class="muted">ทุกคำตอบแยกให้เห็นว่าอะไรอาจเกิดขึ้น ควรระวังอะไร เตรียมตัวยังไง และระบบตอบแบบนี้เพราะอะไร</p>
-    </div>
-    <div class="consult">
-      <div class="thread reveal" id="thread" aria-live="polite"></div>
-      <article class="glass ans reveal" id="answer" aria-live="polite"></article>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="tarot">
-  <div class="wrap table">
-    <div class="head reveal">
-      <div><span class="eyebrow">ไพ่ทาโรต์ · ชุดหลัก 22 ใบ (ไพ่ใบเล็กยังไม่มีภาพ จึงยังไม่ใช้)</span><h2>หยิบไพ่ 3 ใบ</h2></div>
-      <p class="muted" id="spreadDesc">โอกาส · อุปสรรค · สิ่งที่คุณควบคุมได้</p>
-    </div>
-    <div class="spread" id="spread"></div>
-    <div class="fan" id="fan" aria-label="กองไพ่ คลิกเพื่อหยิบ"></div>
-    <div class="policy">
-      <span id="seedInfo">-</span>
-      <button class="btn ghost" type="button" id="reshuffle">สับใหม่ (เหลือ 1 ครั้งวันนี้)</button>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="chart">
-  <div class="wrap">
-    <div class="head reveal">
-      <div><span class="eyebrow">ดวงกำเนิด · ชีวิตหลายปีข้างหน้า</span><h2>ใส่วัน เวลา และสถานที่เกิด</h2></div>
-      <span class="tag exp">ทดลอง · รอผู้เชี่ยวชาญตรวจ</span>
-    </div>
-    <div class="chart">
-      <form class="glass birth reveal" id="birthForm">
-        <div class="row2">
-          <div class="field"><label for="bdate">วันเกิด</label><input type="date" id="bdate" value="2003-08-14" required></div>
-          <div class="field"><label for="btime">เวลาเกิด</label><input type="time" id="btime" value="09:30"></div>
-        </div>
-        <label class="check"><input type="checkbox" id="bunknown"> ไม่ทราบเวลาเกิด (ลัคนาและเรือนจะไม่แม่น)</label>
-        <label class="check"><input type="checkbox" id="bconsent" required> ฉันยินยอมให้ส่งข้อมูลนี้เพื่อคำนวณครั้งนี้</label>
-        <div class="field"><label for="bplace">สถานที่เกิด</label>
-          <select id="bplace">
-            <option value="13.7563,100.5018">กรุงเทพมหานคร</option>
-            <option value="18.7883,98.9853">เชียงใหม่</option>
-            <option value="16.4322,102.8236">ขอนแก่น</option>
-            <option value="7.0084,100.4747">หาดใหญ่</option>
-          </select>
-        </div>
-        <div class="field"><label for="byears">ดูล่วงหน้า</label>
-          <select id="byears"><option>3</option><option selected>5</option><option>10</option></select>
-        </div>
-        <button class="btn" type="submit">คำนวณดวงกำเนิด</button>
-        <p class="muted" style="font-size:.75rem">ข้อมูลเกิดถูกประมวลผลในหน่วยความจำของเซิร์ฟเวอร์เพื่อคำนวณครั้งนี้ ไม่ถูกบันทึก (ยังไม่มีบัญชีหรือโปรไฟล์)</p>
-      </form>
-      <div class="glass reveal" style="display:grid;gap:1rem">
-        <div class="wheel idle" id="wheel" role="img" aria-label="วงราศี 12 ราศี"></div>
-        <div class="facts" id="facts" aria-live="polite"></div>
-        <div>
-          <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap;align-items:center">
-            <h3>ธีมรายปี</h3><span class="tag exp">ทดลอง</span>
-          </div>
-          <div class="timeline" id="timeline" aria-live="polite"><p class="empty-note">กรอกข้อมูลเกิดแล้วกดคำนวณ เพื่อดูธีมรายปี</p></div>
-          <p class="muted" id="tlNote" style="font-size:.75rem;margin-top:.6rem">เป็นธีมเชิงตีความจากมุมดาวพฤหัสบดี/เสาร์และมหาทศา ไม่ใช่การทำนายเหตุการณ์ อย่าใช้ตัดสินใจเรื่องสุขภาพ กฎหมาย การเงิน หรือความสัมพันธ์</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="ritual">
-  <div class="wrap">
-    <div class="head reveal">
-      <div><span class="eyebrow">สีมงคล · แก้เคล็ด · การบูชา</span><h2>พิธีกรรมเพื่อความสบายใจ ไม่ใช่สิ่งที่ต้องจ่ายแพง</h2></div>
-    </div>
-    <div class="ritual">
-      <div class="glass reveal" style="display:grid;gap:.9rem">
-        <h3>สีและพระประจำวันตามธรรมเนียมไทย</h3>
-        <div class="days" id="days"></div>
-        <div class="legend"><span>วันนี้</span><span class="b">วันเกิดของคุณ</span></div>
-        <p class="muted" style="font-size:var(--s-1)" id="postureLine">กรอกวันเกิดเพื่อดูพระและสีประจำวันเกิด</p>
-      </div>
-      <div class="glass reveal" style="display:grid;gap:.8rem">
-        <h3>ช่วงนี้โชคไม่ดี ทำยังไงดี</h3>
-        <ul class="list calm">
-          <li>แยกให้ออกว่าอะไรคือเหตุการณ์จริง อะไรคือความรู้สึกว่าโชคไม่ดี</li>
-          <li>เลือกเรื่องที่แก้ได้หนึ่งเรื่อง แล้วลงมือเล็ก ๆ วันนี้</li>
-          <li>บอกคนที่ไว้ใจ หรือขอความช่วยเหลือจากผู้เชี่ยวชาญตามเรื่องที่เจอ</li>
-          <li>ถ้าอยากแก้เคล็ดตามความเชื่อ ให้ทำเพื่อให้ใจสงบ ไม่ต้องจ่ายเงินก้อนใหญ่หรือกู้เงินมาทำ</li>
-        </ul>
-        <div class="box"><h4>เรื่องการบูชา</h4><p style="font-size:var(--s-1)">ระบบไม่บอกว่าคุณ "ถูกกำหนด" ให้นับถือองค์ไหน และไม่เก็บข้อมูลความเชื่อ ลองเริ่มจากประเพณีที่คุณนับถืออยู่แล้ว แล้วศึกษาวิธีปฏิบัติจากแหล่งที่เชื่อถือได้</p></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="honest">
-  <div class="wrap">
-    <div class="head reveal">
-      <div><span class="eyebrow">คำถามยอดฮิต</span><h2>ศาสตร์ไหนแม่นที่สุด</h2></div>
-      <p class="muted">ไม่มีหลักฐานทางวิทยาศาสตร์ว่าศาสตร์ใดทำนายเหตุการณ์ได้แม่น เราจึงไม่จัดอันดับและไม่แสดงเปอร์เซ็นต์ความแม่น สิ่งที่บอกได้คือแต่ละศาสตร์เหมาะกับคำถามแบบไหน</p>
-    </div>
-    <div class="methods" id="methods"></div>
-    <div class="legend" style="margin-top:1rem"><span>ส่วนที่คำนวณได้</span><span class="t">ส่วนที่เป็นการตีความ</span></div>
-  </div>
-</section>
-
-<section class="block" id="care">
-  <div class="wrap">
-    <div class="head reveal">
-      <div><span class="eyebrow">เครียด อยากได้คำแนะนำ</span><h2>เรื่องนี้ดวงไม่ควรตัดสินแทนคุณ</h2></div>
-    </div>
-    <div class="support">
-      <div class="glass reveal" style="display:grid;gap:.8rem">
-        <h3>เริ่มจากสิ่งเล็ก ๆ ที่ทำได้ทันที</h3>
-        <ul class="list calm">
-          <li>หายใจเข้า 4 วินาที ออก 6 วินาที ทำซ้ำ 5 รอบ</li>
-          <li>เขียนสิ่งที่กังวลออกมา แล้วแยกเป็น "ควบคุมได้" กับ "ควบคุมไม่ได้"</li>
-          <li>เลือกเรื่องที่ควบคุมได้ 1 เรื่อง แล้วทำเป็นก้าวเล็ก ๆ วันนี้</li>
-          <li>คุยกับคนที่ไว้ใจ พักผ่อน และกินอาหารให้เป็นเวลา</li>
-        </ul>
-      </div>
-      <div class="crisis reveal">
-        <span class="eyebrow" style="color:var(--calm)">ถ้าคิดทำร้ายตัวเอง หรือรู้สึกไม่ไหวแล้ว</span>
-        <div class="copy"><span class="num" id="hotline">1323</span><button class="btn ghost" type="button" id="copyHot">คัดลอกเบอร์</button></div>
-        <p>สายด่วนสุขภาพจิต กรมสุขภาพจิต ปรึกษาฟรีตลอด 24 ชั่วโมง ถ้าอยู่ในอันตรายเร่งด่วน ให้ติดต่อบริการฉุกเฉินในพื้นที่</p>
-        <p class="muted" style="font-size:.75rem">เมื่อระบบเจอคำถามแนวนี้ จะไม่ดูดวงให้ และแสดงข้อมูลช่วยเหลือแทน · ยังไม่ได้ยืนยันหมายเลขกับแหล่งทางการ ตรวจที่ dmh.go.th ก่อนใช้งานจริง</p>
-      </div>
+    <div class="head reveal"><div><span class="eyebrow">เลือกสิ่งที่อยากดู</span><h2>แต่ละฟีเจอร์แยกเป็นหน้าของตัวเอง</h2></div><p class="muted">ตำแหน่งดาวคำนวณด้วยโค้ด ความหมายมาจากกฎที่เขียนไว้ชัดเจน ไม่มีการทำนายแบบฟันธง</p></div>
+    <div class="features">
+      <a class="glass feature reveal" href="/today"><span class="eyebrow">วันนี้</span><h3>เข็มทิศประจำวัน</h3><p class="muted">ธีมของวัน สีประจำวัน ไพ่ประจำวัน และสิ่งที่ควรระวัง อ่านจบในหนึ่งนาที</p><span class="go" aria-hidden="true">เปิด →</span></a>
+      <a class="glass feature reveal" href="/ask"><span class="eyebrow">ถามดวง</span><h3>คุยแล้วตอบตรง ๆ</h3><p class="muted">พิมพ์เรื่องที่ค้างใจ ได้ทั้งสิ่งที่อาจเกิดขึ้น ควรระวัง และวิธีเตรียมตัว พร้อมบอกที่มา</p><span class="go" aria-hidden="true">เปิด →</span></a>
+      <a class="glass feature reveal" href="/tarot"><span class="eyebrow">ไพ่ทาโรต์</span><h3>หยิบไพ่ 3 ใบ</h3><p class="muted">เลือกหัวข้อ แล้วหยิบไพ่จากกอง ถามซ้ำวันนี้ได้ชุดเดิม</p><span class="go" aria-hidden="true">เปิด →</span></a>
+      <a class="glass feature reveal" href="/chart"><span class="eyebrow">ดวงกำเนิด</span><h3>ชีวิตหลายปีข้างหน้า</h3><p class="muted">ใส่วัน เวลา สถานที่เกิด ดูราศี ลัคนา และธีมรายปี</p><span class="tag exp">ทดลอง</span><span class="go" aria-hidden="true">เปิด →</span></a>
+      <a class="glass feature reveal" href="/ritual"><span class="eyebrow">สีมงคล</span><h3>สี พระประจำวัน แก้เคล็ด</h3><p class="muted">ธรรมเนียมไทยเพื่อความสบายใจ ไม่ใช่สิ่งที่ต้องจ่ายแพง</p><span class="go" aria-hidden="true">เปิด →</span></a>
+      <a class="glass feature reveal" href="/honest"><span class="eyebrow">ศาสตร์ไหนแม่น</span><h3>คำตอบตรง ๆ</h3><p class="muted">ไม่มีศาสตร์ไหนพิสูจน์ได้ว่าแม่นที่สุด ดูว่าแต่ละศาสตร์เหมาะกับคำถามแบบไหน</p><span class="go" aria-hidden="true">เปิด →</span></a>
+      <a class="glass feature reveal" href="/care"><span class="eyebrow">เครียด</span><h3>เรื่องที่ดวงไม่ควรตัดสินแทนคุณ</h3><p class="muted">ก้าวเล็ก ๆ ที่ทำได้ทันที และสายด่วนเมื่อรู้สึกไม่ไหว</p><span class="go" aria-hidden="true">เปิด →</span></a>
     </div>
   </div>
 </section>
 </main>
-
-<footer>
-  <div class="wrap">
-    <div style="display:grid;gap:.6rem">
-      <span class="brand"><img src="assets/logo-mark.webp" alt="" width="40" height="31">Celestra</span>
-      <p class="muted" style="font-size:var(--s-1);max-width:40em">การตีความเชิงโหราศาสตร์เพื่อความบันเทิงและการสะท้อนตัวเอง ไม่ใช่คำทำนายที่รับประกันได้ เรื่องหวย สุขภาพ การเงิน และกฎหมาย ระบบจะตอบพร้อมคำเตือน และแนะนำให้ปรึกษาผู้เชี่ยวชาญ</p>
-    </div>
-    <div style="display:grid;gap:.8rem;align-content:start">
-      <label class="switch"><input type="checkbox" id="aiConsent"> ให้ AI ช่วยเรียบเรียงข้อความรายวัน (ส่งเฉพาะข้อความที่ระบบอนุมัติแล้ว ไม่ส่งข้อมูลเกิดหรือคำถามของคุณ · ต้องตั้งค่า API key ที่เซิร์ฟเวอร์)</label>
-      <div><button class="btn ghost" type="button" id="wipe">ลบข้อมูลของฉัน</button></div>
-    </div>
-  </div>
-</footer>
-</div>
-<div class="toast" id="toast" role="status"></div>
-<script type="module" src="/app.js"></script>
+<!--include:bottom-->
+<script type="module" src="/js/home.js"></script>
 <script type="module" src="/scene.bundle.js"></script>
 </body>
 </html>

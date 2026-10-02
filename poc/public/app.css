@@ -245,3 +245,18 @@ body.no-sky #sky{background:url(assets/stars.webp) center/cover no-repeat;opacit
 /* brand logo: the artwork has a black background, so blend it into the night sky */
 .brand img{height:34px;width:auto;mix-blend-mode:screen}
 .brand{letter-spacing:.04em}
+
+/* home: one card per feature page */
+.features{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.feature{display:grid;gap:.55rem;align-content:start;text-decoration:none;color:var(--ink);min-height:200px;transition:transform .3s,border-color .3s,background .3s}
+.feature:hover,.feature:focus-visible{transform:translateY(-4px);border-color:var(--accent);background:var(--glass-hi)}
+.feature h3{font-size:var(--s1)}
+.feature p{font-size:var(--s-1)}
+.feature .go{margin-top:auto;font-family:var(--f-data);font-size:var(--s-1);color:var(--accent)}
+.nav a.l[aria-current=page]{color:var(--ink);background:var(--accent-soft)}
+main>section.block:first-child{padding-top:clamp(2rem,5vw,3.5rem)}
+/* empty answer panel and a hidden toast must not occupy or paint anything */
+.ans:empty{display:none}
+.consult:has(#answer:empty){grid-template-columns:minmax(0,1fr)}
+.toast{visibility:hidden;opacity:0}
+.toast.show{visibility:visible;opacity:1}

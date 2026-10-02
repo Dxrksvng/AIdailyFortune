@@ -95,3 +95,22 @@ test('Thai AI narrative: consent gate, Thai validator and fallback', async () =>
   assert.deepEqual(rejected.contentTh, base.contentTh);
   assert.equal(validateNarrativeTh({ reading: 'short', reflection_prompt: 'x' }, base.contentTh), null);
 });
+
+test('every feature page is served at a clean URL with the shared nav and footer included', async () => {
+  const { PAGES } = await import('../server.js');
+  const server = createServer();
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const base = `http://127.0.0.1:${server.address().port}`;
+    for (const page of ['', ...PAGES]) {
+      const response = await fetch(`${base}/${page}`);
+      assert.equal(response.status, 200, `/${page}`);
+      const html = await response.text();
+      assert.doesNotMatch(html, /<!--include:/, `/${page} still has an unresolved include`);
+      assert.match(html, /class="nav"/, `/${page} nav`);
+      assert.match(html, /id="aiConsent"/, `/${page} footer`);
+    }
+    assert.equal((await fetch(`${base}/_partials/top.html`)).status, 404, 'partials are not served directly');
+    assert.equal((await fetch(`${base}/missing`)).status, 404);
+  } finally { await new Promise(resolve => server.close(resolve)); }
+});

@@ -14,6 +14,14 @@ import { dailyCard, tarotReading, spreadForTopic } from './lib/oracle.js';
 import { readingFor as readingForDate } from './lib/compass.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
+export const PAGES = new Set(['today', 'ask', 'tarot', 'chart', 'ritual', 'honest', 'care']);
+
+/** Replace <!--include:name--> with public/_partials/name.html (shared nav, footer, toast). */
+async function withIncludes(html) {
+  const names = [...new Set([...html.matchAll(/<!--include:([a-z]+)-->/g)].map(match => match[1]))];
+  for (const name of names) html = html.replaceAll(`<!--include:${name}-->`, await readFile(path.join(root, '_partials', `${name}.html`), 'utf8'));
+  return html;
+}
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
 
 export function createServer() {
@@ -85,10 +93,14 @@ export function createServer() {
           return send(res, 200, await withNarrative(result, { consent: url.searchParams.get('ai') === '1' }));
         } catch (err) { return send(res, 400, { error: err.message }); }
       }
-      const file = url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname.slice(1));
+      // one HTML file per feature, served at a clean URL (/tarot -> tarot.html)
+      let file = url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname.slice(1));
+      if (PAGES.has(file)) file += '.html';
       const resolved = path.resolve(root, file);
-      if (!resolved.startsWith(root + path.sep)) return send(res, 404, { error: 'Not found' });
-      const body = await readFile(resolved);
+      // files and folders that start with "_" (partials) are never served directly
+      if (!resolved.startsWith(root + path.sep) || path.relative(root, resolved).split(path.sep).some(part => part.startsWith('_'))) return send(res, 404, { error: 'Not found' });
+      let body = await readFile(resolved);
+      if (file.endsWith('.html')) body = await withIncludes(body.toString('utf8'));
       res.writeHead(200, { 'content-type': types[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
       res.end(body);
     } catch { send(res, 404, { error: 'Not found' }); }

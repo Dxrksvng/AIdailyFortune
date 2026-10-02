@@ -35,9 +35,11 @@ Current technical boundaries: Tarot meanings are compositional, not expert-revie
 
 ## Celestra UI (ported from `../design/prototype/index.html`)
 
-- `public/` is plain HTML/CSS/JS plus a Three.js starfield (`scene.js`, bundled by esbuild). Thai only; fonts are self-hosted in `public/fonts` (sources and licences: `public/fonts/LICENSES.md`); no request leaves the origin.
+- `public/` is plain HTML/CSS/JS (no framework) plus a Three.js starfield (`scene.js`, bundled by esbuild). Thai only; fonts are self-hosted in `public/fonts` (sources and licences: `public/fonts/LICENSES.md`); no request leaves the origin.
 - All readings come from the API. New endpoints: `GET /api/today`, `POST /api/tarot`, `GET /api/safety`. `POST /api/ask` also accepts `topic`, `horizon` and `reshuffle`.
 - **Safety (`lib/safety.js`).** Crisis wording returns `answer.type === 'crisis'` (support panel and hotline only, no reading). Lottery, health, money, legal and death questions still get a reading with `answer.safety.notice`. The hotline number 1323 is flagged `verified: false` until it is checked against an official source.
 - **AI wording.** `lib/narrative.js` calls the LLM only when the request carries `ai=1` (the footer toggle) and `OPENAI_API_KEY` is set; it now rephrases Thai text too. The live call is still untested without a key.
 - `npm run capture` runs a real-browser check (screenshots in `../design/screens/`, overflow, console errors, no Google Fonts, crisis/warn, tarot determinism across reload).
-- Removed in this port: the EN toggle, the separate Years/Ritual/Guide pages (their content now lives in the chart, ritual and honesty sections).
+- **One page per feature.** `/` is a short launcher (hero, ask box, seven feature cards). Each feature is its own HTML file served at a clean URL: `/today`, `/ask`, `/tarot`, `/chart`, `/ritual`, `/honest`, `/care`. `public/_partials/top.html` and `bottom.html` (nav, footer, toast) are included by the server (`<!--include:name-->`) and are never served directly. Page logic lives in `public/js/<page>.js` on top of `public/js/common.js`.
+- The birth profile entered on `/chart` is kept in `sessionStorage` for that tab only, so `/ask` (multi-year questions) and `/ritual` (birth day) can use it. The server stores nothing; the wipe button clears it.
+- Removed in this port: the EN toggle and the earlier Years/Guide screens (their content now lives in `/chart`, `/ritual` and `/honest`).

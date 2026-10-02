@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05040a">
+<title>Celestra · ไพ่ทาโรต์</title>
+<meta property="og:image" content="/assets/logo.webp">
+<meta name="description" content="หยิบไพ่ทาโรต์ 22 ใบหลัก ถามซ้ำวันนี้ได้ชุดเดิม">
+<link rel="icon" type="image/webp" href="/assets/logo-mark.webp">
+<link rel="preload" href="/fonts/anuphan-thai.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/noto-serif-thai-thai.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<!--include:top-->
+<main>
+<section class="block" id="tarot">
+  <div class="wrap table">
+    <div class="head reveal">
+      <div><span class="eyebrow">ไพ่ทาโรต์ · ชุดหลัก 22 ใบ (ไพ่ใบเล็กยังไม่มีภาพ จึงยังไม่ใช้)</span><h2>หยิบไพ่ 3 ใบ</h2></div>
+      <p class="muted" id="spreadDesc">โอกาส · อุปสรรค · สิ่งที่คุณควบคุมได้</p>
+    </div>
+    <div class="controls" style="justify-content:center"><div class="seg" role="group" aria-label="ด้าน" id="topicSeg">
+          <button type="button" data-v="general" aria-pressed="false">ภาพรวม</button>
+          <button type="button" data-v="love" aria-pressed="false">ความรัก</button>
+          <button type="button" data-v="career" aria-pressed="true">การงาน</button>
+          <button type="button" data-v="money" aria-pressed="false">การเงิน</button>
+          <button type="button" data-v="study" aria-pressed="false">การเรียน</button>
+        </div></div>
+    <div class="spread" id="spread"></div>
+    <div class="fan" id="fan" aria-label="กองไพ่ คลิกเพื่อหยิบ"></div>
+    <div class="policy">
+      <span id="seedInfo">-</span>
+      <button class="btn ghost" type="button" id="reshuffle">สับใหม่ (เหลือ 1 ครั้งวันนี้)</button>
+    </div>
+  </div>
+</section>
+</main>
+<!--include:bottom-->
+<script type="module" src="/js/tarot.js"></script>
+<script type="module" src="/scene.bundle.js"></script>
+</body>
+</html>

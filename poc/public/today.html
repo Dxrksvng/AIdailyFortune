@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#05040a">
+<title>Celestra · เข็มทิศประจำวัน</title>
+<meta property="og:image" content="/assets/logo.webp">
+<meta name="description" content="ธีมของวัน สีประจำวัน ไพ่ประจำวัน และสิ่งที่ควรระวัง">
+<link rel="icon" type="image/webp" href="/assets/logo-mark.webp">
+<link rel="preload" href="/fonts/anuphan-thai.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/noto-serif-thai-thai.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<!--include:top-->
+<main>
+<section class="block" id="today">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow" id="todayDate">วันนี้</span><h2>เข็มทิศประจำวัน</h2></div>
+      <p class="muted">อ่านจบในหนึ่งนาที: ธีมของวัน สีประจำวัน ไพ่ประจำวัน และสิ่งที่ควรระวัง</p>
+    </div>
+    <div class="bento">
+      <article class="glass b-read reveal">
+        <img class="orb" src="assets/orb.webp" alt="" width="320" height="320">
+        <div class="phase"><span>เฟสดวงจันทร์ <b id="phaseName">-</b></span><span>มุม <b id="phaseDeg">-</b></span></div>
+        <div class="txt">
+          <span class="tag" id="readTag">คำนวณจากเฟสดวงจันทร์</span>
+          <h3 id="readSignal">-</h3>
+          <p id="readText">-</p>
+          <p class="muted" id="readAction">-</p>
+          <p class="muted" style="font-size:var(--s-1)">คำถามชวนคิด: <span id="readPrompt">-</span></p>
+        </div>
+      </article>
+      <article class="glass b-color reveal">
+        <span class="eyebrow">สีประจำวัน</span>
+        <div class="swatch" id="swatch"></div>
+        <h3 id="colorName">-</h3>
+        <p class="muted" style="font-size:var(--s-1)">ธรรมเนียมไทย ใส่เพื่อความสบายใจ ไม่มีหลักฐานว่าเปลี่ยนโชคได้</p>
+      </article>
+      <article class="glass b-card reveal">
+        <div class="mini" id="dailyMini"><img src="assets/back.webp" alt="หลังไพ่" width="84" height="206"></div>
+        <div style="display:grid;gap:.35rem;min-width:0">
+          <span class="eyebrow">ไพ่ประจำวัน</span>
+          <h3 id="dailyName">-</h3>
+          <p class="muted" style="font-size:var(--s-1)" id="dailyMeaning">-</p>
+        </div>
+      </article>
+      <article class="glass b-warn reveal">
+        <span class="eyebrow">ระวังวันนี้</span>
+        <ul class="list warn" id="warnList" style="margin-top:.7rem"></ul>
+      </article>
+      <article class="glass b-do reveal">
+        <span class="eyebrow">ลองทำ</span>
+        <ul class="list" id="doList" style="margin-top:.7rem"></ul>
+      </article>
+    </div>
+  </div>
+</section>
+</main>
+<!--include:bottom-->
+<script type="module" src="/js/today.js"></script>
+<script type="module" src="/scene.bundle.js"></script>
+</body>
+</html>
