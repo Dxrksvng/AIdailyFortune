@@ -1,0 +1,145 @@
+--- /home/user/dxrksvng/auto-gen/as3/tools/build_submission.py	2026-10-02 06:59:49.187002665 +0000
++++ /tmp/sunday/as3/tools/build_submission.py	2026-10-02 07:07:18.303133936 +0000
+@@ -1,4 +1,4 @@
+-"""Build final/submission/Assignment_2_to_4.pdf from as2/ANSWER.md, as3/ANSWER.md, as4/ANSWER.md.
++"""Build final/submission/Assignment_2_to_3.pdf from as2/ANSWER.md, as3/ANSWER.md, as4/ANSWER.md.
+ 
+ Content is NOT edited. Formatting-only changes: Mermaid blocks -> PNG, relative links -> plain text,
+ task-list boxes -> drawn boxes, headings get ids. Run with the Python that has weasyprint + markdown + PIL
+@@ -20,10 +20,10 @@
+ AS3 = SUNDAY / "as3"
+ FONTS = AS3 / "assets" / "fonts"
+ MERMAID_JS = AS3 / "assets" / "vendor" / "mermaid.min.js"
+-OUT_DIR = SUNDAY / "final" / "submission"
++OUT_DIR = SUNDAY / "submission"
+ DIAGRAM_DIR = SUNDAY / "final" / "diagrams"
+-CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+-SOURCES = [("A2", SUNDAY / "as2" / "ANSWER.md"), ("A3", SUNDAY / "as3" / "ANSWER.md"), ("A4", SUNDAY / "as4" / "ANSWER.md")]
++CHROME = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
++SOURCES = [("A2", SUNDAY / "as2" / "ANSWER.md"), ("A3", SUNDAY / "as3" / "ANSWER.md")]
+ CANDIDATE_NAME = "Nattakamon Jaimetha"
+ DOC_DATE = "2 ตุลาคม 2569 (2 October 2026)"
+ 
+@@ -45,7 +45,7 @@
+     png.parent.mkdir(parents=True, exist_ok=True)
+     page = png.with_suffix(".tmp.html")
+     page.write_text(MERMAID_PAGE.format(src=html.escape(src, quote=False), font_uri=FONTS.as_uri(), js_uri=MERMAID_JS.as_uri()), encoding="utf-8")
+-    subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
++    subprocess.run([CHROME, "--headless=new", "--no-sandbox", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
+                     "--window-size=3600,4200", "--virtual-time-budget=10000", f"--screenshot={png}", page.as_uri()],
+                    check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+     page.unlink()
+@@ -80,6 +80,9 @@
+             return m.group(0)
+         return f"![{alt}]({(src_dir / target).resolve().as_uri()})"
+     md = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", img_sub, md)
++    # a nested "- " list directly under a numbered item needs a blank line before it, otherwise it renders inline
++    md = re.sub(r"(?m)^(\s*\d+\. [^\n]*)\n(?=\s+- )", r"\1\n\n", md)
++    md = re.sub(r"(?m)^(\s+- [^\n]*)\n(?=\d+\. )", r"\1\n\n", md)  # a numbered item right after nested bullets
+     md = re.sub(r"^(\s*)- \[ \] ", r'\1- <span class="cb"></span>', md, flags=re.M)
+     md = re.sub(r"^(\s*)- \[[xX]\] ", r'\1- <span class="cb on"></span>', md, flags=re.M)
+     return md
+@@ -92,6 +95,8 @@
+     def mark_big(m):
+         return '<table class="big">' if m.group(0).count("<tr") > 8 else "<table>"
+     out = re.sub(r"<table>(?:(?!</table>).)*", lambda m: mark_big(m) + m.group(0)[len("<table>"):], out, flags=re.S)
++    # keep the numbering of a list that continues after nested bullets (WeasyPrint ignores start= here)
++    out = re.sub(r'<ol start="(\d+)">', lambda m: f'<ol start="{m.group(1)}" style="counter-reset: list-item {int(m.group(1)) - 1}">', out)
+     return out
+ 
+ 
+@@ -122,9 +127,9 @@
+ blockquote{margin:3mm 0;padding:2mm 4mm;border-left:1mm solid #d98200;background:#fff7e6;break-inside:avoid}
+ blockquote p{margin:0 0 1.5mm}
+ table{border-collapse:collapse;width:100%%;font-size:9pt;margin:3mm 0 4mm;break-inside:avoid-page}
+-th,td{border:0.2mm solid #b8c0cc;padding:1.2mm 1.8mm;vertical-align:top;overflow-wrap:anywhere}
++th,td{border:0.2mm solid #b8c0cc;padding:1.2mm 1.8mm;vertical-align:top;overflow-wrap:break-word}
+ th{background:#eaeff8;text-align:left}thead{display:table-header-group}tr{break-inside:avoid}
+-code{font-family:MonoT,SarabunT,monospace;font-size:8.6pt;background:#f1f3f7;padding:0 0.6mm;overflow-wrap:anywhere}
++code{font-family:MonoT,SarabunT,monospace;font-size:8.6pt;background:#f1f3f7;padding:0 0.6mm;overflow-wrap:break-word}
+ pre{font-family:MonoT,SarabunT,monospace;font-size:7.6pt;line-height:1.35;background:#f6f7fa;border:0.2mm solid #d5dae3;padding:2.5mm;white-space:pre-wrap;overflow-wrap:anywhere;margin:2mm 0 4mm}
+ pre code{background:none;padding:0;font-size:inherit}
+ img{display:block;margin:3mm auto;max-width:100%%;max-height:215mm;break-inside:avoid}
+@@ -162,6 +167,53 @@
+     return found
+ 
+ 
++def collect_confirms_md(sources) -> list[tuple[str, str]]:
++    """(heading, text) for every [TO CONFIRM...] marker, read from the Markdown source.
++
++    Each entry is the whole table cell or up to 18 words before the marker, cut at a word boundary.
++    Markers inside code fences (the example Definition files) are summarised as one entry per heading.
++    """
++    found: list[tuple[str, str]] = []
++    for tag, path in sources:
++        heading, in_fence, fence_count, prev = tag, False, {}, ""
++        for line in path.read_text(encoding="utf-8").splitlines():
++            if line.strip() and not in_fence and "[TO CONFIRM" not in line:
++                prev = re.sub(r"\*\*|`", "", line).strip()
++            if line.lstrip().startswith("```"):
++                in_fence = not in_fence
++                continue
++            if "[TO CONFIRM" not in line:
++                if re.match(r"#{1,3} ", line):
++                    heading = f"{tag}: " + re.sub(r"\s*\[(?:TO CONFIRM[^\]]*|ข้อเสนอ|ทดสอบแล้ว|ออกแบบ)\]", "", line.lstrip("# ").replace("**", "").strip()).strip()
++                continue
++            if re.match(r"#{1,3} ", line):
++                heading = f"{tag}: " + re.sub(r"\s*\[(?:TO CONFIRM[^\]]*|ข้อเสนอ|ทดสอบแล้ว|ออกแบบ)\]", "", line.lstrip("# ").replace("**", "").strip()).strip()
++                continue
++            if in_fence:
++                fence_count[heading] = fence_count.get(heading, 0) + line.count("[TO CONFIRM")
++                continue
++            clean = re.sub(r"\*\*|`", "", line)
++            clean = re.sub(r"^\s*(?:[-+*]|\d+\.)\s+", "", clean)
++            clean = re.sub(r"\[([^\]]+)\]\((?!https?://)[^)]*\)", r"\1", clean)
++            cells = [c.strip() for c in clean.split("|")] if clean.lstrip().startswith("|") else [clean.strip()]
++            for cell in cells:
++                if "[TO CONFIRM" not in cell:
++                    continue
++                tokens = cell.split()
++                first = next(i for i, tok in enumerate(tokens) if "[TO" in tok)
++                last = first
++                while last < len(tokens) - 1 and "]" not in tokens[last]:
++                    last += 1
++                entry = " ".join(tokens[max(0, first - 18): last + 1])
++                if first == 0 and prev:  # marker opens the line: take the end of the previous line for context
++                    entry = " ".join(prev.split()[-14:]) + " " + entry
++                if (heading, entry) not in found:
++                    found.append((heading, entry))
++        for heading, n in fence_count.items():
++            found.append((heading, f"ในไฟล์ Definition ตัวอย่าง (ส่วนโค้ด) มีเครื่องหมาย [TO CONFIRM] {n} จุด"))
++    return found
++
++
+ def build() -> Path:
+     OUT_DIR.mkdir(parents=True, exist_ok=True)
+     body_parts, toc, sections, idn = [], [], [], 0
+@@ -186,7 +238,7 @@
+         for chunk in re.split(r"(?=<h[12] id=)", h):
+             mh = re.match(r'<h[12] id="[^"]+"[^>]*>(.*?)</h[12]>', chunk, flags=re.S)
+             sections.append((re.sub(r"<[^>]+>", "", html.unescape(mh.group(1))) if mh else tag, chunk))
+-    confirms = collect_confirms(sections)
++    confirms = collect_confirms_md(SOURCES)
+ 
+     toc_html = '<h1 id="toc" class="toc-h">สารบัญ / Contents</h1><ul class="toc">' + "".join(
+         f'<li class="l{lv}"><a href="#{hid}">{html.escape(txt)}</a></li>' for lv, hid, txt in toc) + "</ul>"
+@@ -203,14 +255,14 @@
+     else:
+         confirm_html = '<h1 id="confirm">สิ่งที่ต้องยืนยัน</h1><p>ไม่มีรายการ [TO CONFIRM] ค้างอยู่ในเอกสารนี้</p>'
+     title_html = f"""<div class="title"><div class="conf">Strictly Confidential</div>
+-<h1>Forward Deployed AI Engineer Assignment — Answers 2–4</h1>
+-<div class="meta"><b>Candidate:</b> {CANDIDATE_NAME}<br><b>Date:</b> {DOC_DATE}<br><b>Source:</b> Sunday, Forward Deployed AI-Eng 2026 Assignment, pp. 7, 9, 11<br>
+-<b>Contents:</b> Assignment 2 (2.1–2.3) · Assignment 3 (3.1–3.4) · Assignment 4 (4.1–4.5)</div>
++<h1>Forward Deployed AI Engineer Assignment — Answers 2–3</h1>
++<div class="meta"><b>Candidate:</b> {CANDIDATE_NAME}<br><b>Date:</b> {DOC_DATE}<br><b>Source:</b> Sunday, Forward Deployed AI-Eng 2026 Assignment, pp. 7, 9<br>
++<b>Contents:</b> Assignment 2 (2.1–2.3) · Assignment 3 (3.1–3.4)</div>
+ <div class="note">เอกสารลับ — ใช้เพื่อการพิจารณางานนี้เท่านั้น ห้ามเผยแพร่ ข้อเสนอในเอกสารนี้ไม่ใช่ระบบที่ทำงานอยู่จริง ยกเว้นส่วนที่ระบุชัดว่าเป็นของที่มีอยู่และตรวจแล้ว</div></div>"""
+-    doc = f"<!doctype html><html lang='th'><head><meta charset='utf-8'><title>Assignment 2-4 — {CANDIDATE_NAME}</title><style>{CSS % {'f': FONTS.as_uri(), 'name': CANDIDATE_NAME}}</style></head><body>{title_html}{toc_html}{''.join(body_parts)}{confirm_html}</body></html>"
++    doc = f"<!doctype html><html lang='th'><head><meta charset='utf-8'><title>Assignment 2-3 — {CANDIDATE_NAME}</title><style>{CSS % {'f': FONTS.as_uri(), 'name': CANDIDATE_NAME}}</style></head><body>{title_html}{toc_html}{''.join(body_parts)}{confirm_html}</body></html>"
+     html_path = OUT_DIR / "_build.html"
+     html_path.write_text(doc, encoding="utf-8")
+-    out = OUT_DIR / "Assignment_2_to_4.pdf"
++    out = OUT_DIR / "Assignment_2_to_3.pdf"
+     HTML(string=doc).write_pdf(str(out))
+     html_path.unlink()
+     print("wrote", out, f"({out.stat().st_size/1024:.0f} KB); TO CONFIRM markers listed: {len(confirms)}")
