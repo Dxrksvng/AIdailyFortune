@@ -33,12 +33,28 @@
         <div class="field"><label for="bplace">สถานที่เกิด</label>
           <select id="bplace">
             <option value="13.7563,100.5018">กรุงเทพมหานคร</option>
-            <option value="13.3611,100.9847">ชลบุรี (เมือง)</option>
-            <option value="13.1736,100.9322">ศรีราชา ชลบุรี (อ่าวอุดม)</option>
             <option value="18.7883,98.9853">เชียงใหม่</option>
+            <option value="19.9072,99.8310">เชียงราย</option>
+            <option value="16.8211,100.2659">พิษณุโลก</option>
+            <option value="14.3532,100.5689">พระนครศรีอยุธยา</option>
+            <option value="13.3611,100.9847">ชลบุรี (เมือง)</option>
+            <option value="13.1000,100.9100">ชลบุรี · ศรีราชา (อ่าวอุดม)</option>
             <option value="16.4322,102.8236">ขอนแก่น</option>
+            <option value="17.4138,102.7870">อุดรธานี</option>
+            <option value="14.9799,102.0978">นครราชสีมา</option>
+            <option value="15.2448,104.8473">อุบลราชธานี</option>
+            <option value="9.1382,99.3215">สุราษฎร์ธานี</option>
+            <option value="8.4304,99.9631">นครศรีธรรมราช</option>
+            <option value="7.8804,98.3923">ภูเก็ต</option>
             <option value="7.0084,100.4747">หาดใหญ่</option>
+            <option value="custom">อื่น ๆ (กรอกพิกัดเอง)</option>
           </select>
+          <small class="muted" style="font-size:.72rem">พิกัดเป็นค่าประมาณระดับตัวเมือง/ตำบลที่ยังไม่ได้ตรวจกับแหล่งอ้างอิง ถ้ารู้พิกัดจริงให้เลือก “อื่น ๆ”</small>
+        </div>
+        <div class="row2" id="customPlace" hidden>
+          <div class="field"><label for="blat">ละติจูด (−90 ถึง 90)</label><input type="number" id="blat" step="0.0001" min="-90" max="90" placeholder="13.1000"></div>
+          <div class="field"><label for="blon">ลองจิจูด (−180 ถึง 180)</label><input type="number" id="blon" step="0.0001" min="-180" max="180" placeholder="100.9100"></div>
+          <div class="field" style="grid-column:1/-1"><label for="btz">เขตเวลา (IANA)</label><input type="text" id="btz" value="Asia/Bangkok" autocomplete="off" placeholder="Asia/Bangkok"></div>
         </div>
         <div class="field"><label for="byears">ดูล่วงหน้า</label>
           <select id="byears"><option>3</option><option selected>5</option><option>10</option></select>
