@@ -2,6 +2,7 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { createHash, randomUUID } from 'node:crypto';
 import { readingFor } from './lib/compass.js';
 import { withNarrative } from './lib/narrative.js';
 import { answerQuestion, periodReading, TOPICS, HORIZONS } from './lib/oracle.js';
@@ -10,8 +11,23 @@ import { vedicTiming } from './lib/vedic.js';
 import { ritualGuide } from './lib/ritual.js';
 import { lifeTimeline } from './lib/life.js';
 import { HOTLINE } from './lib/safety.js';
+import { deepReading, chatWithPersona } from './lib/reading.js';
+import { quotaFromEnv } from './lib/quota.js';
 import { dailyCard, tarotReading, spreadForTopic } from './lib/oracle.js';
 import { readingFor as readingForDate } from './lib/compass.js';
+
+// Sent on every response. Styles keep 'unsafe-inline' because the pages use style attributes;
+// scripts, images, media, fonts and fetch are same-origin only (the page makes no external request).
+const SECURITY_HEADERS = {
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'no-referrer',
+  'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+  'content-security-policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+};
+// HTML, scripts and styles are not fingerprinted, so they are revalidated (ETag, 304) on each visit.
+// Images, fonts and video change rarely, so the browser may reuse them for a day.
+const CACHEABLE = new Set(['.webp', '.png', '.woff2', '.mp4', '.webm', '.svg']);
+const cacheControl = ext => CACHEABLE.has(ext) ? 'public, max-age=86400' : 'no-cache';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 export const PAGES = new Set(['today', 'ask', 'tarot', 'chart', 'ritual', 'honest', 'care']);
@@ -22,16 +38,56 @@ async function withIncludes(html) {
   for (const name of names) html = html.replaceAll(`<!--include:${name}-->`, await readFile(path.join(root, '_partials', `${name}.html`), 'utf8'));
   return html;
 }
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.webm': 'video/webm', '.mp4': 'video/mp4', '.webp': 'image/webp', '.png': 'image/png', '.woff2': 'font/woff2' };
 
-export function createServer() {
+/**
+ * options.rateLimitPerMinute: API requests allowed per client address per minute (env RATE_LIMIT_PER_MIN, default 300).
+ * options.log: write one JSON line per request (env LOG_REQUESTS=1). Only the path is logged, never the query string or
+ * a body, because /ask?q= carries the user's question.
+ */
+export function createServer(options = {}) {
+  const limit = options.rateLimitPerMinute ?? (Number(process.env.RATE_LIMIT_PER_MIN) || 300);
+  const logging = options.log ?? process.env.LOG_REQUESTS === '1';
+  const hits = new Map();
+  const quota = options.quota ?? quotaFromEnv();
+  const tooMany = req => {
+    const now = Date.now(), key = req.socket.remoteAddress || 'unknown';
+    if (hits.size > 5000) for (const [k, v] of hits) if (v.reset <= now) hits.delete(k);
+    let entry = hits.get(key);
+    if (!entry || entry.reset <= now) { entry = { count: 0, reset: now + 60_000 }; hits.set(key, entry); }
+    entry.count++;
+    return entry.count > limit ? Math.ceil((entry.reset - now) / 1000) : 0;
+  };
   return http.createServer(async (req, res) => {
+    const started = Date.now(), id = randomUUID().slice(0, 8);
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) res.setHeader(name, value);
+    res.setHeader('x-request-id', id);
+    if (logging) res.on('finish', () => console.log(JSON.stringify({ t: new Date().toISOString(), id, method: req.method, path: (req.url || '').split('?')[0], status: res.statusCode, ms: Date.now() - started })));
     try {
       const url = new URL(req.url, 'http://localhost');
+      if (url.pathname.startsWith('/api/')) {
+        const wait = tooMany(req);
+        if (wait) { res.setHeader('retry-after', wait); return send(res, 429, { error: 'Too many requests' }); }
+      }
       if (req.method === 'POST' && url.pathname === '/api/ask') {
         try {
           const input = await readJson(req);
           return send(res, 200, answerQuestion(input));
+        } catch (err) { return send(res, err.message === 'Body too large' ? 413 : 400, { error: err.message }); }
+      }
+      if (req.method === 'POST' && (url.pathname === '/api/deep-reading' || url.pathname === '/api/persona-chat')) {
+        try {
+          const input = await readJson(req, 16384);
+          const kind = url.pathname === '/api/deep-reading' ? 'deep-reading' : 'persona-chat';
+          const deviceId = req.headers['x-device-id'];
+          // Without a free allowance the call still returns the calculated evidence, just without the LLM.
+          let grant = { allowed: false, reason: 'no-consent' };
+          if (input.consent === true) grant = quota.take(kind, deviceId);
+          const result = await (kind === 'deep-reading' ? deepReading : chatWithPersona)({ ...input, consent: input.consent === true && grant.allowed });
+          const aiUsed = grant.allowed && /^OpenAI/.test(result.source || '');
+          if (grant.allowed && !aiUsed) quota.refund(kind, deviceId);
+          const remaining = grant.allowed ? grant.remaining + (aiUsed ? 0 : 1) : 0;
+          return send(res, 200, { ...result, quota: { aiAllowed: grant.allowed, aiUsed, reason: grant.allowed && !aiUsed ? 'ai-unavailable' : grant.reason ?? null, remaining } });
         } catch (err) { return send(res, err.message === 'Body too large' ? 413 : 400, { error: err.message }); }
       }
       if (req.method === 'POST' && url.pathname === '/api/natal-chart') {
@@ -101,17 +157,31 @@ export function createServer() {
       if (!resolved.startsWith(root + path.sep) || path.relative(root, resolved).split(path.sep).some(part => part.startsWith('_'))) return send(res, 404, { error: 'Not found' });
       let body = await readFile(resolved);
       if (file.endsWith('.html')) body = await withIncludes(body.toString('utf8'));
-      res.writeHead(200, { 'content-type': types[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
+      const ext = path.extname(file);
+      const etag = `"${createHash('sha1').update(body).digest('base64url').slice(0, 20)}"`;
+      const headers = { 'content-type': types[ext] || 'application/octet-stream', 'cache-control': cacheControl(ext), etag };
+      if (req.headers['if-none-match'] === etag) { res.writeHead(304, { 'cache-control': headers['cache-control'], etag }); return res.end(); }
+      // Safari and iOS will not play a video unless the server answers Range requests with 206.
+      const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+      if (range && /^video\//.test(headers['content-type'])) {
+        const size = body.length;
+        const start = range[1] === '' ? size - Number(range[2]) : Number(range[1]);
+        const end = range[1] === '' || range[2] === '' ? size - 1 : Math.min(Number(range[2]), size - 1);
+        if (!(start >= 0 && start <= end && start < size)) { res.writeHead(416, { 'content-range': `bytes */${size}` }); return res.end(); }
+        res.writeHead(206, { ...headers, 'accept-ranges': 'bytes', 'content-range': `bytes ${start}-${end}/${size}`, 'content-length': end - start + 1 });
+        return res.end(body.subarray(start, end + 1));
+      }
+      res.writeHead(200, { ...headers, 'accept-ranges': 'bytes' });
       res.end(body);
     } catch { send(res, 404, { error: 'Not found' }); }
   });
 }
 
-async function readJson(req) {
+async function readJson(req, maxBytes = 8192) {
   let body = '';
   for await (const chunk of req) {
     body += chunk;
-    if (body.length > 8192) throw new Error('Body too large');
+    if (body.length > maxBytes) throw new Error('Body too large');
   }
   let value;
   try { value = JSON.parse(body); } catch { throw new Error('Invalid JSON'); }
@@ -122,6 +192,13 @@ async function readJson(req) {
 function send(res, status, payload) {
   res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
   res.end(JSON.stringify(payload));
+}
+
+// Vercel's Node runtime loads server.js as the application entry point.
+// Reuse the same request listener as local development without opening a port.
+const serverlessApp = createServer();
+export default function handler(request, response) {
+  serverlessApp.emit('request', request, response);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

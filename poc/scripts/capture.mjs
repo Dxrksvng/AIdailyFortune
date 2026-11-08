@@ -58,8 +58,10 @@ const { context, page, log } = await newSession(1280, 800);
 await page.goto(base + '/', { waitUntil: 'networkidle' });
 check('home: 7 feature cards, one per page', (await page.locator('.features a.feature').count()) === 7);
 check('home: no feature sections on the home page', (await page.locator('main section.block').count()) === 1);
-const homeHeight = await page.evaluate(() => document.documentElement.scrollHeight);
-check('home: page is short (not one long scroll)', homeHeight < 2400, `scrollHeight=${homeHeight}`);
+// the scrollytelling stage is tall on purpose (four screens of pinned scenes); everything else must stay short
+const home = await page.evaluate(() => ({ total: document.documentElement.scrollHeight, story: document.querySelector('#story').offsetHeight }));
+check('home: scrollytelling stage has four steps and four video layers', (await page.locator('#story .step').count()) === 4 && (await page.locator('#story video.reel').count()) === 4);
+check('home: page outside the story stage is short', home.total - home.story < 2400, `scrollHeight=${home.total} story=${home.story}`);
 await page.click('.features a[href="/tarot"]');
 await page.waitForURL(/\/tarot$/);
 await page.waitForSelector('#spread .slot');

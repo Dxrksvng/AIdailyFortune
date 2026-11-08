@@ -9,7 +9,8 @@
     "start": "node server.js",
     "test": "node --test",
     "precapture": "npm run build",
-    "capture": "node scripts/capture.mjs"
+    "capture": "node scripts/capture.mjs",
+    "eval": "node scripts/eval-router.mjs --check && node scripts/eval-router.mjs --file eval/heldout.json --check"
   },
   "dependencies": {
     "astronomy-engine": "2.1.19",

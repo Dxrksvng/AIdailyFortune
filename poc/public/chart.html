@@ -34,9 +34,27 @@
           <select id="bplace">
             <option value="13.7563,100.5018">กรุงเทพมหานคร</option>
             <option value="18.7883,98.9853">เชียงใหม่</option>
+            <option value="19.9072,99.8310">เชียงราย</option>
+            <option value="16.8211,100.2659">พิษณุโลก</option>
+            <option value="14.3532,100.5689">พระนครศรีอยุธยา</option>
+            <option value="13.3611,100.9847">ชลบุรี (เมือง)</option>
+            <option value="13.1000,100.9100">ชลบุรี · ศรีราชา (อ่าวอุดม)</option>
             <option value="16.4322,102.8236">ขอนแก่น</option>
+            <option value="17.4138,102.7870">อุดรธานี</option>
+            <option value="14.9799,102.0978">นครราชสีมา</option>
+            <option value="15.2448,104.8473">อุบลราชธานี</option>
+            <option value="9.1382,99.3215">สุราษฎร์ธานี</option>
+            <option value="8.4304,99.9631">นครศรีธรรมราช</option>
+            <option value="7.8804,98.3923">ภูเก็ต</option>
             <option value="7.0084,100.4747">หาดใหญ่</option>
+            <option value="custom">อื่น ๆ (กรอกพิกัดเอง)</option>
           </select>
+          <small class="muted" style="font-size:.72rem">พิกัดเป็นค่าประมาณระดับตัวเมือง/ตำบลที่ยังไม่ได้ตรวจกับแหล่งอ้างอิง ถ้ารู้พิกัดจริงให้เลือก “อื่น ๆ”</small>
+        </div>
+        <div class="row2" id="customPlace" hidden>
+          <div class="field"><label for="blat">ละติจูด (−90 ถึง 90)</label><input type="number" id="blat" step="0.0001" min="-90" max="90" placeholder="13.1000"></div>
+          <div class="field"><label for="blon">ลองจิจูด (−180 ถึง 180)</label><input type="number" id="blon" step="0.0001" min="-180" max="180" placeholder="100.9100"></div>
+          <div class="field" style="grid-column:1/-1"><label for="btz">เขตเวลา (IANA)</label><input type="text" id="btz" value="Asia/Bangkok" autocomplete="off" placeholder="Asia/Bangkok"></div>
         </div>
         <div class="field"><label for="byears">ดูล่วงหน้า</label>
           <select id="byears"><option>3</option><option selected>5</option><option>10</option></select>
@@ -58,9 +76,36 @@
     </div>
   </div>
 </section>
+<section class="block" id="mae-mor">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">อ่านลึก · คุยกับแม่หมอ AI</span><h2>ให้แม่หมอ AI อธิบายเหตุผลจากดวงของคุณ</h2></div>
+      <span class="tag exp">ทดลอง · AI ไม่ใช่หมอดูที่เป็นมนุษย์</span>
+    </div>
+    <div class="glass reveal" style="display:grid;gap:1rem;max-width:820px">
+      <p class="muted" style="font-size:.85rem">กรอกข้อมูลเกิดและกด “คำนวณดวงกำเนิด” ด้านบนก่อน แม่หมอจะเล่าเฉพาะสิ่งที่คำนวณได้จริงจากดวงของคุณ พร้อมรหัสหลักฐานที่อ้างอิง ไม่ใช่การทำนายที่พิสูจน์ได้ และไม่ใช่คำแนะนำด้านสุขภาพ กฎหมาย หรือการเงิน</p>
+      <div class="row2">
+        <div class="field"><label for="rtopic">หัวข้อ</label>
+          <select id="rtopic"><option value="general">ภาพรวม</option><option value="love">ความรัก</option><option value="career">การงาน</option><option value="study">การเรียน</option><option value="money">การเงิน</option></select>
+        </div>
+        <div class="field"><label for="rq">ช่วงนี้อยากรู้หรือกังวลเรื่องอะไร (ไม่บังคับ)</label><input type="text" id="rq" maxlength="300" autocomplete="off" placeholder="เช่น กำลังคิดเรื่องย้ายงาน"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="rconsent"> ฉันยินยอมให้ส่งข้อมูลเกิดและข้อความนี้ให้ผู้ให้บริการ AI ภายนอกประมวลผลครั้งนี้</label>
+      <button class="btn" type="button" id="rgo">อ่านดวงลึก</button>
+      <p class="muted" id="rquota" style="font-size:.75rem" aria-live="polite"></p>
+      <div id="rout" aria-live="polite"></div>
+      <div class="thread" id="rthread"></div>
+      <form id="rchat" style="display:grid;grid-template-columns:1fr auto;gap:.5rem" hidden>
+        <input type="text" id="rmsg" maxlength="300" autocomplete="off" aria-label="พิมพ์ถามแม่หมอ AI" placeholder="ถามต่อจากที่แม่หมออ่าน">
+        <button class="btn" type="submit">ส่ง</button>
+      </form>
+    </div>
+  </div>
+</section>
 </main>
 <!--include:bottom-->
 <script type="module" src="/js/chart.js"></script>
+<script type="module" src="/js/reading.js"></script>
 <script type="module" src="/scene.bundle.js"></script>
 </body>
 </html>

@@ -1,4 +1,10 @@
-import * as Astronomy from 'astronomy-engine';
+import { createRequire } from 'node:module';
+
+// astronomy-engine@2.1.19 publishes its ESM file without a nested
+// package.json declaring module syntax. Use its supported CommonJS export so
+// Node serverless runtimes load it consistently.
+const require = createRequire(import.meta.url);
+const Astronomy = require('astronomy-engine');
 import { RULES_TH, ELEMENT_FOCUS_TH } from './th.js';
 
 export const RULE_VERSION = 'moonphase-v1';

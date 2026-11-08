@@ -89,28 +89,37 @@ export function routeQuestion(question, requestedMethod) {
   const support = /เครียด|กังวล|หมดแรง|เหนื่อยใจ|หนักใจ|\b(stress(?:ed)?|anxious|anxiety|burn.?out|overwhelmed)\b/i.test(q);
   const lifeSpan = q.match(/(?:อีก\s*)?(\d+)\s*ปี(?:ข้างหน้า)?|next\s+(\d+)\s+years|ชีวิต.*(?:ปีข้างหน้า|ในอนาคต)|(?:ปีข้างหน้า)/i);
   if (lifeSpan && !support) { const n = Number(lifeSpan[1] || lifeSpan[2] || 5); return { intent: 'life-timeline', method: 'timeline', topic: 'general', horizon: 'year', years: Math.min(MAX_YEARS, Math.max(1, n)), spread: null, reason: 'Multi-year question: use the life timeline when a birth profile is available.' }; }
-  const belief = /deit|god|goddess|worship|pray|เทพ|บูชา|นับถือ/i.test(q);
+  const belief = /deit|god|goddess|worship|pray|เทพ|บูชา|นับถือ|ไหว้พระ|ไหว้เจ้า|ไหว้ศาล|สักการะ|ขอพร/i.test(q);
   if (belief) return { intent: 'belief', method: 'belief', topic: 'general', horizon: 'day', spread: null, reason: 'Belief questions need a tradition and user preference, not an assigned deity.' };
+  // Topics the system does not have reviewed rules for. Say so instead of returning an unrelated daily reading.
+  const unsupportedKind = /เบอร์(?:มงคล|โทร|โทรศัพท์|มือถือ)|ทะเบียน(?:รถ)?(?:เลข|มงคล)|เลขมงคล|phone number|license plate|lucky number/i.test(q) ? 'lucky-number'
+    : /ฤกษ์|วันมงคล|วันไหน(?:ดี|เหมาะ)|วันดี|(?:best|auspicious|good)\s+(?:date|day)\b|date to (?:move|marry|open)/i.test(q) ? 'auspicious-date'
+    : /เปลี่ยนชื่อ|ตั้งชื่อ|ชื่อมงคล|ชื่อ.*(?:ให้ดวง|เสริม)|\b(?:change|rename) my name\b/i.test(q) ? 'name' : null;
+  if (unsupportedKind) return { intent: 'unsupported', method: 'none', kind: unsupportedKind, topic: 'general', horizon: 'day', topicExplicit: true, horizonExplicit: true, spread: null, reason: 'No reviewed rules for this kind of question; say so instead of answering with an unrelated reading.' };
   const decision = /\b(a or b|choose between|which option|should i choose)\b|เลือก.*หรือ|ระหว่าง.+กับ|[aA]\s*กับ\s*[bB]|เอหรือบี/i.test(q);
-  const relationship = /\b(ex|former partner|come back|relationship|love)\b|แฟนเก่า|คนเก่า|กลับมา|ความรัก|แฟน/i.test(q);
-  const job = /\b(interview|offer|hired|job|career)\b|สัมภาษณ์|ได้งาน|สมัครงาน|การงาน|มีงานทำ|หางาน|งานใหม่|เปลี่ยนงาน/i.test(q);
-  const color = /\b(colou?r|wear today|lucky)\b|สีอะไร|สีมงคล|แก้เคล็ด|โชคไม่ดี|โชคร้าย|ของมงคล|เครื่องราง|ถือ.*(?:อะไร|ดี)|ไม่ควร.*(?:ปากเสียง|เดินทาง)|ระวัง/i.test(q);
-  const year = /\b(year|years|next few years)\b|ปีหน้า|อีก\s*\d+\s*ปี|รายปี/i.test(q);
+  const relationship = /\b(ex|former partner|come back|relationship|love|boyfriend|girlfriend|crush|soulmate)\b|แฟนเก่า|คนเก่า|กลับมา|ความรัก|แฟน|เนื้อคู่|คู่ครอง|ชอบเรา|เขาชอบ|จีบ|เลิกกัน|คืนดี|สามี|ภรรยา|แต่งงาน(?!วัน)/i.test(q);
+  const job = /\b(interview|offer|hired|job|career|promot(?:ed|ion)|laid off|fired|resign|unemployed|salary|raise)\b|สัมภาษณ์|ได้งาน|สมัครงาน|การงาน|มีงานทำ|หางาน|งานใหม่|เปลี่ยนงาน|เลิกจ้าง|ตกงาน|ลาออก|เลื่อนตำแหน่ง|เงินเดือน|หัวหน้า|ที่ทำงาน|งาน(?!แต่ง|บุญ)/i.test(q);
+  const color = /\b(colou?r|wear today|lucky)\b|สีอะไร|สีมงคล|แก้เคล็ด|โชคไม่ดี|โชคร้าย|ของมงคล|เครื่องราง|ถือ.*(?:อะไร|ดี)|พกอะไร|แก้เคราะห์|เสริมดวง|เสริมโชค|ไม่ควร.*(?:ปากเสียง|เดินทาง)|ระวัง/i.test(q);
+  const year = /\b(year|years|next few years)\b|ปีหน้า|ปีนี้|ทั้งปี|อีก\s*\d+\s*ปี|รายปี/i.test(q);
   const month = /\b(month|monthly)\b|เดือนหน้า|เดือนนี้|รายเดือน/i.test(q);
   const week = /\b(week|weekly)\b|สัปดาห์|รายสัปดาห์/i.test(q);
-  const studyHit = /\b(study|school|exam)\b|เรียน|สอบ/i.test(q);
+  const studyHit = /\b(study|school|exam|scholarship|university)\b|เรียน|สอบ|(?<!ลง)ทุน(?:เรียน|การศึกษา)?|มหาลัย|มหาวิทยาลัย|เทอม|ปริญญา/i.test(q);
   // investing and lottery questions are money questions; health/legal ones are general ones,
   // so a UI default of "career" can never turn them into résumé advice
-  const moneyHit = /\b(money|finance|budget|invest|stock|crypto|lotter)\b|การเงิน|เงิน|ลงทุน|หุ้น|คริปโต|หวย|เลขเด็ด|ลอตเตอรี่/i.test(q);
-  const sensitiveHit = /ป่วย|โรค(?!ง)|หมอ(?!ดู)|มะเร็ง|(?:กิน|ทาน|หยุด|เลิก|เปลี่ยน|ปรับ|เพิ่ม|ลด)ยา|ฟ้อง|คดี|ตายไหม|medic|diagnos|lawsuit|court|cancer/i.test(q);
+  const moneyHit = /\b(money|finance|budget|invest|stock|crypto|debt|savings|bonus)\b|\blotter[a-z]*|การเงิน|เงิน(?!เดือน)|ลงทุน|หุ้น|คริปโต|หวย|เลขเด็ด|ลอตเตอรี่|หนี้|โบนัส|รายได้/i.test(q);
+  const sensitiveHit = /ป่วย|โรค(?!ง)|หมอ(?!ดู)|มะเร็ง|(?:กิน|ทาน|หยุด|เลิก|เปลี่ยน|ปรับ|เพิ่ม|ลด)ยา|ฟ้อง|(?<!โช)คดี|ตายไหม|medic|diagnos|lawsuit|court|cancer/i.test(q);
   const topicExplicit = Boolean(relationship || job || studyHit || moneyHit || sensitiveHit);
   const horizonExplicit = Boolean(year || month || week);
-  const topic = relationship ? 'love' : job ? 'career' : studyHit ? 'study' : moneyHit ? 'money' : 'general';
+  // A question that touches several life areas ("work and love this year") gets the overall reading,
+  // not whichever keyword happened to match first.
+  const topics = [relationship && 'love', job && 'career', studyHit && 'study', moneyHit && 'money'].filter(Boolean);
+  const multi = topics.length > 1;
+  const topic = multi ? 'general' : topics[0] || 'general';
   const horizon = year ? 'year' : month ? 'month' : week ? 'week' : 'day';
-  let method = requestedMethod && requestedMethod !== 'auto' ? requestedMethod : decision ? 'iching' : (relationship || /สัมภาษณ์|ได้งาน|interview|hired/i.test(q)) ? 'tarot' : 'western';
+  let method = requestedMethod && requestedMethod !== 'auto' ? requestedMethod : decision ? 'iching' : ((!multi && relationship) || /สัมภาษณ์|ได้งาน|interview|hired|job offer|\boffer\b/i.test(q)) ? 'tarot' : 'western';
   if (method === 'belief') return { intent: 'belief', method, topic, horizon, spread: null, reason: 'Belief questions need a tradition and user preference, not an assigned deity.' };
-  const intent = support ? 'support' : color ? 'ritual' : decision ? 'decision' : relationship ? 'relationship' : job ? 'career' : 'general';
-  return { intent, method, topic, horizon, topicExplicit, horizonExplicit, spread: method === 'tarot' ? spreadForTopic(topic) : null, reason: requestedMethod && requestedMethod !== 'auto' ? 'User selected this method.' : 'Rule-based question routing; the user may override the method.' };
+  const intent = support ? 'support' : color ? 'ritual' : decision ? 'decision' : multi ? 'general' : relationship ? 'relationship' : job ? 'career' : 'general';
+  return { intent, method, topic, ...(multi ? { topics } : {}), horizon, topicExplicit, horizonExplicit, spread: method === 'tarot' ? spreadForTopic(topic) : null, reason: requestedMethod && requestedMethod !== 'auto' ? 'User selected this method.' : 'Rule-based question routing; the user may override the method.' };
 }
 
 function secureIndex(max) {
@@ -269,6 +278,14 @@ function answerCore({ question, date, timezone, sign = null, method = 'auto', sp
     const x = SUPPORT[L];
     return { route, answer: { type: 'support', method: 'reflection', scenario: SUPPORT.en.message, message: x.message, steps: x.steps, care: x.care, action: x.steps[0], limits: 'Supportive reflection only; not medical or mental-health advice.' } };
   }
+  if (route.intent === 'unsupported') {
+    const what = { th: { 'lucky-number': 'เบอร์หรือเลขมงคล', 'auspicious-date': 'ฤกษ์และวันมงคล', name: 'ชื่อมงคล' }, en: { 'lucky-number': 'lucky numbers', 'auspicious-date': 'auspicious dates', name: 'lucky names' } }[L][route.kind];
+    return { route, answer: { type: 'unsupported', method: 'none', kind: route.kind,
+      scenario: `This system has no reviewed rules for ${what}, so it does not answer instead of guessing.`,
+      message: L === 'th' ? `เรื่อง${what}ต้องใช้ตำราและผู้เชี่ยวชาญตรวจกฎ ระบบนี้ยังไม่รองรับ จึงไม่ตอบแทนการเดา` : `This system has no reviewed rules for ${what}, so it does not answer instead of guessing.`,
+      steps: L === 'th' ? ['ถามเรื่องงาน ความรัก เงิน หรือการเรียนได้', 'ดูสีและพระประจำวันที่หน้าสีมงคล', 'เรื่องสำคัญ เช่น การเลือกวันแต่งงานหรือเปิดกิจการ ควรปรึกษาผู้เชี่ยวชาญที่คุณไว้ใจ'] : ['Ask about work, love, money or study.', 'See the colour of the day on the rituals page.', 'For an important choice such as a wedding or opening date, consult someone you trust.'],
+      action: L === 'th' ? 'ลองถามเรื่องที่ระบบรองรับ' : 'Try a topic the system supports', limits: 'Not supported yet: needs reviewed traditional rules.' } };
+  }
   if (route.method === 'belief') return { route, answer: { type: 'belief', method: 'belief exploration', scenario: 'No system can objectively assign a deity or guarantee that worship will improve life.', action: 'Consider your own tradition, values and comfort. If you wish, ask a trusted person from that tradition about respectful practices.', limits: 'No religious preference is inferred or stored.', ...(thai ? { message: 'ระบบไม่สามารถระบุได้ว่าเทพองค์ใดถูกกำหนดมาให้คุณ หรือรับรองว่าการบูชาจะทำให้ชีวิตดีขึ้น ลองเริ่มจากความเชื่อและประเพณีที่คุณนับถือ แล้วศึกษาวิธีปฏิบัติจากแหล่งที่เชื่อถือได้' } : {}) } };
   if (spread !== null) {
     if (!SPREADS[spread]) throw new Error('Invalid Tarot spread');
@@ -333,7 +350,7 @@ export function answerQuestion(input) {
   const result = answerCore(input);
   const { route, answer } = result;
   if (safety.level === 'warn') answer.safety = { level: 'warn', cats: safety.cats, notice: noticeFor(safety.cats, L) };
-  if (['safety', 'belief', 'accuracy', 'support', 'needs-profile'].includes(answer.type)) return result;
+  if (['safety', 'belief', 'accuracy', 'support', 'needs-profile', 'unsupported'].includes(answer.type)) return result;
   // Qualitative confidence: how much the inputs support this kind of reading. Not a probability.
   const reasons = [DOWN[L].base];
   let level = 2;
