@@ -1,4 +1,7 @@
-import * as Astronomy from 'astronomy-engine';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const Astronomy = require('astronomy-engine');
 import { localNoonUtc, validDate, validTimezone } from './compass.js';
 
 const SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];

@@ -6,7 +6,7 @@ import path from 'node:path';
 const pub = new URL('../public/', import.meta.url).pathname;
 const read = name => readFile(path.join(pub, name), 'utf8');
 const PAGES = ['index', 'today', 'ask', 'tarot', 'chart', 'ritual', 'honest', 'care'];
-const MODULES = ['common', 'home', 'today', 'ask', 'tarot', 'chart', 'ritual', 'honest', 'care'];
+const MODULES = ['common', 'home', 'today', 'ask', 'tarot', 'chart', 'reading', 'ritual', 'honest', 'care'];
 const readAll = async () => ({ html: (await Promise.all(PAGES.map(p => read(p + '.html')))).join('\n') + (await read('_partials/top.html')) + (await read('_partials/bottom.html')), js: (await Promise.all(MODULES.map(m => read(`js/${m}.js`)))).join('\n') });
 const exists = async file => access(file).then(() => true, () => false);
 

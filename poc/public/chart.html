@@ -76,9 +76,36 @@
     </div>
   </div>
 </section>
+<section class="block" id="mae-mor">
+  <div class="wrap">
+    <div class="head reveal">
+      <div><span class="eyebrow">อ่านลึก · คุยกับแม่หมอ AI</span><h2>ให้แม่หมอ AI อธิบายเหตุผลจากดวงของคุณ</h2></div>
+      <span class="tag exp">ทดลอง · AI ไม่ใช่หมอดูที่เป็นมนุษย์</span>
+    </div>
+    <div class="glass reveal" style="display:grid;gap:1rem;max-width:820px">
+      <p class="muted" style="font-size:.85rem">กรอกข้อมูลเกิดและกด “คำนวณดวงกำเนิด” ด้านบนก่อน แม่หมอจะเล่าเฉพาะสิ่งที่คำนวณได้จริงจากดวงของคุณ พร้อมรหัสหลักฐานที่อ้างอิง ไม่ใช่การทำนายที่พิสูจน์ได้ และไม่ใช่คำแนะนำด้านสุขภาพ กฎหมาย หรือการเงิน</p>
+      <div class="row2">
+        <div class="field"><label for="rtopic">หัวข้อ</label>
+          <select id="rtopic"><option value="general">ภาพรวม</option><option value="love">ความรัก</option><option value="career">การงาน</option><option value="study">การเรียน</option><option value="money">การเงิน</option></select>
+        </div>
+        <div class="field"><label for="rq">ช่วงนี้อยากรู้หรือกังวลเรื่องอะไร (ไม่บังคับ)</label><input type="text" id="rq" maxlength="300" autocomplete="off" placeholder="เช่น กำลังคิดเรื่องย้ายงาน"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="rconsent"> ฉันยินยอมให้ส่งข้อมูลเกิดและข้อความนี้ให้ผู้ให้บริการ AI ภายนอกประมวลผลครั้งนี้</label>
+      <button class="btn" type="button" id="rgo">อ่านดวงลึก</button>
+      <p class="muted" id="rquota" style="font-size:.75rem" aria-live="polite"></p>
+      <div id="rout" aria-live="polite"></div>
+      <div class="thread" id="rthread"></div>
+      <form id="rchat" style="display:grid;grid-template-columns:1fr auto;gap:.5rem" hidden>
+        <input type="text" id="rmsg" maxlength="300" autocomplete="off" aria-label="พิมพ์ถามแม่หมอ AI" placeholder="ถามต่อจากที่แม่หมออ่าน">
+        <button class="btn" type="submit">ส่ง</button>
+      </form>
+    </div>
+  </div>
+</section>
 </main>
 <!--include:bottom-->
 <script type="module" src="/js/chart.js"></script>
+<script type="module" src="/js/reading.js"></script>
 <script type="module" src="/scene.bundle.js"></script>
 </body>
 </html>

@@ -11,6 +11,8 @@ import { vedicTiming } from './lib/vedic.js';
 import { ritualGuide } from './lib/ritual.js';
 import { lifeTimeline } from './lib/life.js';
 import { HOTLINE } from './lib/safety.js';
+import { deepReading, chatWithPersona } from './lib/reading.js';
+import { quotaFromEnv } from './lib/quota.js';
 import { dailyCard, tarotReading, spreadForTopic } from './lib/oracle.js';
 import { readingFor as readingForDate } from './lib/compass.js';
 
@@ -47,6 +49,7 @@ export function createServer(options = {}) {
   const limit = options.rateLimitPerMinute ?? (Number(process.env.RATE_LIMIT_PER_MIN) || 300);
   const logging = options.log ?? process.env.LOG_REQUESTS === '1';
   const hits = new Map();
+  const quota = options.quota ?? quotaFromEnv();
   const tooMany = req => {
     const now = Date.now(), key = req.socket.remoteAddress || 'unknown';
     if (hits.size > 5000) for (const [k, v] of hits) if (v.reset <= now) hits.delete(k);
@@ -70,6 +73,21 @@ export function createServer(options = {}) {
         try {
           const input = await readJson(req);
           return send(res, 200, answerQuestion(input));
+        } catch (err) { return send(res, err.message === 'Body too large' ? 413 : 400, { error: err.message }); }
+      }
+      if (req.method === 'POST' && (url.pathname === '/api/deep-reading' || url.pathname === '/api/persona-chat')) {
+        try {
+          const input = await readJson(req, 16384);
+          const kind = url.pathname === '/api/deep-reading' ? 'deep-reading' : 'persona-chat';
+          const deviceId = req.headers['x-device-id'];
+          // Without a free allowance the call still returns the calculated evidence, just without the LLM.
+          let grant = { allowed: false, reason: 'no-consent' };
+          if (input.consent === true) grant = quota.take(kind, deviceId);
+          const result = await (kind === 'deep-reading' ? deepReading : chatWithPersona)({ ...input, consent: input.consent === true && grant.allowed });
+          const aiUsed = grant.allowed && /^OpenAI/.test(result.source || '');
+          if (grant.allowed && !aiUsed) quota.refund(kind, deviceId);
+          const remaining = grant.allowed ? grant.remaining + (aiUsed ? 0 : 1) : 0;
+          return send(res, 200, { ...result, quota: { aiAllowed: grant.allowed, aiUsed, reason: grant.allowed && !aiUsed ? 'ai-unavailable' : grant.reason ?? null, remaining } });
         } catch (err) { return send(res, err.message === 'Body too large' ? 413 : 400, { error: err.message }); }
       }
       if (req.method === 'POST' && url.pathname === '/api/natal-chart') {
@@ -159,11 +177,11 @@ export function createServer(options = {}) {
   });
 }
 
-async function readJson(req) {
+async function readJson(req, maxBytes = 8192) {
   let body = '';
   for await (const chunk of req) {
     body += chunk;
-    if (body.length > 8192) throw new Error('Body too large');
+    if (body.length > maxBytes) throw new Error('Body too large');
   }
   let value;
   try { value = JSON.parse(body); } catch { throw new Error('Invalid JSON'); }
@@ -174,6 +192,13 @@ async function readJson(req) {
 function send(res, status, payload) {
   res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' });
   res.end(JSON.stringify(payload));
+}
+
+// Vercel's Node runtime loads server.js as the application entry point.
+// Reuse the same request listener as local development without opening a port.
+const serverlessApp = createServer();
+export default function handler(request, response) {
+  serverlessApp.emit('request', request, response);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

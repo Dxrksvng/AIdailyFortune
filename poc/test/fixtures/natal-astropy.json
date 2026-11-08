@@ -1,0 +1,212 @@
+[
+ {
+  "birthDate": "1999-05-17",
+  "birthTime": "14:30",
+  "timezone": "Asia/Bangkok",
+  "utcOffsetMinutes": 420,
+  "latitude": 13.75,
+  "longitude": 100.5,
+  "expected": {
+   "Sun": 55.9716658052593,
+   "Moon": 81.79789476319482,
+   "Mercury": 46.06913210182981,
+   "Venus": 99.51334832022091,
+   "Mars": 206.6008221321752,
+   "Jupiter": 21.87399008296615,
+   "Saturn": 39.27384034456998,
+   "Uranus": 316.7843358307087,
+   "Neptune": 304.33961659771677,
+   "Ascendant": 357.59733781884256,
+   "Midheaven": 87.76252350252703
+  }
+ },
+ {
+  "birthDate": "1985-01-03",
+  "birthTime": "06:05",
+  "timezone": "Asia/Bangkok",
+  "utcOffsetMinutes": 420,
+  "latitude": 18.79,
+  "longitude": 98.98,
+  "expected": {
+   "Sun": 282.51589990146346,
+   "Moon": 53.35654805341768,
+   "Mercury": 259.75727299573174,
+   "Venus": 328.5490714730083,
+   "Mars": 336.6377895805949,
+   "Jupiter": 291.90717493257813,
+   "Saturn": 234.91318221238407,
+   "Uranus": 255.49299217701517,
+   "Neptune": 271.55634364668776,
+   "Ascendant": 89.32823947211311,
+   "Midheaven": 188.4387455827075
+  }
+ },
+ {
+  "birthDate": "2003-12-25",
+  "birthTime": "23:50",
+  "timezone": "Asia/Bangkok",
+  "utcOffsetMinutes": 420,
+  "latitude": 7.88,
+  "longitude": 98.39,
+  "expected": {
+   "Sun": 273.47209357923816,
+   "Moon": 305.21568499393277,
+   "Mercury": 276.67282993169636,
+   "Venus": 305.46388713131955,
+   "Mars": 5.37543017499274,
+   "Jupiter": 168.76702261055235,
+   "Saturn": 100.29154649540529,
+   "Uranus": 329.8128980471598,
+   "Neptune": 311.48342041289914,
+   "Ascendant": 354.52754230170456,
+   "Midheaven": 85.11285211594169
+  }
+ },
+ {
+  "birthDate": "1990-07-04",
+  "birthTime": "09:15",
+  "timezone": "America/New_York",
+  "utcOffsetMinutes": -240,
+  "latitude": 40.71,
+  "longitude": -74.0,
+  "expected": {
+   "Sun": 102.30898730771116,
+   "Moon": 243.30097742808286,
+   "Mercury": 104.53017595499452,
+   "Venus": 71.32919250601424,
+   "Mars": 24.489104296108618,
+   "Jupiter": 110.09054234234695,
+   "Saturn": 292.76773372829587,
+   "Uranus": 277.4141494849434,
+   "Neptune": 283.2145478060591,
+   "Ascendant": 326.08879947480307,
+   "Midheaven": 49.491199412224226
+  }
+ },
+ {
+  "birthDate": "1975-11-22",
+  "birthTime": "03:30",
+  "timezone": "America/New_York",
+  "utcOffsetMinutes": -300,
+  "latitude": 34.05,
+  "longitude": -118.24,
+  "expected": {
+   "Sun": 239.4102627393415,
+   "Moon": 99.78144395201566,
+   "Mercury": 235.68985115944065,
+   "Venus": 193.53504246754903,
+   "Mars": 90.84452843990587,
+   "Jupiter": 15.310333885318292,
+   "Saturn": 122.92464807984372,
+   "Uranus": 214.4597634772447,
+   "Neptune": 251.06211232097064,
+   "Ascendant": 343.14772359350786,
+   "Midheaven": 71.50490706134879
+  }
+ },
+ {
+  "birthDate": "1968-03-10",
+  "birthTime": "18:45",
+  "timezone": "Europe/London",
+  "utcOffsetMinutes": 60,
+  "latitude": 51.5,
+  "longitude": -0.12,
+  "expected": {
+   "Sun": 350.22657178199137,
+   "Moon": 118.53503986010385,
+   "Mercury": 322.8117403666551,
+   "Venus": 324.0560612312147,
+   "Mars": 17.156902723022846,
+   "Jupiter": 148.4396930193502,
+   "Saturn": 12.22112277906661,
+   "Uranus": 177.4795672426102,
+   "Neptune": 236.48581446036232,
+   "Ascendant": 349.1382097179868,
+   "Midheaven": 75.81076614431953
+  }
+ },
+ {
+  "birthDate": "2010-08-08",
+  "birthTime": "12:00",
+  "timezone": "Asia/Tokyo",
+  "utcOffsetMinutes": 540,
+  "latitude": 35.68,
+  "longitude": 139.69,
+  "expected": {
+   "Sun": 135.4866060073042,
+   "Moon": 107.457088503916,
+   "Mercury": 162.77227027503548,
+   "Venus": 180.99676783743524,
+   "Mars": 185.618636915535,
+   "Jupiter": 3.0085435859544813,
+   "Saturn": 181.5513646005445,
+   "Uranus": 0.15689502965005633,
+   "Neptune": 327.63244288308096,
+   "Ascendant": 42.17590648876558,
+   "Midheaven": 138.78324675501483
+  }
+ },
+ {
+  "birthDate": "1995-02-28",
+  "birthTime": "21:10",
+  "timezone": "Australia/Sydney",
+  "utcOffsetMinutes": 660,
+  "latitude": -33.87,
+  "longitude": 151.21,
+  "expected": {
+   "Sun": 339.3525434592942,
+   "Moon": 325.9671294214328,
+   "Mercury": 312.3621535726396,
+   "Venus": 297.0703600517978,
+   "Mars": 136.92272003893584,
+   "Jupiter": 253.81785230847643,
+   "Saturn": 344.31672186642413,
+   "Uranus": 298.7690927923107,
+   "Neptune": 294.6460532728805,
+   "Ascendant": 17.468338427124433,
+   "Midheaven": 100.55031872005748
+  }
+ },
+ {
+  "birthDate": "2024-02-29",
+  "birthTime": "00:05",
+  "timezone": "Asia/Bangkok",
+  "utcOffsetMinutes": 420,
+  "latitude": 13.75,
+  "longitude": 100.5,
+  "expected": {
+   "Sun": 339.59629829282954,
+   "Moon": 204.98121089002447,
+   "Mercury": 339.8988424066163,
+   "Venus": 314.89854709881297,
+   "Mars": 311.9182072934827,
+   "Jupiter": 41.09990284599349,
+   "Saturn": 339.74769658424765,
+   "Uranus": 49.54206862182184,
+   "Neptune": 356.69392995537277,
+   "Ascendant": 61.63503842468858,
+   "Midheaven": 152.81645974875113
+  }
+ },
+ {
+  "birthDate": "1980-06-21",
+  "birthTime": "16:20",
+  "timezone": "Europe/Paris",
+  "utcOffsetMinutes": 120,
+  "latitude": 48.85,
+  "longitude": 2.35,
+  "expected": {
+   "Sun": 90.33986706618938,
+   "Moon": 192.0509843520673,
+   "Mercury": 113.32699817210566,
+   "Venus": 80.56058180953067,
+   "Mars": 169.79762559423716,
+   "Jupiter": 154.6215977016137,
+   "Saturn": 170.94476210412654,
+   "Uranus": 232.12546450455275,
+   "Neptune": 261.04425438081074,
+   "Ascendant": 27.07114522637612,
+   "Midheaven": 124.93344765949206
+  }
+ }
+]
